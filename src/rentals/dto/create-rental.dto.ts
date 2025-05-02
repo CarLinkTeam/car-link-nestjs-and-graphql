@@ -23,4 +23,7 @@ export class CreateRentalDto {
 
   @IsIn(['active', 'inactive', 'pending', 'completed'])
   status: string;
+
+  @IsString()
+  client_id: string;
 }

@@ -11,6 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Rental } from './entities/rental.entity';
 import { DataSource, Repository } from 'typeorm';
 import { isUUID } from 'class-validator';
+import { User } from '../auth/entities/user.entity';
 
 @Injectable()
 export class RentalsService {
@@ -18,14 +19,24 @@ export class RentalsService {
   constructor(
     @InjectRepository(Rental)
     private readonly rentalRepository: Repository<Rental>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly dataSource: DataSource,
   ) {}
 
   async create(createRentalDto: CreateRentalDto) {
     try {
-      const { ...rentalData } = createRentalDto;
+      // Validar que el cliente exista
+      const { client_id, ...rentalData } = createRentalDto;
+
+      const user = await this.userRepository.findOneBy({ id: client_id });
+      if (!user) {
+        throw new NotFoundException(`User with ID "${client_id}" not found`);
+      }
+
       const rental = this.rentalRepository.create({
         ...rentalData,
+        client_id,
       });
       await this.rentalRepository.save(rental);
       return rental;
@@ -36,7 +47,9 @@ export class RentalsService {
 
   async findAll() {
     try {
-      return await this.rentalRepository.find({});
+      return await this.rentalRepository.find({
+        relations: ['client'],
+      });
     } catch (error) {
       this.handleExeptions(error);
     }
@@ -46,13 +59,17 @@ export class RentalsService {
     let rental: Rental | null;
 
     if (isUUID(term)) {
-      rental = await this.rentalRepository.findOneBy({ id: term });
+      rental = await this.rentalRepository.findOne({
+        where: { id: term },
+        relations: ['client'],
+      });
     } else {
       const queryBuilder = this.rentalRepository.createQueryBuilder('rental');
       rental = await queryBuilder
         .where('LOWER(rental.typeFuel) =:typeFuel', {
           typeFuel: term.toLowerCase(),
         })
+        .leftJoinAndSelect('rental.client', 'client')
         .getOne();
     }
     if (!rental)
@@ -63,6 +80,18 @@ export class RentalsService {
   }
 
   async update(id: string, updateRentalDto: UpdateRentalDto) {
+    // Validar que el cliente exista si se está actualizando el client_id
+    if (updateRentalDto.client_id) {
+      const user = await this.userRepository.findOneBy({
+        id: updateRentalDto.client_id,
+      });
+      if (!user) {
+        throw new NotFoundException(
+          `User with ID "${updateRentalDto.client_id}" not found`,
+        );
+      }
+    }
+
     const { ...rentalData } = updateRentalDto;
     const rental = await this.rentalRepository.preload({
       id: id,
@@ -111,7 +140,7 @@ export class RentalsService {
   private handleExeptions(error: any) {
     if (error.code === '23505') throw new BadGatewayException(error.detail);
 
-    this.logger.error(error.detail);
+    this.logger.error(error);
     throw new InternalServerErrorException(
       'Unexpected error, check server logs',
     );

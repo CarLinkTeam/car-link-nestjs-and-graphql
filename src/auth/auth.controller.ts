@@ -6,37 +6,49 @@ import {
   Patch,
   Param,
   Delete,
+  HttpCode,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { RegisterAuthDto } from './dto/register-auth.dto';
+import { LoginAuthDto } from './dto/login-auth.dto';
+import { Auth } from './decorators/auth.decorator';
+import { ValidRoles } from './enums/valid-roles.enum';
+import { GetUser } from './decorators/get-user.decorator';
+import { User } from './entities/user.entity';
+
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
+  @Post('register')
+  register(@Body() registerAuthDto: RegisterAuthDto) {
+    return this.authService.register(registerAuthDto);
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
+  @Post('login')
+  @HttpCode(200)
+  login(@Body() loginAuthDto: LoginAuthDto) {
+    return this.authService.login(loginAuthDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
+  @Post('promoteToOwner/:id')
+  @Auth(ValidRoles.ADMIN, ValidRoles.TENANT)
+  promoteToOwner(
+    @Param('id') userId: string,
+    @GetUser() requester: User
+  ) {
+    return this.authService.promoteUser(userId, ValidRoles.OWNER, requester);
+  }
+  
+  @Post('promoteToAdmin/:id')
+  @Auth(ValidRoles.ADMIN)
+  promoteToAdmin(
+    @Param('id') userId: string,
+    @GetUser() requester: User
+  ) {
+    return this.authService.promoteUser(userId, ValidRoles.ADMIN, requester);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
-  }
 }

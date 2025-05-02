@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { User } from '../../auth/entities/user.entity';
 
 @Entity()
 export class Rental {
@@ -25,4 +32,11 @@ export class Rental {
 
   @Column('text')
   status: string;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'client_id' })
+  client: User;
+
+  @Column('uuid')
+  client_id: string;
 }

@@ -25,18 +25,18 @@ export class RentalsController {
     return this.rentalsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.rentalsService.findOne(+id);
+  @Get(':term')
+  findOne(@Param('term') term: string) {
+    return this.rentalsService.findOne(term);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateRentalDto: UpdateRentalDto) {
-    return this.rentalsService.update(+id, updateRentalDto);
+    return this.rentalsService.update(id, updateRentalDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.rentalsService.remove(+id);
+    return this.rentalsService.remove(id);
   }
 }

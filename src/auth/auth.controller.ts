@@ -15,7 +15,7 @@ import { LoginAuthDto } from './dto/login-auth.dto';
 import { Auth } from './decorators/auth.decorator';
 import { ValidRoles } from './enums/valid-roles.enum';
 import { GetUser } from './decorators/get-user.decorator';
-import { User } from './entities/user.entity';
+import { User } from '../users/entities/user.entity';
 
 
 @Controller('auth')

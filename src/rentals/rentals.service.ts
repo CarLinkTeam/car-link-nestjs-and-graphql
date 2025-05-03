@@ -11,7 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Rental } from './entities/rental.entity';
 import { DataSource, Repository } from 'typeorm';
 import { isUUID } from 'class-validator';
-import { User } from '../auth/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class RentalsService {

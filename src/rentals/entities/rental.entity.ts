@@ -5,17 +5,17 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { User } from '../../auth/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity()
 export class Rental {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('Date')
+  @Column({ type: 'timestamp' })
   initialDate: Date;
 
-  @Column('Date')
+  @Column({ type: 'timestamp' })
   finalDate: Date;
 
   @Column('decimal', { precision: 10, scale: 2 })

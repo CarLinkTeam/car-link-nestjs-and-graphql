@@ -1,42 +1,64 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
-import { VehiclesService } from './vehicles.service';
-import { CreateVehicleDto } from './dto/create-vehicle.dto';
-import { UpdateVehicleDto } from './dto/update-vehicle.dto';
+import { Controller, Get, Post, Body, Param, Delete, Put, HttpCode, HttpStatus } from "@nestjs/common"
+import type { VehiclesService } from "./vehicles.service"
+import type { CreateVehicleDto } from "./dto/create-vehicle.dto"
+import type { UpdateVehicleDto } from "./dto/update-vehicle.dto"
+import { Auth } from "../auth/decorators/auth.decorator"
+import { ValidRoles } from "../auth/enums/valid-roles.enum"
+import { GetUser } from "../auth/decorators/get-user.decorator"
+import type { User } from "../users/entities/user.entity"
+import type { VehicleResponseDto } from "./dto/vehicle-response.dto"
 
-@Controller('vehicles')
+@Controller("vehicles")
 export class VehiclesController {
   constructor(private readonly vehiclesService: VehiclesService) {}
 
   @Post()
-  create(@Body() createVehicleDto: CreateVehicleDto) {
-    return this.vehiclesService.create(createVehicleDto);
+  @Auth(ValidRoles.OWNER)
+  async create(
+    @GetUser() user: User,
+    @Body() createVehicleDto: CreateVehicleDto
+  ): Promise<VehicleResponseDto> {
+    return this.vehiclesService.create(user.id, createVehicleDto)
   }
 
   @Get()
-  findAll() {
-    return this.vehiclesService.findAll();
+  @Auth(ValidRoles.ADMIN, ValidRoles.OWNER, ValidRoles.TENANT)
+  async findAll(): Promise<VehicleResponseDto[]> {
+    return this.vehiclesService.findAll()
+  }
+
+  @Get('myVehicles')
+  @Auth(ValidRoles.OWNER)
+  async findMyVehicles(@GetUser() user: User): Promise<VehicleResponseDto[]> {
+    return this.vehiclesService.findByOwner(user.id);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.vehiclesService.findOne(+id);
+  @Auth(ValidRoles.ADMIN, ValidRoles.OWNER, ValidRoles.TENANT)
+  async findOne(@Param('id') id: string): Promise<VehicleResponseDto> {
+    return this.vehiclesService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateVehicleDto: UpdateVehicleDto) {
-    return this.vehiclesService.update(+id, updateVehicleDto);
+  @Get('license/:licensePlate')
+  @Auth(ValidRoles.ADMIN, ValidRoles.OWNER, ValidRoles.TENANT)
+  async findByLicensePlate(@Param('licensePlate') licensePlate: string): Promise<VehicleResponseDto> {
+    return this.vehiclesService.findByLicensePlate(licensePlate);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.vehiclesService.remove(+id);
+  @Put(":id")
+  @Auth(ValidRoles.OWNER)
+  async update(
+    @Param('id') id: string,
+    @GetUser() user: User,
+    @Body() updateVehicleDto: UpdateVehicleDto,
+  ): Promise<VehicleResponseDto> {
+    return this.vehiclesService.update(id, user.id, updateVehicleDto)
+  }
+
+  @Delete(":id")
+  @Auth(ValidRoles.OWNER)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(@Param('id') id: string, @GetUser() user: User): Promise<void> {
+    return this.vehiclesService.remove(id, user.id)
   }
 }

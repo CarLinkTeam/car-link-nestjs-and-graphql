@@ -1,12 +1,12 @@
 import { Controller, Get, Post, Body, Param, Delete, Put, HttpCode, HttpStatus } from "@nestjs/common"
-import type { VehiclesService } from "./vehicles.service"
-import type { CreateVehicleDto } from "./dto/create-vehicle.dto"
-import type { UpdateVehicleDto } from "./dto/update-vehicle.dto"
+import { VehiclesService } from "./vehicles.service"
+import { CreateVehicleDto } from "./dto/create-vehicle.dto"
+import { UpdateVehicleDto } from "./dto/update-vehicle.dto"
 import { Auth } from "../auth/decorators/auth.decorator"
 import { ValidRoles } from "../auth/enums/valid-roles.enum"
 import { GetUser } from "../auth/decorators/get-user.decorator"
-import type { User } from "../users/entities/user.entity"
-import type { VehicleResponseDto } from "./dto/vehicle-response.dto"
+import { User } from "../users/entities/user.entity"
+import { VehicleResponseDto } from "./dto/vehicle-response.dto"
 
 @Controller("vehicles")
 export class VehiclesController {

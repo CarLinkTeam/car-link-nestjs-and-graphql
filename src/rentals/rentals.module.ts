@@ -9,6 +9,7 @@ import { UsersModule } from 'src/users/users.module';
 @Module({
   controllers: [RentalsController],
   providers: [RentalsService],
+  exports: [RentalsService],
   imports: [TypeOrmModule.forFeature([Rental, User]), UsersModule],
 })
 export class RentalsModule {}

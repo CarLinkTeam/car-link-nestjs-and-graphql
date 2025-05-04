@@ -26,7 +26,6 @@ export class RentalsService {
 
   async create(createRentalDto: CreateRentalDto) {
     try {
-      // Validar que el cliente exista
       const { client_id, ...rentalData } = createRentalDto;
 
       const user = await this.userRepository.findOneBy({ id: client_id });
@@ -80,7 +79,6 @@ export class RentalsService {
   }
 
   async update(id: string, updateRentalDto: UpdateRentalDto) {
-    // Validar que el cliente exista si se está actualizando el client_id
     if (updateRentalDto.client_id) {
       const user = await this.userRepository.findOneBy({
         id: updateRentalDto.client_id,

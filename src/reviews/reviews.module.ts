@@ -4,10 +4,11 @@ import { ReviewsController } from './reviews.controller';
 import { RentalsModule } from 'src/rentals/rentals.module';
 import { Review } from './entities/review.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   controllers: [ReviewsController],
   providers: [ReviewsService],
-  imports: [RentalsModule, TypeOrmModule.forFeature([Review])],
+  imports: [RentalsModule, TypeOrmModule.forFeature([Review]), AuthModule],
 })
 export class ReviewsModule {}

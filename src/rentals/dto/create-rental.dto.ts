@@ -1,4 +1,11 @@
-import { IsDate, IsIn, IsNumber, IsPositive, IsString } from 'class-validator';
+import {
+  IsDate,
+  IsIn,
+  IsNumber,
+  IsPositive,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class CreateRentalDto {
   @IsDate()
@@ -21,9 +28,12 @@ export class CreateRentalDto {
   @IsPositive()
   cityMgp: number;
 
-  @IsIn(['active', 'inactive', 'pending', 'completed'])
+  @IsIn(['confirmed', 'canceled', 'pending', 'completed'])
   status: string;
 
-  @IsString()
+  @IsUUID()
   client_id: string;
+
+  @IsUUID()
+  vehicle_id: string;
 }

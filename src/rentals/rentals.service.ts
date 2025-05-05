@@ -11,7 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Rental } from './entities/rental.entity';
 import { DataSource, Repository } from 'typeorm';
 import { isUUID } from 'class-validator';
-import { User } from '../users/entities/user.entity';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class RentalsService {
@@ -19,8 +19,7 @@ export class RentalsService {
   constructor(
     @InjectRepository(Rental)
     private readonly rentalRepository: Repository<Rental>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private readonly usersService: UsersService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -28,10 +27,7 @@ export class RentalsService {
     try {
       const { client_id, ...rentalData } = createRentalDto;
 
-      const user = await this.userRepository.findOneBy({ id: client_id });
-      if (!user) {
-        throw new NotFoundException(`User with ID "${client_id}" not found`);
-      }
+      await this.usersService.findById(client_id);
 
       const rental = this.rentalRepository.create({
         ...rentalData,
@@ -80,14 +76,7 @@ export class RentalsService {
 
   async update(id: string, updateRentalDto: UpdateRentalDto) {
     if (updateRentalDto.client_id) {
-      const user = await this.userRepository.findOneBy({
-        id: updateRentalDto.client_id,
-      });
-      if (!user) {
-        throw new NotFoundException(
-          `User with ID "${updateRentalDto.client_id}" not found`,
-        );
-      }
+      await this.usersService.findById(updateRentalDto.client_id);
     }
 
     const { ...rentalData } = updateRentalDto;

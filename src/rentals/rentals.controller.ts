@@ -39,4 +39,14 @@ export class RentalsController {
   remove(@Param('id') id: string) {
     return this.rentalsService.remove(id);
   }
+
+  @Patch(':id/confirm')
+  confirmRental(@Param('id') id: string) {
+    return this.rentalsService.confirmRental(id);
+  }
+
+  @Patch(':id/reject')
+  rejectRental(@Param('id') id: string) {
+    return this.rentalsService.rejectRental(id);
+  }
 }

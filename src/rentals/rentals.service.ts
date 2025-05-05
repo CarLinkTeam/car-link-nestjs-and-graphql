@@ -241,4 +241,58 @@ export class RentalsService {
       'Unexpected error, check server logs',
     );
   }
+
+  async confirmRental(id: string) {
+    const rental = await this.findOne(id);
+
+    if (rental.status !== 'pending') {
+      throw new BadRequestException(
+        'Only rents in pending status can be confirmed',
+      );
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      rental.status = 'confirmed';
+      await queryRunner.manager.save(rental);
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
+
+      return await this.findOne(id);
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+      this.handleExeptions(error);
+    }
+  }
+
+  async rejectRental(id: string) {
+    const rental = await this.findOne(id);
+
+    if (rental.status !== 'pending') {
+      throw new BadRequestException(
+        'Only rents in pending status can be rejected',
+      );
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      rental.status = 'canceled';
+      await queryRunner.manager.save(rental);
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
+
+      return await this.findOne(id);
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+      this.handleExeptions(error);
+    }
+  }
 }

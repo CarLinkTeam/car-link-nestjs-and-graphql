@@ -4,14 +4,17 @@ import {
   InternalServerErrorException,
   Logger,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { CreateRentalDto } from './dto/create-rental.dto';
 import { UpdateRentalDto } from './dto/update-rental.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Rental } from './entities/rental.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, Between } from 'typeorm';
 import { isUUID } from 'class-validator';
 import { UsersService } from '../users/users.service';
+import { VehiclesService } from '../vehicles/vehicles.service';
+import { VehicleUnavailability } from '../vehicles/entities/vehicle-unavailability.entity';
 
 @Injectable()
 export class RentalsService {
@@ -19,20 +22,40 @@ export class RentalsService {
   constructor(
     @InjectRepository(Rental)
     private readonly rentalRepository: Repository<Rental>,
+    @InjectRepository(VehicleUnavailability)
+    private readonly unavailabilityRepository: Repository<VehicleUnavailability>,
     private readonly usersService: UsersService,
+    private readonly vehiclesService: VehiclesService,
     private readonly dataSource: DataSource,
   ) {}
 
   async create(createRentalDto: CreateRentalDto) {
     try {
-      const { client_id, ...rentalData } = createRentalDto;
-
+      const { client_id, vehicle_id, initialDate, finalDate, ...rentalData } =
+        createRentalDto;
       await this.usersService.findById(client_id);
+
+      await this.vehiclesService.findOne(vehicle_id);
+
+      const startDate = new Date(initialDate);
+      const endDate = new Date(finalDate);
+
+      if (startDate >= endDate) {
+        throw new BadRequestException(
+          'The start date must be earlier than the end date',
+        );
+      }
+
+      await this.checkVehicleAvailability(vehicle_id, startDate, endDate);
 
       const rental = this.rentalRepository.create({
         ...rentalData,
+        initialDate: startDate,
+        finalDate: endDate,
         client_id,
+        vehicle_id,
       });
+
       await this.rentalRepository.save(rental);
       return rental;
     } catch (error) {
@@ -43,7 +66,7 @@ export class RentalsService {
   async findAll() {
     try {
       return await this.rentalRepository.find({
-        relations: ['client'],
+        relations: ['client', 'vehicle'],
       });
     } catch (error) {
       this.handleExeptions(error);
@@ -56,7 +79,7 @@ export class RentalsService {
     if (isUUID(term)) {
       rental = await this.rentalRepository.findOne({
         where: { id: term },
-        relations: ['client'],
+        relations: ['client', 'vehicle'],
       });
     } else {
       const queryBuilder = this.rentalRepository.createQueryBuilder('rental');
@@ -65,6 +88,7 @@ export class RentalsService {
           typeFuel: term.toLowerCase(),
         })
         .leftJoinAndSelect('rental.client', 'client')
+        .leftJoinAndSelect('rental.vehicle', 'vehicle')
         .getOne();
     }
     if (!rental)
@@ -77,6 +101,41 @@ export class RentalsService {
   async update(id: string, updateRentalDto: UpdateRentalDto) {
     if (updateRentalDto.client_id) {
       await this.usersService.findById(updateRentalDto.client_id);
+    }
+
+    if (updateRentalDto.vehicle_id) {
+      await this.vehiclesService.findOne(updateRentalDto.vehicle_id);
+    }
+
+    const currentRental = await this.findOne(id);
+    let startDate = currentRental.initialDate;
+    let endDate = currentRental.finalDate;
+    let vehicleId = currentRental.vehicle_id;
+
+    if (updateRentalDto.initialDate) {
+      startDate = new Date(updateRentalDto.initialDate);
+    }
+
+    if (updateRentalDto.finalDate) {
+      endDate = new Date(updateRentalDto.finalDate);
+    }
+
+    if (updateRentalDto.vehicle_id) {
+      vehicleId = updateRentalDto.vehicle_id;
+    }
+
+    if (startDate >= endDate) {
+      throw new BadRequestException(
+        'La fecha inicial debe ser anterior a la fecha final',
+      );
+    }
+
+    if (
+      updateRentalDto.vehicle_id ||
+      updateRentalDto.initialDate ||
+      updateRentalDto.finalDate
+    ) {
+      await this.checkVehicleAvailability(vehicleId, startDate, endDate, id);
     }
 
     const { ...rentalData } = updateRentalDto;
@@ -124,7 +183,57 @@ export class RentalsService {
     }
   }
 
+  private async checkVehicleAvailability(
+    vehicleId: string,
+    startDate: Date,
+    endDate: Date,
+    excludeRentalId?: string,
+  ) {
+    const unavailabilityConflicts = await this.unavailabilityRepository.find({
+      where: {
+        vehicle_id: vehicleId,
+        unavailable_from: Between(startDate, endDate),
+      },
+    });
+
+    if (unavailabilityConflicts.length > 0) {
+      throw new BadRequestException(
+        'El vehículo no está disponible en ese período',
+      );
+    }
+
+    const rentalConflictsQuery = this.rentalRepository
+      .createQueryBuilder('rental')
+      .where('rental.vehicle_id = :vehicleId', { vehicleId })
+      .andWhere(
+        `(
+          (rental.initialDate <= :startDate AND rental.finalDate >= :startDate) OR
+          (rental.initialDate <= :endDate AND rental.finalDate >= :endDate) OR
+          (rental.initialDate >= :startDate AND rental.finalDate <= :endDate)
+        )`,
+        { startDate, endDate },
+      );
+
+    if (excludeRentalId) {
+      rentalConflictsQuery.andWhere('rental.id != :excludeRentalId', {
+        excludeRentalId,
+      });
+    }
+
+    const rentalConflicts = await rentalConflictsQuery.getCount();
+
+    if (rentalConflicts > 0) {
+      throw new BadRequestException(
+        'El vehículo ya está reservado en ese período',
+      );
+    }
+
+    return true;
+  }
+
   private handleExeptions(error: any) {
+    if (error instanceof BadRequestException) throw error;
+    if (error instanceof NotFoundException) throw error;
     if (error.code === '23505') throw new BadGatewayException(error.detail);
 
     this.logger.error(error);

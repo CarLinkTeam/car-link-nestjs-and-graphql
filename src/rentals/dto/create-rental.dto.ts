@@ -28,7 +28,7 @@ export class CreateRentalDto {
   @IsPositive()
   cityMgp: number;
 
-  @IsIn(['active', 'inactive', 'pending', 'completed'])
+  @IsIn(['confirmed', 'canceled', 'pending', 'completed'])
   status: string;
 
   @IsUUID()

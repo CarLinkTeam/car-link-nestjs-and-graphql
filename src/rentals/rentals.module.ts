@@ -6,6 +6,7 @@ import { Rental } from './entities/rental.entity';
 import { UsersModule } from 'src/users/users.module';
 import { VehiclesModule } from 'src/vehicles/vehicles.module';
 import { VehicleUnavailability } from '../vehicles/entities/vehicle-unavailability.entity';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   controllers: [RentalsController],
@@ -15,6 +16,7 @@ import { VehicleUnavailability } from '../vehicles/entities/vehicle-unavailabili
     TypeOrmModule.forFeature([Rental, VehicleUnavailability]),
     UsersModule,
     VehiclesModule,
+    AuthModule,
   ],
 })
 export class RentalsModule {}

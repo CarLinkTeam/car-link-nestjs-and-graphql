@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   OneToOne,
@@ -18,7 +19,7 @@ export class Review {
   @Column('text')
   comment: string;
 
-  @Column('timestamp')
+  @CreateDateColumn()
   createdAt: Date;
 
   @Column('uuid')

@@ -2,19 +2,17 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { VehicleUnavailability } from './vehicle-unavailability.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('vehicles')
 export class Vehicle {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column()
-  ownerId: string;
 
   @Column()
   vehicleModel: string;
@@ -65,12 +63,10 @@ export class Vehicle {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(
-    () => VehicleUnavailability,
-    (unavailability) => unavailability.vehicle,
-    {
-      cascade: true,
-    },
-  )
-  availability?: VehicleUnavailability[];
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'ownerId' })
+  owner: User;
+
+  @Column('uuid')
+  ownerId: string;
 }

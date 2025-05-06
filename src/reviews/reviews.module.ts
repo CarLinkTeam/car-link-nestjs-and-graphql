@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { ReviewsController } from './reviews.controller';
-import { RentalsModule } from 'src/rentals/rentals.module';
+import { RentalsModule } from '../rentals/rentals.module';
 import { Review } from './entities/review.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthModule } from 'src/auth/auth.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   controllers: [ReviewsController],

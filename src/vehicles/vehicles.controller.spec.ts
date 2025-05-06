@@ -33,8 +33,6 @@ describe('VehiclesController', () => {
     drive: 'AWD',
     fuel_type: 'Electric',
     transmission: 'Automatic',
-    combination_mpg: 120,
-    displacement: 0,
     createdAt: new Date(),
     updatedAt: new Date(),
   };

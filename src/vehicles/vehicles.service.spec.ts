@@ -59,8 +59,6 @@ describe('VehiclesService', () => {
         drive: 'AWD',
         fuel_type: 'Electric',
         transmission: 'Automatic',
-        combination_mpg: 120,
-        displacement: 0,
       },
     ],
   };

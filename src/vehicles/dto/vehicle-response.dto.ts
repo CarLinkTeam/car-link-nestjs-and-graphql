@@ -15,8 +15,6 @@ export class VehicleResponseDto {
   drive?: string;
   fuel_type?: string;
   transmission?: string;
-  combination_mpg?: number;
-  displacement?: number;
   createdAt?: Date;
   updatedAt?: Date;
 
@@ -35,8 +33,6 @@ export class VehicleResponseDto {
     this.drive = vehicle.drive;
     this.fuel_type = vehicle.fuel_type;
     this.transmission = vehicle.transmission;
-    this.combination_mpg = vehicle.combination_mpg;
-    this.displacement = vehicle.displacement;
     this.createdAt = vehicle.createdAt;
     this.updatedAt = vehicle.updatedAt;
   }

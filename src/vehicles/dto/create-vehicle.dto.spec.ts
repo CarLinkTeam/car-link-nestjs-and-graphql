@@ -94,7 +94,6 @@ describe('CreateVehicleDto', () => {
       drive: 'AWD',
       fuel_type: 'Electric',
       transmission: 'Automatic',
-      combination_mpg: 120,
       displacement: 0,
     });
     const errors = await validate(dto);

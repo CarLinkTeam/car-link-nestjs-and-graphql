@@ -27,8 +27,6 @@ describe('VehicleResponseDto', () => {
       drive: 'AWD',
       fuel_type: 'Electric',
       transmission: 'Automatic',
-      combination_mpg: 120,
-      displacement: 0,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -50,8 +48,6 @@ describe('VehicleResponseDto', () => {
     expect(dto.drive).toBe(mockVehicle.drive);
     expect(dto.fuel_type).toBe(mockVehicle.fuel_type);
     expect(dto.transmission).toBe(mockVehicle.transmission);
-    expect(dto.combination_mpg).toBe(mockVehicle.combination_mpg);
-    expect(dto.displacement).toBe(mockVehicle.displacement);
     expect(dto.createdAt).toBe(mockVehicle.createdAt);
     expect(dto.updatedAt).toBe(mockVehicle.updatedAt);
   });
@@ -79,7 +75,5 @@ describe('VehicleResponseDto', () => {
     expect(dto.drive).toBeUndefined();
     expect(dto.fuel_type).toBeUndefined();
     expect(dto.transmission).toBeUndefined();
-    expect(dto.combination_mpg).toBeUndefined();
-    expect(dto.displacement).toBeUndefined();
   });
 });

@@ -181,7 +181,8 @@ export class RentalsService {
       await queryRunner.commitTransaction();
       await queryRunner.release();
 
-      return rental;
+      // No devolvemos el objeto eliminado
+      return;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       await queryRunner.release();

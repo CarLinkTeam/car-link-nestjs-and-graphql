@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsDate,
   IsIn,
@@ -8,9 +9,11 @@ import {
 } from 'class-validator';
 
 export class CreateRentalDto {
+  @Type(() => Date)
   @IsDate()
   initialDate: Date;
 
+  @Type(() => Date)
   @IsDate()
   finalDate: Date;
 

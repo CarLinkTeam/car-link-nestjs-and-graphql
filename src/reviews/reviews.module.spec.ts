@@ -10,6 +10,10 @@ import { AuthModule } from '../auth/auth.module';
 jest.mock('../rentals/rentals.module');
 jest.mock('../auth/auth.module');
 
+jest.mock('../auth/decorators/auth.decorator', () => ({
+  Auth: (...roles: string[]) => jest.fn(),
+}));
+
 jest.mock('@nestjs/typeorm', () => {
   const original = jest.requireActual('@nestjs/typeorm');
   return {

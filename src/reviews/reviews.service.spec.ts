@@ -8,6 +8,7 @@ import {
   BadGatewayException,
   InternalServerErrorException,
   NotFoundException,
+  Logger,
 } from '@nestjs/common';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
@@ -53,8 +54,16 @@ describe('ReviewsService', () => {
   let reviewRepository: Repository<Review>;
   let rentalsService: RentalsService;
   let dataSource: DataSource;
+  let mockLogger: Partial<Logger>;
 
   beforeEach(async () => {
+    mockLogger = {
+      error: jest.fn(),
+      log: jest.fn(),
+      debug: jest.fn(),
+      verbose: jest.fn(),
+      warn: jest.fn(),
+    };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ReviewsService,
@@ -64,6 +73,7 @@ describe('ReviewsService', () => {
         },
         { provide: RentalsService, useFactory: mockRentalsService },
         { provide: DataSource, useFactory: mockDataSource },
+        { provide: Logger, useValue: mockLogger },
       ],
     }).compile();
 
@@ -74,6 +84,7 @@ describe('ReviewsService', () => {
     rentalsService = module.get<RentalsService>(RentalsService);
     dataSource = module.get<DataSource>(DataSource);
 
+    (service as any).logger = mockLogger;
     jest.clearAllMocks();
   });
 
@@ -383,6 +394,7 @@ describe('ReviewsService', () => {
       expect(() => (service as any).handleExeptions(error)).toThrow(
         InternalServerErrorException,
       );
+      expect(mockLogger.error).toHaveBeenCalled();
     });
   });
 });

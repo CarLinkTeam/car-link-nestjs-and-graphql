@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -42,6 +44,7 @@ export class ReviewsController {
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Auth(ValidRoles.TENANT, ValidRoles.ADMIN)
   remove(@Param('id') id: string) {
     return this.reviewsService.remove(id);

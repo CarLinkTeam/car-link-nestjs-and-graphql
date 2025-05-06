@@ -19,7 +19,7 @@ export class ReviewsService {
   private logger = new Logger('ReviewService');
   constructor(
     @InjectRepository(Review)
-    private readonly rentalRepository: Repository<Review>,
+    private readonly reviewRepository: Repository<Review>,
     private readonly rentalsService: RentalsService,
     private readonly dataSource: DataSource,
   ) {}
@@ -33,11 +33,11 @@ export class ReviewsService {
         throw new NotFoundException(`Rental with ID "${rental_id}" not found`);
       }
 
-      const review = this.rentalRepository.create({
+      const review = this.reviewRepository.create({
         ...reviewData,
         rental_id,
       });
-      await this.rentalRepository.save(review);
+      await this.reviewRepository.save(review);
       return review;
     } catch (error) {
       this.handleExeptions(error);
@@ -46,7 +46,7 @@ export class ReviewsService {
 
   async findAll() {
     try {
-      return await this.rentalRepository.find({
+      return await this.reviewRepository.find({
         relations: ['rental'],
       });
     } catch (error) {
@@ -57,12 +57,12 @@ export class ReviewsService {
   async findOne(term: string) {
     let review: Review | null;
     if (isUUID(term)) {
-      review = await this.rentalRepository.findOne({
+      review = await this.reviewRepository.findOne({
         where: { id: term },
         relations: ['rental'],
       });
     } else {
-      const queryBuilder = this.rentalRepository.createQueryBuilder('review');
+      const queryBuilder = this.reviewRepository.createQueryBuilder('review');
       review = await queryBuilder
         .where('review.rating = :rating', { rating: term })
         .orWhere('review.comment = :comment', { comment: term })
@@ -78,18 +78,13 @@ export class ReviewsService {
 
   async update(id: string, updateReviewDto: UpdateReviewDto) {
     if (updateReviewDto.rental_id) {
-      const rental = await this.rentalsService.findOne(
-        updateReviewDto.rental_id,
-      );
-      if (!rental) {
-        throw new NotFoundException(
-          `Rental with ID "${updateReviewDto.rental_id}" not found`,
-        );
-      }
+      await this.rentalsService.findOne(updateReviewDto.rental_id);
     }
 
+    await this.findOne(id);
+
     const { ...reviewData } = updateReviewDto;
-    const review = await this.rentalRepository.preload({
+    const review = await this.reviewRepository.preload({
       id: id,
       ...reviewData,
     });
@@ -124,6 +119,7 @@ export class ReviewsService {
       await queryRunner.manager.remove(review);
       await queryRunner.commitTransaction();
       await queryRunner.release();
+      return;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       await queryRunner.release();

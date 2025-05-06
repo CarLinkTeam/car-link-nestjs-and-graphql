@@ -20,7 +20,7 @@ export class RentalsController {
   constructor(private readonly rentalsService: RentalsService) {}
 
   @Post()
-  @Auth(ValidRoles.OWNER, ValidRoles.ADMIN)
+  @Auth(ValidRoles.OWNER, ValidRoles.ADMIN, ValidRoles.TENANT)
   create(@Body() createRentalDto: CreateRentalDto) {
     return this.rentalsService.create(createRentalDto);
   }

@@ -180,8 +180,6 @@ export class RentalsService {
       await queryRunner.manager.remove(rental);
       await queryRunner.commitTransaction();
       await queryRunner.release();
-
-      // No devolvemos el objeto eliminado
       return;
     } catch (error) {
       await queryRunner.rollbackTransaction();

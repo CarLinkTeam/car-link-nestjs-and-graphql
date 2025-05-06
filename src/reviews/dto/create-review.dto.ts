@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { IsDate, IsInt, IsString } from 'class-validator';
 
 export class CreateReviewDto {
@@ -7,6 +8,7 @@ export class CreateReviewDto {
   @IsString()
   comment: string;
 
+  @Type(() => Date)
   @IsDate()
   createdAt: Date;
 

@@ -257,6 +257,7 @@ export class SeedService {
     const rentalsData = [
       {
         client_id: tenants[0].id,
+        vehicle_id: vehicles[0].id,
         initialDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
         finalDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
         totalCost: vehicles[0].daily_price * 3,
@@ -267,6 +268,7 @@ export class SeedService {
       },
       {
         client_id: tenants[0].id,
+        vehicle_id: vehicles[1].id,
         initialDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
         finalDate: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000), // 8 days from now
         totalCost: vehicles[1].daily_price * 3,
@@ -277,6 +279,7 @@ export class SeedService {
       },
       {
         client_id: tenants[1].id,
+        vehicle_id: vehicles[2].id,
         initialDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
         finalDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
         totalCost: vehicles[2].daily_price * 3,

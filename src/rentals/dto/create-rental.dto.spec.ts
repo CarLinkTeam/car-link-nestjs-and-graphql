@@ -11,8 +11,9 @@ describe('CreateRentalDto', () => {
       typeFuel: 'Gasoline',
       transmission: 'Automatic',
       cityMgp: 25,
-      status: 'active',
+      status: 'confirmed',
       client_id: '123e4567-e89b-12d3-a456-426614174000',
+      vehicle_id: '9876fedc-ba98-4321-abcd-ef0123456789',
     });
 
     const errors = await validate(dto);

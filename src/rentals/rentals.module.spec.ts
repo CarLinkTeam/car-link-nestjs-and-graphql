@@ -13,6 +13,10 @@ jest.mock('../users/users.module');
 jest.mock('../vehicles/vehicles.module');
 jest.mock('../auth/auth.module');
 
+jest.mock('../auth/decorators/auth.decorator', () => ({
+  Auth: (...roles: string[]) => jest.fn(),
+}));
+
 jest.mock('@nestjs/typeorm', () => {
   const original = jest.requireActual('@nestjs/typeorm');
   return {

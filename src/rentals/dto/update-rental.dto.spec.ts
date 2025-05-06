@@ -39,14 +39,4 @@ describe('UpdateRentalDto', () => {
     expect(errors.length).toBeGreaterThan(0);
     expect(errors[0].property).toBe('totalCost');
   });
-
-  it('should inherit validation rules from CreateRentalDto', async () => {
-    const dto = plainToInstance(UpdateRentalDto, {
-      cityMgp: -5,
-    });
-
-    const errors = await validate(dto);
-    expect(errors.length).toBeGreaterThan(0);
-    expect(errors[0].property).toBe('cityMgp');
-  });
 });

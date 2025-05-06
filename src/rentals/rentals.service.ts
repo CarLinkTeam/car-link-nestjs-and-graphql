@@ -82,19 +82,23 @@ export class RentalsService {
         relations: ['client', 'vehicle'],
       });
     } else {
-      const queryBuilder = this.rentalRepository.createQueryBuilder('rental');
-      rental = await queryBuilder
-        .where('LOWER(rental.typeFuel) =:typeFuel', {
-          typeFuel: term.toLowerCase(),
-        })
-        .leftJoinAndSelect('rental.client', 'client')
-        .leftJoinAndSelect('rental.vehicle', 'vehicle')
-        .getOne();
+      const searchDate = new Date(term);
+
+      if (!isNaN(searchDate.getTime())) {
+        const queryBuilder = this.rentalRepository.createQueryBuilder('rental');
+        rental = await queryBuilder
+          .where('DATE(rental.initialDate) = DATE(:searchDate)', { searchDate })
+          .orWhere('DATE(rental.finalDate) = DATE(:searchDate)', { searchDate })
+          .leftJoinAndSelect('rental.client', 'client')
+          .leftJoinAndSelect('rental.vehicle', 'vehicle')
+          .getOne();
+      } else {
+        rental = null;
+      }
     }
+
     if (!rental) {
-      throw new NotFoundException(
-        `Rental with id or typeFuel "${term}" not found`,
-      );
+      throw new NotFoundException(`Rental with id or date "${term}" not found`);
     }
 
     return rental;

@@ -14,9 +14,6 @@ describe('Rental Entity', () => {
     rental.initialDate = new Date('2023-01-01');
     rental.finalDate = new Date('2023-01-10');
     rental.totalCost = 500.5;
-    rental.typeFuel = 'Gasoline';
-    rental.transmission = 'Automatic';
-    rental.cityMgp = 25;
     rental.status = 'Active';
     rental.client = user;
     rental.client_id = user.id;
@@ -31,9 +28,6 @@ describe('Rental Entity', () => {
     expect(rental.initialDate).toBeInstanceOf(Date);
     expect(rental.finalDate).toBeInstanceOf(Date);
     expect(typeof rental.totalCost).toBe('number');
-    expect(typeof rental.typeFuel).toBe('string');
-    expect(typeof rental.transmission).toBe('string');
-    expect(typeof rental.cityMgp).toBe('number');
     expect(typeof rental.status).toBe('string');
   });
 
@@ -41,9 +35,6 @@ describe('Rental Entity', () => {
     expect(rental.initialDate).toEqual(new Date('2023-01-01'));
     expect(rental.finalDate).toEqual(new Date('2023-01-10'));
     expect(rental.totalCost).toEqual(500.5);
-    expect(rental.typeFuel).toEqual('Gasoline');
-    expect(rental.transmission).toEqual('Automatic');
-    expect(rental.cityMgp).toEqual(25);
     expect(rental.status).toEqual('Active');
   });
 

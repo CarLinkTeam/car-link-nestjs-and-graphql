@@ -23,15 +23,6 @@ export class Rental {
   totalCost: number;
 
   @Column('text')
-  typeFuel: string;
-
-  @Column('text')
-  transmission: string;
-
-  @Column('int')
-  cityMgp: number;
-
-  @Column('text')
   status: string;
 
   @ManyToOne(() => User)

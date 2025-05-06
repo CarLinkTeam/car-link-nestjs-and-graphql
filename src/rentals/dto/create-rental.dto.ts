@@ -18,16 +18,6 @@ export class CreateRentalDto {
   @IsPositive()
   totalCost: number;
 
-  @IsString()
-  typeFuel: string;
-
-  @IsString()
-  transmission: string;
-
-  @IsNumber()
-  @IsPositive()
-  cityMgp: number;
-
   @IsIn(['confirmed', 'canceled', 'pending', 'completed'])
   status: string;
 

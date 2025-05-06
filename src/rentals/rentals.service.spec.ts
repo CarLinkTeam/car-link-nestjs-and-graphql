@@ -17,6 +17,7 @@ const mockQueryBuilder = {
   leftJoinAndSelect: jest.fn().mockReturnThis(),
   getOne: jest.fn(),
   getCount: jest.fn(),
+  orWhere: jest.fn().mockReturnThis(),
 };
 
 const mockRentalRepository = () => ({
@@ -93,7 +94,6 @@ describe('RentalsService', () => {
     vehiclesService = module.get<VehiclesService>(VehiclesService);
     dataSource = module.get<DataSource>(DataSource);
 
-    // Resetear los mocks después de cada prueba
     jest.clearAllMocks();
   });
 
@@ -107,9 +107,6 @@ describe('RentalsService', () => {
         initialDate: new Date('2023-01-01'),
         finalDate: new Date('2023-01-10'),
         totalCost: 500,
-        typeFuel: 'Gasoline',
-        transmission: 'Automatic',
-        cityMgp: 25,
         status: 'pending',
         client_id: 'client-id',
         vehicle_id: 'vehicle-id',
@@ -148,9 +145,6 @@ describe('RentalsService', () => {
         initialDate: new Date('2023-01-10'),
         finalDate: new Date('2023-01-01'),
         totalCost: 500,
-        typeFuel: 'Gasoline',
-        transmission: 'Automatic',
-        cityMgp: 25,
         status: 'pending',
         client_id: 'client-id',
         vehicle_id: 'vehicle-id',
@@ -173,9 +167,6 @@ describe('RentalsService', () => {
         initialDate: new Date('2023-01-01'),
         finalDate: new Date('2023-01-10'),
         totalCost: 500,
-        typeFuel: 'Gasoline',
-        transmission: 'Automatic',
-        cityMgp: 25,
         status: 'pending',
         client_id: 'client-id',
         vehicle_id: 'vehicle-id',
@@ -201,15 +192,11 @@ describe('RentalsService', () => {
         initialDate: new Date('2023-01-01'),
         finalDate: new Date('2023-01-10'),
         totalCost: 500,
-        typeFuel: 'Gasoline',
-        transmission: 'Automatic',
-        cityMgp: 25,
         status: 'pending',
         client_id: 'client-id',
         vehicle_id: 'vehicle-id',
       };
 
-      // Configuramos los mocks correctamente
       jest
         .spyOn(usersService, 'findById')
         .mockResolvedValue({ id: 'client-id' } as any);
@@ -218,10 +205,8 @@ describe('RentalsService', () => {
         .mockResolvedValue({ id: 'vehicle-id' } as any);
       jest.spyOn(unavailabilityRepository, 'find').mockResolvedValue([]);
 
-      // Importante: Configuramos el mock para que devuelva 1 (conflicto)
       mockQueryBuilder.getCount.mockResolvedValue(1);
 
-      // Simulamos el comportamiento del método handleExeptions
       jest
         .spyOn(service as any, 'handleExeptions')
         .mockImplementation((error) => {
@@ -274,11 +259,12 @@ describe('RentalsService', () => {
       });
     });
 
-    it('should return a rental by typeFuel', async () => {
-      const typeFuel = 'gasoline';
+    it('should return a rental by date', async () => {
+      const searchDate = '2023-01-05';
       const expectedRental = {
         id: 'rental-id',
-        typeFuel,
+        initialDate: new Date('2023-01-01'),
+        finalDate: new Date('2023-01-10'),
         client: {},
         vehicle: {},
       };
@@ -287,8 +273,18 @@ describe('RentalsService', () => {
 
       mockQueryBuilder.getOne.mockResolvedValue(expectedRental as any);
 
-      const result = await service.findOne(typeFuel);
+      const result = await service.findOne(searchDate);
       expect(result).toEqual(expectedRental);
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith(
+        'DATE(rental.initialDate) = DATE(:searchDate)',
+        { searchDate: new Date(searchDate) },
+      );
+      expect(mockQueryBuilder.orWhere).toHaveBeenCalledWith(
+        'DATE(rental.finalDate) = DATE(:searchDate)',
+        { searchDate: new Date(searchDate) },
+      );
+      expect(mockQueryBuilder.leftJoinAndSelect).toHaveBeenCalledTimes(2);
+      expect(mockQueryBuilder.getOne).toHaveBeenCalled();
     });
 
     it('should throw NotFoundException if rental not found', async () => {

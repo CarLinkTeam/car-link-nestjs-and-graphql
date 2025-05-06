@@ -8,9 +8,6 @@ describe('CreateRentalDto', () => {
       initialDate: new Date('2023-01-01'),
       finalDate: new Date('2023-01-10'),
       totalCost: 500.5,
-      typeFuel: 'Gasoline',
-      transmission: 'Automatic',
-      cityMgp: 25,
       status: 'confirmed',
       client_id: '123e4567-e89b-12d3-a456-426614174000',
       vehicle_id: '9876fedc-ba98-4321-abcd-ef0123456789',
@@ -25,9 +22,6 @@ describe('CreateRentalDto', () => {
       initialDate: 'not-a-date',
       finalDate: new Date('2023-01-10'),
       totalCost: 500.5,
-      typeFuel: 'Gasoline',
-      transmission: 'Automatic',
-      cityMgp: 25,
       status: 'active',
       client_id: '123e4567-e89b-12d3-a456-426614174000',
     });
@@ -42,9 +36,6 @@ describe('CreateRentalDto', () => {
       initialDate: new Date('2023-01-01'),
       finalDate: new Date('2023-01-10'),
       totalCost: -500.5,
-      typeFuel: 'Gasoline',
-      transmission: 'Automatic',
-      cityMgp: 25,
       status: 'active',
       client_id: '123e4567-e89b-12d3-a456-426614174000',
     });
@@ -59,9 +50,6 @@ describe('CreateRentalDto', () => {
       initialDate: new Date('2023-01-01'),
       finalDate: new Date('2023-01-10'),
       totalCost: 500.5,
-      typeFuel: 'Gasoline',
-      transmission: 'Automatic',
-      cityMgp: 25,
       status: 'invalid-status',
       client_id: '123e4567-e89b-12d3-a456-426614174000',
     });
@@ -69,22 +57,5 @@ describe('CreateRentalDto', () => {
     const errors = await validate(dto);
     expect(errors.length).toBeGreaterThan(0);
     expect(errors[0].property).toBe('status');
-  });
-
-  it('should fail validation with negative cityMgp', async () => {
-    const dto = plainToInstance(CreateRentalDto, {
-      initialDate: new Date('2023-01-01'),
-      finalDate: new Date('2023-01-10'),
-      totalCost: 500.5,
-      typeFuel: 'Gasoline',
-      transmission: 'Automatic',
-      cityMgp: -25,
-      status: 'active',
-      client_id: '123e4567-e89b-12d3-a456-426614174000',
-    });
-
-    const errors = await validate(dto);
-    expect(errors.length).toBeGreaterThan(0);
-    expect(errors[0].property).toBe('cityMgp');
   });
 });

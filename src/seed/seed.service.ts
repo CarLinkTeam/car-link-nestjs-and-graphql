@@ -262,6 +262,7 @@ export class SeedService {
         finalDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
         totalCost: vehicles[0].daily_price * 3,
         status: 'COMPLETED',
+        vehicle_id: vehicles[0].id
       },
       {
         client_id: tenants[0].id,
@@ -270,6 +271,7 @@ export class SeedService {
         finalDate: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000), // 8 days from now
         totalCost: vehicles[1].daily_price * 3,
         status: 'CONFIRMED',
+        vehicle_id: vehicles[1].id
       },
       {
         client_id: tenants[1].id,
@@ -278,6 +280,7 @@ export class SeedService {
         finalDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
         totalCost: vehicles[2].daily_price * 3,
         status: 'COMPLETED',
+        vehicle_id: vehicles[2].id
       },
     ];
 

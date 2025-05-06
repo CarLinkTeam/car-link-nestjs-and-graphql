@@ -51,12 +51,6 @@ export class Vehicle {
   @Column({ nullable: true })
   transmission?: string;
 
-  @Column('decimal', { precision: 5, scale: 2, nullable: true })
-  combination_mpg?: number;
-
-  @Column('decimal', { precision: 5, scale: 2, nullable: true })
-  displacement?: number;
-
   @CreateDateColumn()
   createdAt: Date;
 

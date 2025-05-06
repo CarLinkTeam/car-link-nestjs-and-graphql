@@ -44,12 +44,4 @@ export class CreateVehicleDto {
   @IsOptional()
   @IsString()
   transmission?: string;
-
-  @IsOptional()
-  @IsNumber()
-  combination_mpg?: number;
-
-  @IsOptional()
-  @IsNumber()
-  displacement?: number;
 }

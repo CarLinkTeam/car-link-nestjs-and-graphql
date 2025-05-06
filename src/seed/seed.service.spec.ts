@@ -121,14 +121,12 @@ describe('SeedService', () => {
           daily_price: 100,
           fuel_type: 'Gasolina',
           transmission: 'Manual',
-          combination_mpg: 20,
         },
         {
           id: 'vehicle2',
           daily_price: 200,
           fuel_type: 'Diésel',
           transmission: 'Automático',
-          combination_mpg: 25,
         },
       ] as Vehicle[];
 
@@ -248,21 +246,18 @@ describe('SeedService', () => {
           daily_price: 100,
           fuel_type: 'Gasolina',
           transmission: 'Manual',
-          combination_mpg: 20,
         },
         {
           id: 'vehicle2',
           daily_price: 200,
           fuel_type: 'Diésel',
           transmission: 'Automático',
-          combination_mpg: 25,
         },
         {
           id: 'vehicle3',
           daily_price: 300,
           fuel_type: 'Eléctrico',
           transmission: 'Automático',
-          combination_mpg: 30,
         },
       ] as Vehicle[];
 

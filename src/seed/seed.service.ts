@@ -128,8 +128,6 @@ export class SeedService {
         drive: 'Delantera',
         fuel_type: 'Híbrido',
         transmission: 'Automático (CVT)',
-        combination_mpg: 25,
-        displacement: 2.5,
       },
       {
         ownerId: owners[0].id,
@@ -150,8 +148,6 @@ export class SeedService {
         drive: 'Delantera',
         fuel_type: 'Gasolina',
         transmission: 'Automático (7 velocidades)',
-        combination_mpg: 18,
-        displacement: 1.5,
       },
       {
         ownerId: owners[1].id,
@@ -172,8 +168,6 @@ export class SeedService {
         drive: 'Tracción integral',
         fuel_type: 'Diésel',
         transmission: 'Automático (8 velocidades)',
-        combination_mpg: 20,
-        displacement: 2.0,
       },
       {
         ownerId: owners[1].id,
@@ -194,8 +188,6 @@ export class SeedService {
         drive: 'Delantera',
         fuel_type: 'Diésel',
         transmission: 'Manual (6 velocidades)',
-        combination_mpg: 22,
-        displacement: 1.5,
       },
     ];
 
@@ -262,7 +254,6 @@ export class SeedService {
         finalDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
         totalCost: vehicles[0].daily_price * 3,
         status: 'COMPLETED',
-        vehicle_id: vehicles[0].id
       },
       {
         client_id: tenants[0].id,
@@ -271,7 +262,6 @@ export class SeedService {
         finalDate: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000), // 8 days from now
         totalCost: vehicles[1].daily_price * 3,
         status: 'CONFIRMED',
-        vehicle_id: vehicles[1].id
       },
       {
         client_id: tenants[1].id,
@@ -280,7 +270,6 @@ export class SeedService {
         finalDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
         totalCost: vehicles[2].daily_price * 3,
         status: 'COMPLETED',
-        vehicle_id: vehicles[2].id
       },
     ];
 

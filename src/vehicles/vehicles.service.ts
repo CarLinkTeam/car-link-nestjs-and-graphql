@@ -152,8 +152,6 @@ export class VehiclesService {
             drive: string;
             fuel_type: string;
             transmission: string;
-            combination_mpg: number;
-            displacement: number;
           }[]
         >(this.API_URL, {
           params: { make, model: vehicleModel, year },
@@ -168,8 +166,6 @@ export class VehiclesService {
           drive: data.drive,
           fuel_type: data.fuel_type,
           transmission: data.transmission,
-          combination_mpg: data.combination_mpg,
-          displacement: data.displacement,
         };
       }
 

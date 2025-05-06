@@ -21,8 +21,6 @@ describe('Vehicle Entity', () => {
     vehicle.drive = 'AWD';
     vehicle.fuel_type = 'Electric';
     vehicle.transmission = 'Automatic';
-    vehicle.combination_mpg = 120;
-    vehicle.displacement = 0;
     vehicle.createdAt = new Date();
     vehicle.updatedAt = new Date();
     vehicle.owner = new User();
@@ -41,8 +39,6 @@ describe('Vehicle Entity', () => {
     expect(vehicle.drive).toBe('AWD');
     expect(vehicle.fuel_type).toBe('Electric');
     expect(vehicle.transmission).toBe('Automatic');
-    expect(vehicle.combination_mpg).toBe(120);
-    expect(vehicle.displacement).toBe(0);
     expect(vehicle.createdAt).toBeInstanceOf(Date);
     expect(vehicle.updatedAt).toBeInstanceOf(Date);
     expect(vehicle.owner).toBeInstanceOf(User);
@@ -66,8 +62,6 @@ describe('Vehicle Entity', () => {
     expect(vehicle.drive).toBeUndefined();
     expect(vehicle.fuel_type).toBeUndefined();
     expect(vehicle.transmission).toBeUndefined();
-    expect(vehicle.combination_mpg).toBeUndefined();
-    expect(vehicle.displacement).toBeUndefined();
     expect(vehicle.createdAt).toBeUndefined();
     expect(vehicle.updatedAt).toBeUndefined();
     expect(vehicle.owner).toBeUndefined();

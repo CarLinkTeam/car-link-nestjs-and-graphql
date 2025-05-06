@@ -59,7 +59,7 @@ export class RentalsService {
       await this.rentalRepository.save(rental);
       return rental;
     } catch (error) {
-      this.handleExeptions(error);
+      return this.handleExeptions(error);
     }
   }
 
@@ -91,10 +91,12 @@ export class RentalsService {
         .leftJoinAndSelect('rental.vehicle', 'vehicle')
         .getOne();
     }
-    if (!rental)
+    if (!rental) {
       throw new NotFoundException(
         `Rental with id or typeFuel "${term}" not found`,
       );
+    }
+
     return rental;
   }
 
@@ -198,7 +200,7 @@ export class RentalsService {
 
     if (unavailabilityConflicts.length > 0) {
       throw new BadRequestException(
-        'El vehículo no está disponible en ese período',
+        'The vehicle is not available during this period',
       );
     }
 
@@ -224,7 +226,7 @@ export class RentalsService {
 
     if (rentalConflicts > 0) {
       throw new BadRequestException(
-        'El vehículo ya está reservado en ese período',
+        'The vehicle is already reserved in that period',
       );
     }
 

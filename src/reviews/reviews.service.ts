@@ -1,5 +1,6 @@
 import {
   BadGatewayException,
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -10,7 +11,7 @@ import { UpdateReviewDto } from './dto/update-review.dto';
 import { Review } from './entities/review.entity';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { RentalsService } from 'src/rentals/rentals.service';
+import { RentalsService } from '../rentals/rentals.service';
 import { isUUID } from 'class-validator';
 
 @Injectable()
@@ -131,6 +132,8 @@ export class ReviewsService {
   }
 
   private handleExeptions(error: any) {
+    if (error instanceof BadRequestException) throw error;
+    if (error instanceof NotFoundException) throw error;
     if (error.code === '23505') throw new BadGatewayException(error.detail);
 
     this.logger.error(error);

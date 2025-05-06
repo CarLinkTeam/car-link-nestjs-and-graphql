@@ -264,6 +264,7 @@ export class SeedService {
         transmission: vehicles[0].transmission,
         cityMgp: vehicles[0].combination_mpg,
         status: 'COMPLETED',
+        vehicle_id: vehicles[0].id
       },
       {
         client_id: tenants[0].id,
@@ -274,6 +275,7 @@ export class SeedService {
         transmission: vehicles[1].transmission,
         cityMgp: vehicles[1].combination_mpg,
         status: 'CONFIRMED',
+        vehicle_id: vehicles[1].id
       },
       {
         client_id: tenants[1].id,
@@ -284,6 +286,7 @@ export class SeedService {
         transmission: vehicles[2].transmission,
         cityMgp: vehicles[2].combination_mpg,
         status: 'COMPLETED',
+        vehicle_id: vehicles[2].id
       },
     ];
 

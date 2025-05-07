@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { CommandFactory } from 'nest-commander';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   if (
@@ -24,6 +25,14 @@ async function bootstrap() {
         forbidNonWhitelisted: true,
       }),
     );
+
+    const config = new DocumentBuilder()
+      .setTitle('CarLink RESTFul API')
+      .setDescription('Car rental management endpoints')
+      .setVersion('1.0')
+      .build();
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api', app, document);
     await app.listen(process.env.PORT ?? 3000);
   }
 }

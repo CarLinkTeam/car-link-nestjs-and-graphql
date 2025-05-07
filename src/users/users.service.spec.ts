@@ -104,7 +104,6 @@ describe('UsersService', () => {
       mockUserRepository.findOne.mockResolvedValue(user);
 
       const result = await service.findByEmail('test@example.com');
-      console.log(result);
       expect(result).toEqual(user);
       expect(mockUserRepository.findOne).toHaveBeenCalledWith({
         where: { email: 'test@example.com', isActive: true },

@@ -399,7 +399,7 @@ describe('RentalsService', () => {
       jest.spyOn(service, 'findOne').mockResolvedValue(existingRental as any);
 
       const result = await service.remove(rentalId);
-      expect(result).toEqual(existingRental);
+      expect(result).toBeUndefined();
       expect(mockQueryRunner.connect).toHaveBeenCalled();
       expect(mockQueryRunner.startTransaction).toHaveBeenCalled();
       expect(mockQueryRunner.manager.remove).toHaveBeenCalledWith(

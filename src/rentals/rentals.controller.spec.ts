@@ -3,14 +3,31 @@ import { RentalsController } from './rentals.controller';
 import { RentalsService } from './rentals.service';
 import { CreateRentalDto } from './dto/create-rental.dto';
 import { UpdateRentalDto } from './dto/update-rental.dto';
+import { User } from '../users/entities/user.entity';
 
 jest.mock('../auth/decorators/auth.decorator', () => ({
   Auth: (...roles: string[]) => jest.fn(),
 }));
 
+// Mockear el decorador GetUser
+jest.mock('../auth/decorators/get-user.decorator', () => ({
+  GetUser: () => jest.fn((target: any, key: string, index: number) => {}),
+}));
+
 describe('RentalsController', () => {
   let controller: RentalsController;
   let service: RentalsService;
+
+  const mockUser: User = {
+    id: 'client-id',
+    email: 'test@example.com',
+    password: 'hashedPassword',
+    fullName: 'Test User',
+    location: 'Test Location',
+    phone: '+12345678901',
+    isActive: true,
+    roles: ['TENANT'],
+  } as User;
 
   const mockRentalsService = {
     create: jest.fn(),
@@ -44,22 +61,25 @@ describe('RentalsController', () => {
   });
 
   describe('create', () => {
-    it('should call rentalsService.create with the provided dto', async () => {
+    it('should call rentalsService.create with the provided dto and user id', async () => {
       const createRentalDto: CreateRentalDto = {
         initialDate: new Date('2023-01-01'),
         finalDate: new Date('2023-01-10'),
         totalCost: 500,
         status: 'pending',
-        client_id: 'client-id',
         vehicle_id: 'vehicle-id',
       };
 
-      const expectedResult = { id: 'rental-id', ...createRentalDto };
+      const expectedResult = {
+        id: 'rental-id',
+        ...createRentalDto,
+        client_id: mockUser.id,
+      };
       mockRentalsService.create.mockResolvedValue(expectedResult);
 
-      const result = await controller.create(createRentalDto);
+      const result = await controller.create(mockUser, createRentalDto);
 
-      expect(service.create).toHaveBeenCalledWith(createRentalDto);
+      expect(service.create).toHaveBeenCalledWith(mockUser.id, createRentalDto);
       expect(result).toEqual(expectedResult);
     });
   });
@@ -90,18 +110,22 @@ describe('RentalsController', () => {
   });
 
   describe('update', () => {
-    it('should call rentalsService.update with the provided id and dto', async () => {
+    it('should call rentalsService.update with the provided id, dto and user id', async () => {
       const id = 'rental-id';
       const updateRentalDto: UpdateRentalDto = {
         totalCost: 600,
         status: 'confirmed',
       };
-      const expectedResult = { id, ...updateRentalDto };
+      const expectedResult = { id, ...updateRentalDto, client_id: mockUser.id };
       mockRentalsService.update.mockResolvedValue(expectedResult);
 
-      const result = await controller.update(id, updateRentalDto);
+      const result = await controller.update(id, updateRentalDto, mockUser);
 
-      expect(service.update).toHaveBeenCalledWith(id, updateRentalDto);
+      expect(service.update).toHaveBeenCalledWith(
+        id,
+        updateRentalDto,
+        mockUser.id,
+      );
       expect(result).toEqual(expectedResult);
     });
   });

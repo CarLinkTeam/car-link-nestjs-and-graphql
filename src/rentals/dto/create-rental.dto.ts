@@ -31,9 +31,5 @@ export class CreateRentalDto {
 
   @ApiProperty()
   @IsUUID()
-  client_id: string;
-
-  @ApiProperty()
-  @IsUUID()
   vehicle_id: string;
 }

@@ -10,7 +10,6 @@ describe('CreateRentalDto', () => {
       finalDate: new Date('2023-01-10'),
       totalCost: 500.5,
       status: 'confirmed',
-      client_id: '123e4567-e89b-12d3-a456-426614174000',
       vehicle_id: '9876fedc-ba98-4321-abcd-ef0123456789',
     });
 
@@ -24,7 +23,7 @@ describe('CreateRentalDto', () => {
       finalDate: new Date('2023-01-10'),
       totalCost: 500.5,
       status: 'active',
-      client_id: '123e4567-e89b-12d3-a456-426614174000',
+      vehicle_id: '9876fedc-ba98-4321-abcd-ef0123456789',
     });
 
     const errors = await validate(dto);
@@ -38,7 +37,7 @@ describe('CreateRentalDto', () => {
       finalDate: new Date('2023-01-10'),
       totalCost: -500.5,
       status: 'active',
-      client_id: '123e4567-e89b-12d3-a456-426614174000',
+      vehicle_id: '9876fedc-ba98-4321-abcd-ef0123456789',
     });
 
     const errors = await validate(dto);
@@ -52,7 +51,7 @@ describe('CreateRentalDto', () => {
       finalDate: new Date('2023-01-10'),
       totalCost: 500.5,
       status: 'invalid-status',
-      client_id: '123e4567-e89b-12d3-a456-426614174000',
+      vehicle_id: '9876fedc-ba98-4321-abcd-ef0123456789',
     });
 
     const errors = await validate(dto);

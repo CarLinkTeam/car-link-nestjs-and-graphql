@@ -29,9 +29,9 @@ export class RentalsService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async create(createRentalDto: CreateRentalDto) {
+  async create(client_id: string, createRentalDto: CreateRentalDto) {
     try {
-      const { client_id, vehicle_id, initialDate, finalDate, ...rentalData } =
+      const { vehicle_id, initialDate, finalDate, ...rentalData } =
         createRentalDto;
       await this.usersService.findById(client_id);
 
@@ -104,11 +104,11 @@ export class RentalsService {
     return rental;
   }
 
-  async update(id: string, updateRentalDto: UpdateRentalDto) {
-    if (updateRentalDto.client_id) {
-      await this.usersService.findById(updateRentalDto.client_id);
-    }
-
+  async update(
+    id: string,
+    updateRentalDto: UpdateRentalDto,
+    client_id: string,
+  ) {
     if (updateRentalDto.vehicle_id) {
       await this.vehiclesService.findOne(updateRentalDto.vehicle_id);
     }
@@ -145,9 +145,11 @@ export class RentalsService {
     }
 
     const { ...rentalData } = updateRentalDto;
+
     const rental = await this.rentalRepository.preload({
       id: id,
       ...rentalData,
+      client_id,
     });
 
     if (!rental)

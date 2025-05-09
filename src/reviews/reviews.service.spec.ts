@@ -211,7 +211,7 @@ describe('ReviewsService', () => {
       expect(result).toEqual(expectedReview);
       expect(mockQueryBuilder.where).toHaveBeenCalledWith(
         'review.rating = :rating',
-        { rating: searchTerm },
+        { rating: Number(searchTerm) },
       );
       expect(mockQueryBuilder.orWhere).toHaveBeenCalledWith(
         'review.comment = :comment',

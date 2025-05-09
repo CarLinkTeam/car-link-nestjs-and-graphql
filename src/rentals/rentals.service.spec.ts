@@ -103,23 +103,24 @@ describe('RentalsService', () => {
 
   describe('create', () => {
     it('should create a rental successfully', async () => {
+      const clientId = 'client-id';
       const createRentalDto: CreateRentalDto = {
         initialDate: new Date('2023-01-01'),
         finalDate: new Date('2023-01-10'),
         totalCost: 500,
         status: 'pending',
-        client_id: 'client-id',
         vehicle_id: 'vehicle-id',
       };
 
       const expectedRental = {
         id: 'rental-id',
         ...createRentalDto,
+        client_id: clientId,
       };
 
       jest
         .spyOn(usersService, 'findById')
-        .mockResolvedValue({ id: 'client-id' } as any);
+        .mockResolvedValue({ id: clientId } as any);
       jest
         .spyOn(vehiclesService, 'findOne')
         .mockResolvedValue({ id: 'vehicle-id' } as any);
@@ -132,49 +133,49 @@ describe('RentalsService', () => {
         .spyOn(rentalRepository, 'save')
         .mockResolvedValue(expectedRental as any);
 
-      const result = await service.create(createRentalDto);
+      const result = await service.create(clientId, createRentalDto);
       expect(result).toEqual(expectedRental);
-      expect(usersService.findById).toHaveBeenCalledWith('client-id');
+      expect(usersService.findById).toHaveBeenCalledWith(clientId);
       expect(vehiclesService.findOne).toHaveBeenCalledWith('vehicle-id');
       expect(rentalRepository.create).toHaveBeenCalled();
       expect(rentalRepository.save).toHaveBeenCalled();
     });
 
     it('should throw BadRequestException if start date is after end date', async () => {
+      const clientId = 'client-id';
       const createRentalDto: CreateRentalDto = {
         initialDate: new Date('2023-01-10'),
         finalDate: new Date('2023-01-01'),
         totalCost: 500,
         status: 'pending',
-        client_id: 'client-id',
         vehicle_id: 'vehicle-id',
       };
 
       jest
         .spyOn(usersService, 'findById')
-        .mockResolvedValue({ id: 'client-id' } as any);
+        .mockResolvedValue({ id: clientId } as any);
       jest
         .spyOn(vehiclesService, 'findOne')
         .mockResolvedValue({ id: 'vehicle-id' } as any);
 
-      await expect(service.create(createRentalDto)).rejects.toThrow(
+      await expect(service.create(clientId, createRentalDto)).rejects.toThrow(
         BadRequestException,
       );
     });
 
     it('should throw BadRequestException if vehicle is unavailable', async () => {
+      const clientId = 'client-id';
       const createRentalDto: CreateRentalDto = {
         initialDate: new Date('2023-01-01'),
         finalDate: new Date('2023-01-10'),
         totalCost: 500,
         status: 'pending',
-        client_id: 'client-id',
         vehicle_id: 'vehicle-id',
       };
 
       jest
         .spyOn(usersService, 'findById')
-        .mockResolvedValue({ id: 'client-id' } as any);
+        .mockResolvedValue({ id: clientId } as any);
       jest
         .spyOn(vehiclesService, 'findOne')
         .mockResolvedValue({ id: 'vehicle-id' } as any);
@@ -182,24 +183,24 @@ describe('RentalsService', () => {
         .spyOn(unavailabilityRepository, 'find')
         .mockResolvedValue([{ id: 'unavailability-id' }] as any);
 
-      await expect(service.create(createRentalDto)).rejects.toThrow(
+      await expect(service.create(clientId, createRentalDto)).rejects.toThrow(
         BadRequestException,
       );
     });
 
     it('should throw BadRequestException if vehicle is already rented', async () => {
+      const clientId = 'client-id';
       const createRentalDto: CreateRentalDto = {
         initialDate: new Date('2023-01-01'),
         finalDate: new Date('2023-01-10'),
         totalCost: 500,
         status: 'pending',
-        client_id: 'client-id',
         vehicle_id: 'vehicle-id',
       };
 
       jest
         .spyOn(usersService, 'findById')
-        .mockResolvedValue({ id: 'client-id' } as any);
+        .mockResolvedValue({ id: clientId } as any);
       jest
         .spyOn(vehiclesService, 'findOne')
         .mockResolvedValue({ id: 'vehicle-id' } as any);
@@ -213,7 +214,7 @@ describe('RentalsService', () => {
           throw error;
         });
 
-      await expect(service.create(createRentalDto)).rejects.toThrow(
+      await expect(service.create(clientId, createRentalDto)).rejects.toThrow(
         BadRequestException,
       );
     });
@@ -302,6 +303,7 @@ describe('RentalsService', () => {
   describe('update', () => {
     it('should update a rental successfully', async () => {
       const rentalId = 'rental-id';
+      const clientId = 'client-id';
       const updateRentalDto: UpdateRentalDto = {
         totalCost: 600,
         status: 'confirmed',
@@ -319,6 +321,7 @@ describe('RentalsService', () => {
       const updatedRental = {
         ...existingRental,
         ...updateRentalDto,
+        client_id: clientId,
       };
 
       jest
@@ -331,11 +334,12 @@ describe('RentalsService', () => {
         .spyOn(service, 'findOne')
         .mockResolvedValueOnce(updatedRental as any);
 
-      const result = await service.update(rentalId, updateRentalDto);
+      const result = await service.update(rentalId, updateRentalDto, clientId);
       expect(result).toEqual(updatedRental);
       expect(rentalRepository.preload).toHaveBeenCalledWith({
         id: rentalId,
         ...updateRentalDto,
+        client_id: clientId,
       });
       expect(mockQueryRunner.connect).toHaveBeenCalled();
       expect(mockQueryRunner.startTransaction).toHaveBeenCalled();
@@ -346,6 +350,7 @@ describe('RentalsService', () => {
 
     it('should throw BadRequestException if start date is after end date', async () => {
       const rentalId = 'rental-id';
+      const clientId = 'client-id';
       const updateRentalDto: UpdateRentalDto = {
         initialDate: new Date('2023-01-10'),
         finalDate: new Date('2023-01-01'),
@@ -362,13 +367,14 @@ describe('RentalsService', () => {
 
       jest.spyOn(service, 'findOne').mockResolvedValue(existingRental as any);
 
-      await expect(service.update(rentalId, updateRentalDto)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        service.update(rentalId, updateRentalDto, clientId),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should throw NotFoundException if rental not found', async () => {
       const rentalId = 'non-existent-id';
+      const clientId = 'client-id';
       const updateRentalDto: UpdateRentalDto = {
         totalCost: 600,
       };
@@ -381,9 +387,9 @@ describe('RentalsService', () => {
       } as any);
       jest.spyOn(rentalRepository, 'preload').mockResolvedValue(undefined);
 
-      await expect(service.update(rentalId, updateRentalDto)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.update(rentalId, updateRentalDto, clientId),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 

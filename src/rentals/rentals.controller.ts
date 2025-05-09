@@ -15,6 +15,8 @@ import { UpdateRentalDto } from './dto/update-rental.dto';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { ValidRoles } from '../auth/enums/valid-roles.enum';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
+import { GetUser } from '../auth/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @ApiTags('Rentals')
 @Controller('rentals')
@@ -34,8 +36,8 @@ export class RentalsController {
     description: 'Not found - Vehicle or client not found',
   })
   @ApiResponse({ status: 500, description: 'Internal server error' })
-  create(@Body() createRentalDto: CreateRentalDto) {
-    return this.rentalsService.create(createRentalDto);
+  create(@GetUser() user: User, @Body() createRentalDto: CreateRentalDto) {
+    return this.rentalsService.create(user.id, createRentalDto);
   }
 
   @Get()
@@ -62,7 +64,7 @@ export class RentalsController {
   }
 
   @Patch(':id')
-  @Auth(ValidRoles.OWNER, ValidRoles.ADMIN)
+  @Auth(ValidRoles.OWNER, ValidRoles.ADMIN, ValidRoles.TENANT)
   @ApiResponse({ status: 200, description: 'Rental updated successfully' })
   @ApiResponse({
     status: 400,
@@ -74,8 +76,12 @@ export class RentalsController {
     description: 'Not found - Rental, vehicle, or client not found',
   })
   @ApiResponse({ status: 500, description: 'Internal server error' })
-  update(@Param('id') id: string, @Body() updateRentalDto: UpdateRentalDto) {
-    return this.rentalsService.update(id, updateRentalDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateRentalDto: UpdateRentalDto,
+    @GetUser() user: User,
+  ) {
+    return this.rentalsService.update(id, updateRentalDto, user.id);
   }
 
   @Delete(':id')

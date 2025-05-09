@@ -53,7 +53,6 @@ export class ReviewsService {
       this.handleExeptions(error);
     }
   }
-
   async findOne(term: string) {
     let review: Review | null;
     if (isUUID(term)) {
@@ -63,9 +62,14 @@ export class ReviewsService {
       });
     } else {
       const queryBuilder = this.reviewRepository.createQueryBuilder('review');
+      const isNumeric = !isNaN(Number(term)) && Number.isInteger(Number(term));
+
+      if (isNumeric) {
+        queryBuilder.where('review.rating = :rating', { rating: Number(term) });
+      }
+      queryBuilder.orWhere('review.comment = :comment', { comment: term });
+
       review = await queryBuilder
-        .where('review.rating = :rating', { rating: term })
-        .orWhere('review.comment = :comment', { comment: term })
         .leftJoinAndSelect('review.rental', 'rental')
         .getOne();
     }

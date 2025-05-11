@@ -163,7 +163,6 @@ describe('ReviewsModule Find (e2e)', () => {
         .get('/reviews/invalid-id')
         .set('Authorization', `Bearer ${authToken}`);
 
-      console.log('respuestaaaa', response);
       expect(response.status).toBe(404);
     });
 

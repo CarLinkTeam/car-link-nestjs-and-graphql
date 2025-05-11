@@ -75,7 +75,7 @@ describe('CreateVehicleDto', () => {
       daily_price: -1,
     });
     const errors = await validate(dto);
-    expect(errors[0].constraints).toHaveProperty('min');
+    expect(errors[0].constraints).toHaveProperty('isPositive');
   });
 
   it('should validate rental_conditions is string', async () => {

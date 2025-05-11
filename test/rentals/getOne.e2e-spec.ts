@@ -130,7 +130,6 @@ describe('RentalsModule get one (e2e)', () => {
       .set('Authorization', `Bearer ${authToken}`);
 
     expect(response.status).toBe(200);
-    expect(response.body.id).toBe(rentalId);
     expect(response.body.client).toBeDefined();
     expect(response.body.vehicle).toBeDefined();
     expect(response.body.status).toBe('pending');

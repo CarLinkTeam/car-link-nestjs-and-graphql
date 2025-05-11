@@ -41,7 +41,6 @@ describe('VehiclesController', () => {
     create: jest.fn(),
     findAll: jest.fn(),
     findOne: jest.fn(),
-    findByLicensePlate: jest.fn(),
     findByOwner: jest.fn(),
     update: jest.fn(),
     remove: jest.fn(),
@@ -191,31 +190,6 @@ describe('VehiclesController', () => {
 
       await expect(controller.findOne(id)).rejects.toThrow(NotFoundException);
       expect(service.findOne).toHaveBeenCalledWith(id);
-    });
-  });
-
-  describe('findByLicensePlate', () => {
-    it('should return a vehicle by license plate', async () => {
-      mockVehiclesService.findByLicensePlate.mockResolvedValue(
-        mockVehicleResponseDto,
-      );
-      const licensePlate = 'ABC123';
-
-      const result = await controller.findByLicensePlate(licensePlate);
-
-      expect(service.findByLicensePlate).toHaveBeenCalledWith(licensePlate);
-      expect(result).toEqual(mockVehicleResponseDto);
-    });
-
-    it('should handle errors when finding a vehicle by license plate', async () => {
-      const licensePlate = 'NON-EXISTENT';
-      const error = new NotFoundException('Vehicle not found');
-      mockVehiclesService.findByLicensePlate.mockRejectedValue(error);
-
-      await expect(controller.findByLicensePlate(licensePlate)).rejects.toThrow(
-        NotFoundException,
-      );
-      expect(service.findByLicensePlate).toHaveBeenCalledWith(licensePlate);
     });
   });
 

@@ -74,10 +74,8 @@ export class AuthService {
     }
 
     if (user.roles.includes(newRole)) {
-      return {
-        message: `User already has role ${newRole}`,
-        user: { ...user, password: undefined },
-      };
+      throw new UnauthorizedException(`User already has role ${newRole}`);
+
     }
 
     user.roles.push(newRole);

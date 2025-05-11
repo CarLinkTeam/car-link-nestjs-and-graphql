@@ -10,13 +10,14 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 import { ValidRoles } from '../auth/enums/valid-roles.enum';
+import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const user = this.usersRepository.create(createUserDto);
@@ -24,18 +25,23 @@ export class UsersService {
   }
 
   async findAll(): Promise<User[]> {
-    return await this.usersRepository.find({ where: { isActive: true } });
+    const users = await this.usersRepository.find({ where: { isActive: true } });
+    return users.map(user => instanceToPlain(user) as User);
   }
 
   async findById(id: string): Promise<User> {
     const user = await this.usersRepository.findOneBy({ id, isActive: true });
     if (!user) throw new NotFoundException(`User with id ${id} not found`);
-    return user;
+    return instanceToPlain(user) as User;
   }
 
+
+
   async findByEmail(email: string): Promise<User | null> {
+    const normalizedEmail = email.toLowerCase().trim();
+
     return await this.usersRepository.findOne({
-      where: { email, isActive: true },
+      where: { email: normalizedEmail, isActive: true },
       select: ['id', 'email', 'password', 'roles'],
     });
   }
@@ -46,18 +52,13 @@ export class UsersService {
     requester: User,
   ): Promise<User> {
     const user = await this.usersRepository.findOneBy({ id, isActive: true });
-
-    if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found or inactive`);
-    }
+    if (!user) throw new NotFoundException(`User with ID ${id} not found or inactive`);
 
     const isAdmin = requester.roles.includes(ValidRoles.ADMIN);
     const isSelf = requester.id === id;
 
     if (!isAdmin && !isSelf) {
-      throw new UnauthorizedException(
-        `You are not allowed to promote this user`,
-      );
+      throw new UnauthorizedException(`You are not allowed to update this user`);
     }
 
     if (updateUserDto.password) {
@@ -67,8 +68,10 @@ export class UsersService {
     Object.assign(user, updateUserDto);
     await this.usersRepository.save(user);
 
-    delete user.password;
-    return user;
+    const updatedUser = await this.usersRepository.findOneBy({ id });
+    if (!updatedUser) throw new NotFoundException(`User with ID ${id} not found after update`);
+
+    return instanceToPlain(updatedUser) as User;
   }
 
   async remove(id: string, requester: User): Promise<{ message: string }> {
@@ -85,7 +88,7 @@ export class UsersService {
 
     if (!isAdmin && !isSelf) {
       throw new UnauthorizedException(
-        `You are not allowed to promote this user`,
+        `You are not allowed to remove this user`,
       );
     }
 

@@ -126,9 +126,8 @@ describe('AuthService', () => {
 
     it('should not promote if user already has the role', async () => {
       const requester = { ...mockUser, roles: [ValidRoles.ADMIN] } as User;
-      const result = await authService.promoteUser('uuid-123', ValidRoles.TENANT, requester);
+      await expect(authService.promoteUser('uuid-123', ValidRoles.TENANT, requester)).rejects.toThrow(UnauthorizedException);
 
-      expect(result.message).toBe(`User already has role TENANT`);
     });
 
     it('should throw UnauthorizedException if requester is not admin or self', async () => {

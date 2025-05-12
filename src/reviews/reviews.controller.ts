@@ -14,40 +14,66 @@ import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { ValidRoles } from '../auth/enums/valid-roles.enum';
-import { ApiTags, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
+import { Review } from './entities/review.entity';
 
 @ApiTags('Reviews')
 @Controller('reviews')
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
-
   @Post()
   @Auth(ValidRoles.TENANT, ValidRoles.ADMIN)
-  @ApiResponse({ status: 201, description: 'Review created successfully' })
+  @ApiOperation({ summary: 'Create a new review' })
+  @ApiResponse({
+    status: 201,
+    description: 'Review created successfully',
+    type: Review,
+  })
   @ApiResponse({
     status: 400,
     description: 'Bad request - Invalid review data',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - User is not authenticated',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - User is not a tenant or admin',
   })
   @ApiResponse({ status: 404, description: 'Not found - Rental not found' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   create(@Body() createReviewDto: CreateReviewDto) {
     return this.reviewsService.create(createReviewDto);
   }
-
   @Get()
   @Auth(ValidRoles.TENANT, ValidRoles.ADMIN, ValidRoles.OWNER)
+  @ApiOperation({ summary: 'Get all reviews' })
   @ApiResponse({
     status: 200,
     description: 'List of reviews retrieved successfully',
+    type: [Review],
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - User is not authenticated',
   })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   findAll() {
     return this.reviewsService.findAll();
   }
-
   @Get(':term')
   @Auth(ValidRoles.TENANT, ValidRoles.ADMIN, ValidRoles.OWNER)
-  @ApiResponse({ status: 200, description: 'Review found successfully' })
+  @ApiOperation({ summary: 'Get a review by ID or term' })
+  @ApiResponse({
+    status: 200,
+    description: 'Review found successfully',
+    type: Review,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - User is not authenticated',
+  })
   @ApiResponse({
     status: 404,
     description: 'Not found - Review with specified ID or term not found',
@@ -56,13 +82,25 @@ export class ReviewsController {
   findOne(@Param('term') term: string) {
     return this.reviewsService.findOne(term);
   }
-
   @Patch(':id')
   @Auth(ValidRoles.TENANT, ValidRoles.ADMIN)
-  @ApiResponse({ status: 200, description: 'Review updated successfully' })
+  @ApiOperation({ summary: 'Update a review' })
+  @ApiResponse({
+    status: 200,
+    description: 'Review updated successfully',
+    type: Review,
+  })
   @ApiResponse({
     status: 400,
     description: 'Bad request - Invalid review data',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - User is not authenticated',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - User is not authorized to update this review',
   })
   @ApiResponse({
     status: 404,
@@ -72,11 +110,19 @@ export class ReviewsController {
   update(@Param('id') id: string, @Body() updateReviewDto: UpdateReviewDto) {
     return this.reviewsService.update(id, updateReviewDto);
   }
-
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Auth(ValidRoles.TENANT, ValidRoles.ADMIN)
+  @ApiOperation({ summary: 'Delete a review' })
   @ApiResponse({ status: 204, description: 'Review deleted successfully' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - User is not authenticated',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - User is not authorized to delete this review',
+  })
   @ApiResponse({
     status: 404,
     description: 'Not found - Review with specified ID not found',

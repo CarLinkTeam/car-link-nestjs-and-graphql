@@ -14,22 +14,31 @@ import { CreateRentalDto } from './dto/create-rental.dto';
 import { UpdateRentalDto } from './dto/update-rental.dto';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { ValidRoles } from '../auth/enums/valid-roles.enum';
-import { ApiTags, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { User } from '../users/entities/user.entity';
+import { Rental } from './entities/rental.entity';
 
 @ApiTags('Rentals')
 @Controller('rentals')
 export class RentalsController {
   constructor(private readonly rentalsService: RentalsService) {}
-
   @Post()
   @Auth(ValidRoles.OWNER, ValidRoles.ADMIN, ValidRoles.TENANT)
-  @ApiResponse({ status: 201, description: 'Rental created successfully' })
+  @ApiOperation({ summary: 'Create a new rental' })
+  @ApiResponse({
+    status: 201,
+    description: 'Rental created successfully',
+    type: Rental,
+  })
   @ApiResponse({
     status: 400,
     description:
       'Bad request - Invalid data, vehicle unavailable, or date conflict',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - User is not authenticated',
   })
   @ApiResponse({
     status: 404,
@@ -39,21 +48,34 @@ export class RentalsController {
   create(@GetUser() user: User, @Body() createRentalDto: CreateRentalDto) {
     return this.rentalsService.create(user.id, createRentalDto);
   }
-
   @Get()
   @Auth(ValidRoles.OWNER, ValidRoles.ADMIN, ValidRoles.TENANT)
+  @ApiOperation({ summary: 'Get all rentals' })
   @ApiResponse({
     status: 200,
     description: 'List of all rentals retrieved successfully',
+    type: [Rental],
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - User is not authenticated',
   })
   @ApiResponse({ status: 500, description: 'Internal server error' })
   findAll() {
     return this.rentalsService.findAll();
   }
-
   @Get(':term')
   @Auth(ValidRoles.OWNER, ValidRoles.ADMIN, ValidRoles.TENANT)
-  @ApiResponse({ status: 200, description: 'Rental found successfully' })
+  @ApiOperation({ summary: 'Get a rental by ID or date' })
+  @ApiResponse({
+    status: 200,
+    description: 'Rental found successfully',
+    type: Rental,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - User is not authenticated',
+  })
   @ApiResponse({
     status: 404,
     description: 'Not found - Rental with specified ID or date not found',
@@ -62,14 +84,26 @@ export class RentalsController {
   findOne(@Param('term') term: string) {
     return this.rentalsService.findOne(term);
   }
-
   @Patch(':id')
   @Auth(ValidRoles.OWNER, ValidRoles.ADMIN, ValidRoles.TENANT)
-  @ApiResponse({ status: 200, description: 'Rental updated successfully' })
+  @ApiOperation({ summary: 'Update a rental' })
+  @ApiResponse({
+    status: 200,
+    description: 'Rental updated successfully',
+    type: Rental,
+  })
   @ApiResponse({
     status: 400,
     description:
       'Bad request - Invalid data, vehicle unavailable, or date conflict',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - User is not authenticated',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - User is not authorized to update this rental',
   })
   @ApiResponse({
     status: 404,
@@ -83,11 +117,19 @@ export class RentalsController {
   ) {
     return this.rentalsService.update(id, updateRentalDto, user.id);
   }
-
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Auth(ValidRoles.OWNER, ValidRoles.ADMIN)
+  @ApiOperation({ summary: 'Delete a rental' })
   @ApiResponse({ status: 204, description: 'Rental deleted successfully' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - User is not authenticated',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - User is not authorized to delete this rental',
+  })
   @ApiResponse({
     status: 404,
     description: 'Not found - Rental with specified ID not found',
@@ -96,13 +138,25 @@ export class RentalsController {
   remove(@Param('id') id: string) {
     return this.rentalsService.remove(id);
   }
-
   @Patch(':id/confirm')
   @Auth(ValidRoles.OWNER, ValidRoles.ADMIN)
-  @ApiResponse({ status: 200, description: 'Rental confirmed successfully' })
+  @ApiOperation({ summary: 'Confirm a pending rental' })
+  @ApiResponse({
+    status: 200,
+    description: 'Rental confirmed successfully',
+    type: Rental,
+  })
   @ApiResponse({
     status: 400,
     description: 'Bad request - Rental not in pending status',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - User is not authenticated',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - User is not authorized to confirm this rental',
   })
   @ApiResponse({
     status: 404,
@@ -112,13 +166,25 @@ export class RentalsController {
   confirmRental(@Param('id') id: string) {
     return this.rentalsService.confirmRental(id);
   }
-
   @Patch(':id/reject')
   @Auth(ValidRoles.OWNER, ValidRoles.ADMIN)
-  @ApiResponse({ status: 200, description: 'Rental rejected successfully' })
+  @ApiOperation({ summary: 'Reject a pending rental' })
+  @ApiResponse({
+    status: 200,
+    description: 'Rental rejected successfully',
+    type: Rental,
+  })
   @ApiResponse({
     status: 400,
     description: 'Bad request - Rental not in pending status',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - User is not authenticated',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - User is not authorized to reject this rental',
   })
   @ApiResponse({
     status: 404,

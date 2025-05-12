@@ -1,39 +1,25 @@
-# car-link-nestjs
+# CAR LINK API - NestJS Implementation
 
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+## Authors
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+> - Alejandro Londoño Bermúdez - A00395978
+> - Juan David Colonia Aldana - A00395956
+> - Miguel Ángel Gonzalez Arango - A00395687
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Project Overview
 
-## Description
+The CAR LINK API facilitates car rental processes for private vehicle owners. It provides a comprehensive platform where owners can register and rent their vehicles, tenants can search and book rentals, and administrators can manage the overall system.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This version is implemented using NestJS, TypeORM, and PostgreSQL, providing a robust, scalable, and maintainable backend solution.
 
-## Project setup
+## Project Setup
 
 ```bash
+# Install dependencies
 $ npm install
 ```
 
-## Compile and run the project
+## Running the Application
 
 ```bash
 # development
@@ -44,13 +30,16 @@ $ npm run start:dev
 
 # production mode
 $ npm run start:prod
+
+# seed the database with initial data
+$ npm run seed
 ```
 
-## Run tests
+## Running Tests
 
 ```bash
 # unit tests
-$ npm run test
+$ npm run test:unit
 
 # e2e tests
 $ npm run test:e2e
@@ -59,42 +48,164 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-## Deployment
+## Setting Up the Database
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+The project uses Docker Compose to set up a PostgreSQL database and pgAdmin for database management:
 
 ```bash
-$ npm install -g mau
-$ mau deploy
+# Start the database and pgAdmin
+docker-compose up -d
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Make sure to create a `.env` file with the following environment variables:
 
-## Resources
+```
+# Database
+POSTGRES_DB=
+POSTGRES_USER=
+POSTGRES_PASSWORD=
+DB_HOST=
+DB_PORT=
 
-Check out a few resources that may come in handy when working with NestJS:
+# JWT
+JWT_SECRET=
+JWT_EXPIRES_IN=
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+# PGAdmin
+PG_PORT=
+ADMIN_EMAIL=
+ADMIN_PASSWORD=
+```
 
-## Support
+## API Documentation
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+The purpose of this API is to facilitate the car rental process for private owners who wish to rent out their vehicles.
 
-## Stay in touch
+### Authentication and Authorization
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+The API uses JWT-based authentication with role-based access control. There are three user roles:
 
-## License
+1. **Administrator**: Full access to manage users, roles, and oversee the system
+2. **Owner**: Can register vehicles, manage rental listings, and update vehicle information
+3. **Tenant**: Can search for available rentals, view details, and book vehicles
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Authentication is implemented using:
+
+- Passport.js with JWT strategy
+- Custom guards and decorators for role-based protection
+- Bcrypt for password hashing
+- JWT tokens for secure user sessions
+
+### Database Persistence
+
+The application uses:
+
+- TypeORM for database ORM
+- PostgreSQL as the relational database
+- Entity-based data modeling with relationships
+- Database migrations for version control
+- Data validation using DTOs and class-validator
+
+## API Endpoints
+
+### 1. Authentication Routes
+
+| **Route**                  | **Method** | **Description**                  | **Request Body**                                 | **Response**        |
+| -------------------------- | ---------- | -------------------------------- | ------------------------------------------------ | ------------------- |
+| `/auth/register`           | POST       | Registers a new user account     | `{ email, password, fullName, location, phone }` | `{ user, token }`   |
+| `/auth/login`              | POST       | Logs in an existing user         | `{ email, password }`                            | `{ user, token }`   |
+| `/auth/promoteToOwner/:id` | POST       | Assigns the OWNER role to a user | -                                                | Updated user object |
+| `/auth/promoteToAdmin/:id` | POST       | Assigns the ADMIN role to a user | -                                                | Updated user object |
+
+### 2. Users Routes
+
+| **Route**    | **Method** | **Description**                  | **Request Body/Params**      | **Response**    |
+| ------------ | ---------- | -------------------------------- | ---------------------------- | --------------- |
+| `/users`     | GET        | Retrieves all users (ADMIN only) | -                            | Array of users  |
+| `/users/:id` | GET        | Retrieves a specific user        | `id` (path param)            | User object     |
+| `/users/:id` | PATCH      | Updates a user                   | `id` (path param), User data | Updated user    |
+| `/users/:id` | DELETE     | Deletes a user                   | `id` (path param)            | Success message |
+
+### 3. Vehicles Routes
+
+| **Route**       | **Method** | **Description**                    | **Request Body/Params**         | **Response**      |
+| --------------- | ---------- | ---------------------------------- | ------------------------------- | ----------------- |
+| `/vehicles`     | POST       | Creates a new vehicle (OWNER only) | Vehicle details                 | Created vehicle   |
+| `/vehicles`     | GET        | Retrieves all vehicles             | Query params for filtering      | Array of vehicles |
+| `/vehicles/:id` | GET        | Retrieves a specific vehicle       | `id` (path param)               | Vehicle object    |
+| `/vehicles/:id` | PATCH      | Updates a vehicle                  | `id` (path param), Vehicle data | Updated vehicle   |
+| `/vehicles/:id` | DELETE     | Deletes a vehicle                  | `id` (path param)               | Success message   |
+
+### 4. Rentals Routes
+
+| **Route**              | **Method** | **Description**             | **Request Body/Params**        | **Response**     |
+| ---------------------- | ---------- | --------------------------- | ------------------------------ | ---------------- |
+| `/rentals`             | POST       | Creates a new rental        | Rental details                 | Created rental   |
+| `/rentals`             | GET        | Retrieves all rentals       | Query params for filtering     | Array of rentals |
+| `/rentals/:id`         | GET        | Retrieves a specific rental | `id` (path param)              | Rental object    |
+| `/rentals/:id`         | PATCH      | Updates a rental            | `id` (path param), Rental data | Updated rental   |
+| `/rentals/:id`         | DELETE     | Deletes a rental            | `id` (path param)              | Success message  |
+| `/rentals/:id/confirm` | PATCH      | Confirms a rental request   | `id` (path param)              | Updated rental   |
+| `/rentals/:id/reject`  | PATCH      | Rejects a rental request    | `id` (path param)              | Updated rental   |
+
+### 5. Reviews Routes
+
+| **Route**      | **Method** | **Description**             | **Request Body/Params**        | **Response**     |
+| -------------- | ---------- | --------------------------- | ------------------------------ | ---------------- |
+| `/reviews`     | POST       | Creates a new review        | Review details                 | Created review   |
+| `/reviews`     | GET        | Retrieves all reviews       | Query params for filtering     | Array of reviews |
+| `/reviews/:id` | GET        | Retrieves a specific review | `id` (path param)              | Review object    |
+| `/reviews/:id` | PATCH      | Updates a review            | `id` (path param), Review data | Updated review   |
+| `/reviews/:id` | DELETE     | Deletes a review            | `id` (path param)              | Success message  |
+
+## Implementation Details
+
+### Authentication Implementation
+
+Authentication is implemented using JWT tokens. When a user registers or logs in, a JWT token is generated with user information (id, roles). This token must be included in subsequent API requests in the Authorization header:
+
+```
+Authorization: Bearer <token>
+```
+
+Role-based authorization is implemented using custom decorators:
+
+```typescript
+@Auth(ValidRoles.ADMIN)  // Requires admin role
+@Auth(ValidRoles.OWNER)  // Requires owner role
+@Auth()                 // Requires authentication (any role)
+```
+
+### Database Implementation
+
+The application uses TypeORM with PostgreSQL for data persistence. Entity relationships:
+
+- Users have many Vehicles (one-to-many)
+- Users have many Reviews (one-to-many)
+- Vehicles have many Rentals (one-to-many)
+- Vehicles have many Reviews (one-to-many)
+
+Each entity has validation rules implemented through DTOs and TypeORM decorations.
+
+## Technical Architecture
+
+The application follows the NestJS modular architecture:
+
+- Controllers handle HTTP requests and responses
+- Services contain business logic
+- Entities define database models
+- DTOs validate input/output data
+- Guards protect routes based on authentication/authorization
+- Decorators provide metadata for routes and methods
+
+## Conclusion and Next Steps
+
+The CAR LINK API provides a comprehensive solution for car rental management with proper authentication, authorization, and data persistence. The NestJS implementation ensures a scalable and maintainable codebase.
+
+Future enhancements could include:
+
+1. API rate limiting
+2. Enhanced logging and monitoring
+3. Payment integration
+4. Real-time notifications
+5. Extended vehicle information integration with external APIs

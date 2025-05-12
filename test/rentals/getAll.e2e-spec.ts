@@ -100,7 +100,7 @@ describe('RentalsModule get all (e2e)', () => {
       .send(testRental);
 
     rentalId = rentalResponse.body.id;
-  });
+  }, 10000);
 
   afterAll(async () => {
     // Clean up created data

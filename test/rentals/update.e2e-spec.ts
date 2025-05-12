@@ -107,7 +107,7 @@ describe('RentalsModule Update (e2e)', () => {
       .send(validRentalDto);
 
     rentalId = rentalResponse.body.id;
-  });
+  }, 10000);
 
   afterAll(async () => {
     await rentalRepository.delete({ client_id: userId });

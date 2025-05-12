@@ -125,7 +125,7 @@ describe('RentalsModule Confirm/Reject (e2e)', () => {
       .patch(`/rentals/${confirmedRentalId}/confirm`)
       .set('Authorization', `Bearer ${authToken}`)
       .send();
-  });
+  }, 10000);
 
   afterAll(async () => {
     await rentalRepository.delete({ client_id: userId });

@@ -1,7 +1,7 @@
 import {
+  ForbiddenException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -35,8 +35,6 @@ export class UsersService {
     return instanceToPlain(user) as User;
   }
 
-
-
   async findByEmail(email: string): Promise<User | null> {
     const normalizedEmail = email.toLowerCase().trim();
 
@@ -58,7 +56,7 @@ export class UsersService {
     const isSelf = requester.id === id;
 
     if (!isAdmin && !isSelf) {
-      throw new UnauthorizedException(`You are not allowed to update this user`);
+      throw new ForbiddenException(`You are not allowed to update this user`);
     }
 
     if (updateUserDto.password) {
@@ -87,7 +85,7 @@ export class UsersService {
     const isSelf = requester.id === id;
 
     if (!isAdmin && !isSelf) {
-      throw new UnauthorizedException(
+      throw new ForbiddenException(
         `You are not allowed to remove this user`,
       );
     }

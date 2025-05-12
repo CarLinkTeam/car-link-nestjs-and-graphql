@@ -3,7 +3,7 @@ import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 describe('UsersService', () => {
@@ -145,7 +145,7 @@ describe('UsersService', () => {
       mockUserRepository.findOneBy.mockResolvedValue(user);
 
       await expect(service.update('some-uuid', updateUserDto, requester)).rejects.toThrow(
-        UnauthorizedException,
+        ForbiddenException,
       );
     });
   });
@@ -174,7 +174,7 @@ describe('UsersService', () => {
 
       mockUserRepository.findOneBy.mockResolvedValue(user);
 
-      await expect(service.remove('some-uuid', requester)).rejects.toThrow(UnauthorizedException);
+      await expect(service.remove('some-uuid', requester)).rejects.toThrow(ForbiddenException);
     });
   });
 });

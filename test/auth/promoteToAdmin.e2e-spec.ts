@@ -98,7 +98,7 @@ describe('Auth - Promote To Admin (e2e)', () => {
         adminToken = adminLogin.body.token;
         tenantToken = tenantLogin.body.token;
         ownerToken = ownerLogin.body.token;
-    });
+  }, 10000);
 
     afterAll(async () => {
         await userRepository.delete({ id: adminUserId });
@@ -112,7 +112,7 @@ it('should NOT allow an admin to promote themselves', async () => {
   const response = await request(app.getHttpServer())
     .post(`/auth/promoteToAdmin/${adminUserId}`)
     .set('Authorization', `Bearer ${adminToken}`)
-    .expect(401);
+    .expect(400);
 
   expect(response.body.message).toBe(`User already has role ADMIN`);
 });

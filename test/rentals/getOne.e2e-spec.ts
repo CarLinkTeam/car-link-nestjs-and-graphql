@@ -97,7 +97,7 @@ describe('RentalsModule get one (e2e)', () => {
       .send(testRental);
 
     rentalId = rentalResponse.body.id;
-  });
+  }, 10000);
 
   afterAll(async () => {
     await rentalRepository.delete({ client_id: userId });

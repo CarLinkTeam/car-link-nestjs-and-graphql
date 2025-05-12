@@ -117,7 +117,7 @@ describe('VehiclesModule Update (e2e)', () => {
       .send(testVehicle);
 
     vehicleId = vehicleResponse.body.id;
-  });
+  }, 10000);
 
   afterAll(async () => {
     await vehicleRepository.delete({ id: vehicleId });

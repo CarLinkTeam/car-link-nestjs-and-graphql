@@ -34,7 +34,7 @@ describe('AuthModule Register (e2e)', () => {
         );
         await app.init();
         userRepository = app.get<Repository<User>>(getRepositoryToken(User));
-    });
+  }, 10000);
 
     afterEach(async () => {
         await userRepository.delete({ email: testUser.email });

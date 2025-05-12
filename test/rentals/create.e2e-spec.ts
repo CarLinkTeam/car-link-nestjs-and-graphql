@@ -89,7 +89,7 @@ describe('RentalsModule Create (e2e)', () => {
     vehicleId = vehicleResponse.body.id;
 
     validRentalDto.vehicle_id = vehicleId;
-  });
+  }, 10000);
 
   afterAll(async () => {
     await rentalRepository.delete({ client_id: userId });

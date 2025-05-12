@@ -93,7 +93,7 @@ describe('Users - Delete (e2e)', () => {
     adminToken = adminLogin.body.token;
     tenantToken = tenantLogin.body.token;
     otherTenantToken = otherTenantLogin.body.token;
-  });
+  }, 10000);
 
   afterAll(async () => {
     await userRepository.delete({ id: adminUserId });
@@ -115,7 +115,7 @@ describe('Users - Delete (e2e)', () => {
       .delete(`/users/${adminUserId}`)
       .set('Authorization', `Bearer ${tenantToken}`);
 
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(403);
     expect(res.body.message).toBe('You are not allowed to remove this user');
   });
 

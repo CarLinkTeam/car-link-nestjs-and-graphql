@@ -33,13 +33,11 @@ export class SeedService {
   }
 
   private async clearDatabase() {
-    await Promise.all([
-      this.reviewRepository.delete({}),
-      this.rentalRepository.delete({}),
-      this.unavailabilityRepository.delete({}),
-      this.vehicleRepository.delete({}),
-      this.userRepository.delete({}),
-    ]);
+    await this.reviewRepository.delete({});
+    await this.rentalRepository.delete({});
+    await this.unavailabilityRepository.delete({});
+    await this.vehicleRepository.delete({});
+    await this.userRepository.delete({});
   }
 
   private async seedUsers(): Promise<User[]> {

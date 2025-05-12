@@ -1,15 +1,15 @@
-import { Test, type TestingModule } from "@nestjs/testing"
-import { ConfigService } from "@nestjs/config"
-import { DatabaseConfigService } from "./database.config"
-import type { TypeOrmModuleOptions } from "@nestjs/typeorm"
+import { Test, type TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
+import { DatabaseConfigService } from './database.config';
+import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
-describe("DatabaseConfigService", () => {
-  let service: DatabaseConfigService
-  let configService: ConfigService
+describe('DatabaseConfigService', () => {
+  let service: DatabaseConfigService;
+  let configService: ConfigService;
 
   const mockConfigService = {
     get: jest.fn(),
-  }
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -20,61 +20,82 @@ describe("DatabaseConfigService", () => {
           useValue: mockConfigService,
         },
       ],
-    }).compile()
+    }).compile();
 
-    service = module.get<DatabaseConfigService>(DatabaseConfigService)
-    configService = module.get<ConfigService>(ConfigService)
+    service = module.get<DatabaseConfigService>(DatabaseConfigService);
+    configService = module.get<ConfigService>(ConfigService);
 
-    jest.clearAllMocks()
-  })
+    jest.clearAllMocks();
+  });
 
-  it("should be defined", () => {
-    expect(service).toBeDefined()
-  })
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
 
-  describe("createTypeOrmOptions", () => {
-    it("should return PostgreSQL configuration with values from ConfigService", () => {
+  describe('createTypeOrmOptions', () => {
+    it('should return PostgreSQL configuration with DATABASE_URL when available', () => {
       const mockDbConfig = {
-        DATABASE_URL: "postgresql://usuario:contraseña@host:puerto/basededatos",
-        DB_HOST: "localhost",
-        DB_PORT: 5432,
-        POSTGRES_DB: "testdb",
-        POSTGRES_USER: "testuser",
-        POSTGRES_PASSWORD: "testpassword",
-      }
+        DATABASE_URL: 'postgresql://usuario:contraseña@host:puerto/basededatos',
+      };
 
-      mockConfigService.get.mockImplementation((key: string) => mockDbConfig[key])
+      mockConfigService.get.mockImplementation(
+        (key: string) => mockDbConfig[key],
+      );
 
-      const options: TypeOrmModuleOptions = service.createTypeOrmOptions()
+      const options: TypeOrmModuleOptions = service.createTypeOrmOptions();
 
       expect(options).toEqual({
-        type: "postgres",
-        url: "postgresql://usuario:contraseña@host:puerto/basededatos",
-        host: "localhost",
-        port: 5432,
-        database: "testdb",
-        username: "testuser",
-        password: "testpassword",
+        type: 'postgres',
+        url: 'postgresql://usuario:contraseña@host:puerto/basededatos',
         autoLoadEntities: true,
         synchronize: true,
-      })
+      });
 
-      expect(configService.get).toHaveBeenCalledWith("DATABASE_URL")
-      expect(configService.get).toHaveBeenCalledWith("DB_HOST")
-      expect(configService.get).toHaveBeenCalledWith("DB_PORT")
-      expect(configService.get).toHaveBeenCalledWith("POSTGRES_DB")
-      expect(configService.get).toHaveBeenCalledWith("POSTGRES_USER")
-      expect(configService.get).toHaveBeenCalledWith("POSTGRES_PASSWORD")
-    })
+      expect(configService.get).toHaveBeenCalledWith('DATABASE_URL');
+    });
 
-    it("should handle undefined values from ConfigService", () => {
-      mockConfigService.get.mockReturnValue(undefined)
+    it('should return PostgreSQL configuration with individual parameters when DATABASE_URL is not available', () => {
+      const mockDbConfig = {
+        DATABASE_URL: undefined,
+        DB_HOST: 'localhost',
+        DB_PORT: 5432,
+        POSTGRES_DB: 'testdb',
+        POSTGRES_USER: 'testuser',
+        POSTGRES_PASSWORD: 'testpassword',
+      };
 
-      const options: TypeOrmModuleOptions = service.createTypeOrmOptions()
+      mockConfigService.get.mockImplementation(
+        (key: string) => mockDbConfig[key],
+      );
+
+      const options: TypeOrmModuleOptions = service.createTypeOrmOptions();
 
       expect(options).toEqual({
-        type: "postgres",
-        url: undefined,
+        type: 'postgres',
+        host: 'localhost',
+        port: 5432,
+        database: 'testdb',
+        username: 'testuser',
+        password: 'testpassword',
+        autoLoadEntities: true,
+        synchronize: true,
+      });
+
+      expect(configService.get).toHaveBeenCalledWith('DATABASE_URL');
+      expect(configService.get).toHaveBeenCalledWith('DB_HOST');
+      expect(configService.get).toHaveBeenCalledWith('DB_PORT');
+      expect(configService.get).toHaveBeenCalledWith('POSTGRES_DB');
+      expect(configService.get).toHaveBeenCalledWith('POSTGRES_USER');
+      expect(configService.get).toHaveBeenCalledWith('POSTGRES_PASSWORD');
+    });
+
+    it('should handle undefined values from ConfigService', () => {
+      mockConfigService.get.mockReturnValue(undefined);
+
+      const options: TypeOrmModuleOptions = service.createTypeOrmOptions();
+
+      expect(options).toEqual({
+        type: 'postgres',
         host: undefined,
         port: undefined,
         database: undefined,
@@ -82,16 +103,16 @@ describe("DatabaseConfigService", () => {
         password: undefined,
         autoLoadEntities: true,
         synchronize: true,
-      })
-    })
+      });
+    });
 
-    it("should maintain autoLoadEntities and synchronize settings", () => {
-      mockConfigService.get.mockReturnValue("any-value")
+    it('should maintain autoLoadEntities and synchronize settings', () => {
+      mockConfigService.get.mockReturnValue('any-value');
 
-      const options: TypeOrmModuleOptions = service.createTypeOrmOptions()
+      const options: TypeOrmModuleOptions = service.createTypeOrmOptions();
 
-      expect(options.autoLoadEntities).toBe(true)
-      expect(options.synchronize).toBe(true)
-    })
-  })
-})
+      expect(options.autoLoadEntities).toBe(true);
+      expect(options.synchronize).toBe(true);
+    });
+  });
+});

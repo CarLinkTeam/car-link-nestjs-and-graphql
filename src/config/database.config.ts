@@ -7,9 +7,17 @@ export class DatabaseConfigService implements TypeOrmOptionsFactory {
   constructor(private configService: ConfigService) {}
 
   createTypeOrmOptions(): TypeOrmModuleOptions {
+    const databaseUrl = this.configService.get<string>('DATABASE_URL');
+    if (databaseUrl) {
+      return {
+        type: 'postgres',
+        url: databaseUrl,
+        autoLoadEntities: true,
+        synchronize: true,
+      };
+    }
     return {
       type: 'postgres',
-      url: this.configService.get<string>('DATABASE_URL'),
       host: this.configService.get<string>('DB_HOST'),
       port: this.configService.get<number>('DB_PORT'),
       database: this.configService.get<string>('POSTGRES_DB'),

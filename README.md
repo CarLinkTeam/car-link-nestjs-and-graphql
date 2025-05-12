@@ -128,13 +128,14 @@ The application uses:
 
 ### 3. Vehicles Routes
 
-| **Route**       | **Method** | **Description**                    | **Request Body/Params**         | **Response**      |
-| --------------- | ---------- | ---------------------------------- | ------------------------------- | ----------------- |
-| `/vehicles`     | POST       | Creates a new vehicle (OWNER only) | Vehicle details                 | Created vehicle   |
-| `/vehicles`     | GET        | Retrieves all vehicles             | Query params for filtering      | Array of vehicles |
-| `/vehicles/:id` | GET        | Retrieves a specific vehicle       | `id` (path param)               | Vehicle object    |
-| `/vehicles/:id` | PATCH      | Updates a vehicle                  | `id` (path param), Vehicle data | Updated vehicle   |
-| `/vehicles/:id` | DELETE     | Deletes a vehicle                  | `id` (path param)               | Success message   |
+| **Route**              | **Method** | **Description**                    | **Request Body/Params**         | **Response**      |
+| ---------------------- | ---------- | ---------------------------------- | ------------------------------- | ----------------- |
+| `/vehicles`            | POST       | Creates a new vehicle (OWNER only) | Vehicle details                 | Created vehicle   |
+| `/vehicles`            | GET        | Retrieves all vehicles             | Query params for filtering      | Array of vehicles |
+| `/vehicles/myVehicles` | GET        | Retrieves user vehicles            | Query params for filtering      | Array of vehicles |
+| `/vehicles/:term`      | GET        | Retrieves a specific vehicle       | `term` (path param)             | Vehicle object    |
+| `/vehicles/:id`        | PATCH      | Updates a vehicle                  | `id` (path param), Vehicle data | Updated vehicle   |
+| `/vehicles/:id`        | DELETE     | Deletes a vehicle                  | `id` (path param)               | Success message   |
 
 ### 4. Rentals Routes
 
@@ -142,7 +143,7 @@ The application uses:
 | ---------------------- | ---------- | --------------------------- | ------------------------------ | ---------------- |
 | `/rentals`             | POST       | Creates a new rental        | Rental details                 | Created rental   |
 | `/rentals`             | GET        | Retrieves all rentals       | Query params for filtering     | Array of rentals |
-| `/rentals/:id`         | GET        | Retrieves a specific rental | `id` (path param)              | Rental object    |
+| `/rentals/:term`       | GET        | Retrieves a specific rental | `term` (path param)            | Rental object    |
 | `/rentals/:id`         | PATCH      | Updates a rental            | `id` (path param), Rental data | Updated rental   |
 | `/rentals/:id`         | DELETE     | Deletes a rental            | `id` (path param)              | Success message  |
 | `/rentals/:id/confirm` | PATCH      | Confirms a rental request   | `id` (path param)              | Updated rental   |
@@ -150,13 +151,13 @@ The application uses:
 
 ### 5. Reviews Routes
 
-| **Route**      | **Method** | **Description**             | **Request Body/Params**        | **Response**     |
-| -------------- | ---------- | --------------------------- | ------------------------------ | ---------------- |
-| `/reviews`     | POST       | Creates a new review        | Review details                 | Created review   |
-| `/reviews`     | GET        | Retrieves all reviews       | Query params for filtering     | Array of reviews |
-| `/reviews/:id` | GET        | Retrieves a specific review | `id` (path param)              | Review object    |
-| `/reviews/:id` | PATCH      | Updates a review            | `id` (path param), Review data | Updated review   |
-| `/reviews/:id` | DELETE     | Deletes a review            | `id` (path param)              | Success message  |
+| **Route**        | **Method** | **Description**             | **Request Body/Params**        | **Response**     |
+| ---------------- | ---------- | --------------------------- | ------------------------------ | ---------------- |
+| `/reviews`       | POST       | Creates a new review        | Review details                 | Created review   |
+| `/reviews`       | GET        | Retrieves all reviews       | Query params for filtering     | Array of reviews |
+| `/reviews/:term` | GET        | Retrieves a specific review | `term` (path param)            | Review object    |
+| `/reviews/:id`   | PATCH      | Updates a review            | `id` (path param), Review data | Updated review   |
+| `/reviews/:id`   | DELETE     | Deletes a review            | `id` (path param)              | Success message  |
 
 ## Implementation Details
 
@@ -181,9 +182,9 @@ Role-based authorization is implemented using custom decorators:
 The application uses TypeORM with PostgreSQL for data persistence. Entity relationships:
 
 - Users have many Vehicles (one-to-many)
-- Users have many Reviews (one-to-many)
+- Rental have one Review (one-to-one)
 - Vehicles have many Rentals (one-to-many)
-- Vehicles have many Reviews (one-to-many)
+- Vehicles have many unavailabilities (one-to-many)
 
 Each entity has validation rules implemented through DTOs and TypeORM decorations.
 

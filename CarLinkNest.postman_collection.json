@@ -1,0 +1,3396 @@
+{
+	"info": {
+		"_postman_id": "021c18a7-59b6-44ec-811d-7e3456f56add",
+		"name": "CarLinkNest",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31976014",
+		"_collection_link": "https://carlinkteam.postman.co/workspace/CarLinkTeam-Workspace~0cc89481-7676-4915-aebc-cb514f03cf4e/collection/31976014-021c18a7-59b6-44ec-811d-7e3456f56add?action=share&source=collection_link&creator=31976014"
+	},
+	"item": [
+		{
+			"name": "RENTALS",
+			"item": [
+				{
+					"name": "Create Rental",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test successful creation of rent\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has rental data\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.id).to.exist;\r",
+									"    \r",
+									"    // Save the new rent ID\r",
+									"    pm.collectionVariables.set(\"lastCreatedRentalId\", jsonData.id);\r",
+									"    console.log(\"Created rental with ID: \" + jsonData.id);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Global pre-request script for the entire collection\r",
+									"// Check if token exists and is not expired\r",
+									"const currentTime = new Date().getTime();\r",
+									"\r",
+									"function createRandomLicensePlate() {\r",
+									"    return 'XYZ-' + Math.floor(1000 + Math.random() * 9000);\r",
+									"}\r",
+									"\r",
+									"function createVehicle(token) {\r",
+									"    const vehicleData = {\r",
+									"        vehicleModel: \"Camry\",\r",
+									"        make: \"Toyota\",\r",
+									"        color: \"Blue\",\r",
+									"        year: 2020,\r",
+									"        license_plate: createRandomLicensePlate(),\r",
+									"        url_photos: [\"http://example.com/photo1.jpg\"],\r",
+									"        daily_price: 50,\r",
+									"        rental_conditions: \"No smoking\"\r",
+									"    };\r",
+									"\r",
+									"    pm.sendRequest({\r",
+									"        url: (pm.collectionVariables.get('BASE_URL') || 'http://localhost:3000/api') + '/vehicles',\r",
+									"        method: 'POST',\r",
+									"        header: {\r",
+									"            'Content-Type': 'application/json',\r",
+									"            'Authorization': `Bearer ${token}`\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify(vehicleData)\r",
+									"        }\r",
+									"    }, function (err, res) {\r",
+									"        if (err) {\r",
+									"            console.error('Error creating vehicle:', err);\r",
+									"        } else if (res.code === 201) {\r",
+									"            const response = res.json();\r",
+									"            console.log('Vehicle created successfully:', response);\r",
+									"            pm.environment.set('vehicle_id', response.id);\r",
+									"        } else {\r",
+									"            console.error('Failed to create vehicle. Status:', res.code, 'Response:', res.json());\r",
+									"        }\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"createVehicle(pm.collectionVariables.get('auth_token'));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"vehicle_id\":\"{{vehicle_id}}\",\r\n    \"initialDate\":\"2025-03-25T00:00:00.000Z\",\r\n    \"finalDate\":\"2025-04-30T00:00:00.000Z\",\r\n    \"totalCost\":400000,\r\n    \"status\": \"completed\"    \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/rentals/",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"rentals",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Rentals",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test successful retrieval of rentals",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(Array.isArray(jsonData)).to.be.true;",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/rentals",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"rentals"
+							]
+						},
+						"description": "Get all vehicles"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Rental by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test successful retrieval of rental by ID",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Rental ID matches requested ID\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.equal(pm.collectionVariables.get(\"lastCreatedRentalId\"));",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/rentals/{{lastCreatedRentalId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"rentals",
+								"{{lastCreatedRentalId}}"
+							]
+						},
+						"description": "Get a specific vehicle by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Non-existent Rental by ID (Error Test)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test 404 response for non-existent rental",
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"pm.test(\"Error message is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include(\"not found\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/rentals/123456789012345678901234",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"rentals",
+								"123456789012345678901234"
+							]
+						},
+						"description": "Try to get a vehicle with a non-existent ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Rental",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test successful update of rental\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Rental was updated correctly\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.id).to.equal(pm.collectionVariables.get(\"lastCreatedRentalId\"));\r",
+									"    pm.expect(jsonData.initialDate).to.equal(\"2025-03-30T00:00:00.000Z\");\r",
+									"    pm.expect(jsonData.status).to.equal(\"pending\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"initialDate\":\"2025-03-30T00:00:00.000Z\",\r\n    \"status\": \"pending\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/rentals/{{lastCreatedRentalId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"rentals",
+								"{{lastCreatedRentalId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Non-existent Rental",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test 404 response for non-existent rental\r",
+									"pm.test(\"Status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Error message is correct\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.include(\"not found\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"confirmed\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/rentals/123456789012345678901234",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"rentals",
+								"123456789012345678901234"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm Rental",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test successful update of rental state to confirmed\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Rental was updated correctly\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.id).to.equal(pm.collectionVariables.get(\"lastCreatedRentalId\"));\r",
+									"    pm.expect(jsonData.status).to.equal(\"confirmed\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/rentals/{{lastCreatedRentalId}}/confirm",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"rentals",
+								"{{lastCreatedRentalId}}",
+								"confirm"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Rental Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test successful update of rental\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Rental was updated correctly\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.id).to.equal(pm.collectionVariables.get(\"lastCreatedRentalId\"));\r",
+									"    pm.expect(jsonData.initialDate).to.equal(\"2025-03-30T00:00:00.000Z\");\r",
+									"    pm.expect(jsonData.status).to.equal(\"pending\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"initialDate\":\"2025-03-30T00:00:00.000Z\",\r\n    \"status\": \"pending\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/rentals/{{lastCreatedRentalId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"rentals",
+								"{{lastCreatedRentalId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Rental",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test successful update of rental state to cancelled\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Rental was updated correctly\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.id).to.equal(pm.collectionVariables.get(\"lastCreatedRentalId\"));\r",
+									"    pm.expect(jsonData.status).to.equal(\"canceled\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/rentals/{{lastCreatedRentalId}}/reject",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"rentals",
+								"{{lastCreatedRentalId}}",
+								"reject"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Rental",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test successful deletion of rental\r",
+									"pm.test(\"Status code is 204\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"\r",
+									"const vehicleId = pm.environment.get('vehicle_id');\r",
+									"    \r",
+									"// Verificar que el ID existe\r",
+									"if (!vehicleId) {\r",
+									"    console.log('No se encontró el ID del vehículo en las variables de entorno');\r",
+									"    return;\r",
+									"}\r",
+									"    \r",
+									"// Obtener el token de autenticación\r",
+									"const token = pm.collectionVariables.get('auth_token');\r",
+									"    \r",
+									"// Enviar solicitud DELETE para eliminar el vehículo\r",
+									"pm.sendRequest({\r",
+									"    url: (pm.collectionVariables.get('BASE_URL') || 'http://localhost:3000/api') + '/vehicles/' + vehicleId,\r",
+									"    method: 'DELETE',\r",
+									"    header: {\r",
+									"        'Authorization': `Bearer ${token}`\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    if (err) {\r",
+									"        console.error('Error al eliminar el vehículo:', err);\r",
+									"    } else if (res.code === 200 || res.code === 204) {\r",
+									"        console.log('Vehículo eliminado correctamente');\r",
+									"        // Opcionalmente, limpiar la variable de entorno\r",
+									"        pm.environment.unset('vehicle_id');\r",
+									"    } else {\r",
+									"        console.error('Error al eliminar el vehículo. Código:', res.code, 'Respuesta:', res.text());\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/rentals/{{lastCreatedRentalId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"rentals",
+								"{{lastCreatedRentalId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Non-existent Rental",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test 404 response for non-existent rental\r",
+									"pm.test(\"Status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Error message is correct\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.include(\"not found\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/rentals/123456789012345678901234",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"rentals",
+								"123456789012345678901234"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{auth_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"pm.sendRequest({\r",
+							"    url: pm.collectionVariables.get('BASE_URL') + '/auth/login',\r",
+							"    method: 'POST',\r",
+							"    header: {\r",
+							"        'Content-Type': 'application/json'\r",
+							"    },\r",
+							"    body: {\r",
+							"        mode: 'raw',\r",
+							"        raw: JSON.stringify({\r",
+							"            email: pm.collectionVariables.get('owner_email'),\r",
+							"            password: pm.collectionVariables.get('owner_password')\r",
+							"        })\r",
+							"    }\r",
+							"}, function (err, res) {\r",
+							"    if (err) {\r",
+							"        console.error('Error getting auth token:', err);\r",
+							"    } else if (res.code === 200) {\r",
+							"        const responseJson = res.json();\r",
+							"        if (responseJson && responseJson.token) {\r",
+							"            pm.collectionVariables.set('auth_token', responseJson.token);\r",
+							"            pm.collectionVariables.set('client_id', responseJson.user.id);\r",
+							"            console.log('New token obtained successfully');\r",
+							"        } else {\r",
+							"            console.error('Token not found in response');\r",
+							"        }\r",
+							"    } else {\r",
+							"        console.error('Failed to get token. Status:', res.code);\r",
+							"    }\r",
+							"});"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "REVIEWS",
+			"item": [
+				{
+					"name": "Create Review",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test successful creation of rent\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has rental data\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.id).to.exist;\r",
+									"    \r",
+									"    // Save the new review ID\r",
+									"    pm.collectionVariables.set(\"lastCreatedReviewId\", jsonData.id);\r",
+									"    console.log(\"Created review with ID: \" + jsonData.id);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"function createRental(token) {\r",
+									"    const licensePlate = \"QWE-234\";\r",
+									"    \r",
+									"    // First request to get the vehicle ID\r",
+									"    pm.sendRequest({\r",
+									"        url: (pm.collectionVariables.get('BASE_URL') || 'http://localhost:3000/api') + '/vehicles/' + licensePlate,\r",
+									"        method: 'GET',\r",
+									"        header: {\r",
+									"            'Authorization': `Bearer ${token}`\r",
+									"        }\r",
+									"    }, function (err, res) {\r",
+									"        if (err) {\r",
+									"            console.error('Error searching vehicle:', err);\r",
+									"        } else if (res.code === 200) {\r",
+									"            const response = res.json();\r",
+									"            console.log('Vehicle found:', response);\r",
+									"            const vehicleId = response.id;\r",
+									"            console.log('Using vehicle ID:', vehicleId);\r",
+									"            \r",
+									"            // Only create the rental after we have the vehicle ID\r",
+									"            createRentalWithVehicleId(token, vehicleId);\r",
+									"        } else {\r",
+									"            console.error('Failed to search vehicle. Status:', res.code, 'Response:', res.json());\r",
+									"        }\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"function createRentalWithVehicleId(token, vehicleId) {\r",
+									"    const now = new Date();\r",
+									"    const tomorrow = new Date(now);\r",
+									"    tomorrow.setDate(now.getDate() + 1);\r",
+									"\r",
+									"    const rentalData = {\r",
+									"        initialDate: now.toISOString(),\r",
+									"        finalDate: tomorrow.toISOString(),\r",
+									"        totalCost: 50,\r",
+									"        status: 'confirmed',\r",
+									"        vehicle_id: vehicleId  // Now this will have the correct value\r",
+									"    };\r",
+									"\r",
+									"    pm.sendRequest({\r",
+									"        url: (pm.collectionVariables.get('BASE_URL') || 'http://localhost:3000/api') + '/rentals',\r",
+									"        method: 'POST',\r",
+									"        header: {\r",
+									"            'Content-Type': 'application/json',\r",
+									"            'Authorization': `Bearer ${token}`\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify(rentalData)\r",
+									"        }\r",
+									"    }, function (err, res) {\r",
+									"        if (err) {\r",
+									"            console.error('Error creating rental:', err);\r",
+									"        } else if (res.code === 201) {\r",
+									"            const response = res.json();\r",
+									"            console.log('Rental created successfully:', response);\r",
+									"            pm.collectionVariables.set('rental_id', response.id);\r",
+									"        } else {\r",
+									"            console.error('Failed to create rental. Status:', res.code, 'Response:', res.json());\r",
+									"        }\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"createRental(pm.collectionVariables.get('auth_token'))"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"rental_id\":\"{{rental_id}}\",\r\n    \"createdAt\":\"2025-06-25T00:00:00.000Z\",\r\n    \"rating\":4,\r\n    \"comment\": \"The car was good!\" \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/reviews/",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"reviews",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Reviews",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test successful retrieval of rentals",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(Array.isArray(jsonData)).to.be.true;",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/reviews",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"reviews"
+							]
+						},
+						"description": "Get all vehicles"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Review by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test successful retrieval of rental by ID",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Rental ID matches requested ID\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.equal(pm.collectionVariables.get(\"lastCreatedReviewId\"));",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/reviews/{{lastCreatedReviewId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"reviews",
+								"{{lastCreatedReviewId}}"
+							]
+						},
+						"description": "Get a specific vehicle by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Non-existent Review by ID (Error Test)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test 404 response for non-existent rental",
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"pm.test(\"Error message is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include(\"not found\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/reviews/1234567890",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"reviews",
+								"1234567890"
+							]
+						},
+						"description": "Try to get a vehicle with a non-existent ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Review",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test successful update of rental\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Rental was updated correctly\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.id).to.equal(pm.collectionVariables.get(\"lastCreatedReviewId\"));\r",
+									"    pm.expect(jsonData.rating).to.equal(1);\r",
+									"    pm.expect(jsonData.comment).to.equal(\"That was a joke... it's sucks\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"rating\":1,\r\n    \"comment\": \"That was a joke... it's sucks\" \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/reviews/{{lastCreatedReviewId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"reviews",
+								"{{lastCreatedReviewId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Non-existent Review",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test 404 response for non-existent rental\r",
+									"pm.test(\"Status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Error message is correct\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.include(\"not found\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"comment\": \"xD\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/reviews/1234567890",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"reviews",
+								"1234567890"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Review",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test successful deletion of rental\r",
+									"pm.test(\"Status code is 204\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"\r",
+									"const rentalId = pm.collectionVariables.get('rental_id');\r",
+									"    \r",
+									"// Verificar que el ID existe\r",
+									"if (!rentalId) {\r",
+									"    console.log('No se encontró el ID de la renta en las variables de entorno');\r",
+									"    return;\r",
+									"}\r",
+									"    \r",
+									"// Obtener el token de autenticación\r",
+									"const token = pm.collectionVariables.get('auth_token');\r",
+									"    \r",
+									"// Enviar solicitud DELETE para eliminar el vehículo\r",
+									"pm.sendRequest({\r",
+									"    url: (pm.collectionVariables.get('BASE_URL') || 'http://localhost:3000/api') + '/rentals/' + rentalId,\r",
+									"    method: 'DELETE',\r",
+									"    header: {\r",
+									"        'Authorization': `Bearer ${token}`\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    if (err) {\r",
+									"        console.error('Error al eliminar la renta:', err);\r",
+									"    } else if (res.code === 200 || res.code === 204) {\r",
+									"        console.log('Renta eliminada correctamente');\r",
+									"        // Opcionalmente, limpiar la variable de entorno\r",
+									"        pm.collectionVariables.unset('rental_id');\r",
+									"    } else {\r",
+									"        console.error('Error al eliminar la renta. Código:', res.code, 'Respuesta:', res.text());\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/reviews/{{lastCreatedReviewId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"reviews",
+								"{{lastCreatedReviewId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Non-existent Review",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test 404 response for non-existent rental\r",
+									"pm.test(\"Status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Error message is correct\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.include(\"not found\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/reviews/12345678",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"reviews",
+								"12345678"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{auth_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"pm.sendRequest({\r",
+							"    url: pm.collectionVariables.get('BASE_URL') + '/auth/login',\r",
+							"    method: 'POST',\r",
+							"    header: {\r",
+							"        'Content-Type': 'application/json'\r",
+							"    },\r",
+							"    body: {\r",
+							"        mode: 'raw',\r",
+							"        raw: JSON.stringify({\r",
+							"            email: pm.collectionVariables.get('tenant_email'),\r",
+							"            password: pm.collectionVariables.get('tenant_password')\r",
+							"        })\r",
+							"    }\r",
+							"}, function (err, res) {\r",
+							"    if (err) {\r",
+							"        console.error('Error getting auth token:', err);\r",
+							"    } else if (res.code === 200) {\r",
+							"        const responseJson = res.json();\r",
+							"        if (responseJson && responseJson.token) {\r",
+							"            pm.collectionVariables.set('auth_token', responseJson.token);\r",
+							"            pm.collectionVariables.set('client_id', responseJson.user.id);\r",
+							"            console.log('New token obtained successfully');\r",
+							"        } else {\r",
+							"            console.error('Token not found in response');\r",
+							"        }\r",
+							"    } else {\r",
+							"        console.error('Failed to get token. Status:', res.code);\r",
+							"    }\r",
+							"});\r",
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "VEHICLES",
+			"item": [
+				{
+					"name": "Create Vehicle",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test successful creation of vehicle",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has vehicle data\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.exist;",
+									"    pm.expect(jsonData.license_plate).to.exist;",
+									"    ",
+									"    // Save the new vehicle ID and license plate",
+									"    pm.collectionVariables.set(\"lastCreatedVehicleId\", jsonData.id);",
+									"    pm.collectionVariables.set(\"lastCreatedLicensePlate\", jsonData.license_plate);",
+									"    console.log(\"Created vehicle with ID: \" + jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate a random license plate to avoid duplicates",
+									"var randomLicensePlate = \"TEST\" + Math.floor(Math.random() * 10000);",
+									"pm.environment.set(\"randomLicensePlate\", randomLicensePlate);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"vehicleModel\": \"Camry\",\n    \"make\": \"Toyota\",\n    \"color\": \"Blue\",\n    \"year\": 2020,\n    \"license_plate\": \"{{randomLicensePlate}}\",\n    \"url_photos\": [\"http://example.com/photo1.jpg\"],\n    \"daily_price\": 50,\n    \"rental_conditions\": \"No smoking\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/vehicles",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"vehicles"
+							]
+						},
+						"description": "Create a new vehicle"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Vehicle With License Plate Duplicated (Error Test)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test error creation of vehicle",
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Error message is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include(\"license plate already exists\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate a random license plate to avoid duplicates",
+									"var randomLicensePlate = \"TEST\" + Math.floor(Math.random() * 10000);",
+									"pm.environment.set(\"randomLicensePlate\", randomLicensePlate);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"vehicleModel\": \"Camry\",\n    \"make\": \"Toyota\",\n    \"color\": \"Blue\",\n    \"year\": 2020,\n    \"license_plate\": \"{{lastCreatedLicensePlate}}\",\n    \"url_photos\": [\"http://example.com/photo1.jpg\"],\n    \"daily_price\": 50,\n    \"rental_conditions\": \"No smoking\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/vehicles",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"vehicles"
+							]
+						},
+						"description": "Create a new vehicle"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Vehicles",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test successful retrieval of vehicles",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(Array.isArray(jsonData)).to.be.true;",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/vehicles",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"vehicles"
+							]
+						},
+						"description": "Get all vehicles"
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Vehicles",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test successful retrieval of user's vehicles",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(Array.isArray(jsonData)).to.be.true;",
+									"});",
+									"",
+									"// If there are vehicles, save the first one's ID and license plate",
+									"pm.test(\"Save my vehicle data if available\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.length > 0) {",
+									"        pm.collectionVariables.set(\"lastCreatedVehicleId\", jsonData[0].id);",
+									"        pm.collectionVariables.set(\"lastCreatedLicensePlate\", jsonData[0].license_plate);",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/vehicles/myVehicles",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"vehicles",
+								"myVehicles"
+							]
+						},
+						"description": "Get all vehicles owned by the authenticated user"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Vehicle by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test successful retrieval of vehicle by ID",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Vehicle ID matches requested ID\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.equal(pm.collectionVariables.get(\"lastCreatedVehicleId\"));",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/vehicles/{{lastCreatedVehicleId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"vehicles",
+								"{{lastCreatedVehicleId}}"
+							]
+						},
+						"description": "Get a specific vehicle by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Non-existent Vehicle by ID (Error Test)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test 404 response for non-existent vehicle",
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"pm.test(\"Error message is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include(\"not found\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/vehicles/80db0000-4889-42f7-a173-d6302fc10000",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"vehicles",
+								"80db0000-4889-42f7-a173-d6302fc10000"
+							]
+						},
+						"description": "Try to get a vehicle with a non-existent ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Vehicle by License Plate",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test successful retrieval of vehicle by license plate",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"License plate matches requested license plate\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.license_plate).to.equal(pm.collectionVariables.get(\"lastCreatedLicensePlate\"));",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/vehicles/{{lastCreatedLicensePlate}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"vehicles",
+								"{{lastCreatedLicensePlate}}"
+							]
+						},
+						"description": "Get a specific vehicle by license plate"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Non-existent Vehicle by License Plate (Error Test)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test 404 response for non-existent vehicle",
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"pm.test(\"Error message is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include(\"not found\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/vehicles/ABC123",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"vehicles",
+								"ABC123"
+							]
+						},
+						"description": "Try to get a vehicle with a non-existent ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Vehicle",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test successful update of vehicle",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Vehicle was updated correctly\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.equal(pm.collectionVariables.get(\"lastCreatedVehicleId\"));",
+									"    pm.expect(jsonData.color).to.equal(\"Red\");",
+									"    pm.expect(jsonData.daily_price).to.equal(\"60.00\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"color\": \"Red\",\n    \"daily_price\": 60\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/vehicles/{{lastCreatedVehicleId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"vehicles",
+								"{{lastCreatedVehicleId}}"
+							]
+						},
+						"description": "Update an existing vehicle"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Non-existent Vehicle (Error Test)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test 404 response for non-existent vehicle",
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"pm.test(\"Error message is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include(\"not found\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"color\": \"Red\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/vehicles/80db0000-4889-42f7-a173-d6302fc10000",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"vehicles",
+								"80db0000-4889-42f7-a173-d6302fc10000"
+							]
+						},
+						"description": "Try to update a vehicle without authentication"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Vehicle",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test successful deletion of vehicle",
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/vehicles/{{lastCreatedVehicleId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"vehicles",
+								"{{lastCreatedVehicleId}}"
+							]
+						},
+						"description": "Delete a vehicle"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Non-existent Vehicle (Error Test)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test 404 response for non-existent vehicle",
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"pm.test(\"Error message is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include(\"not found\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/vehicles/123456789012345678901234",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"vehicles",
+								"123456789012345678901234"
+							]
+						},
+						"description": "Try to update a vehicle without authentication"
+					},
+					"response": []
+				}
+			],
+			"description": "Vehicle management endpoints.",
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{auth_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"// Global pre-request script for the entire collection\r",
+							"// Always attempt to get a new token for each request\r",
+							"console.log('Getting a new token...');\r",
+							"\r",
+							"pm.sendRequest({\r",
+							"    url: pm.collectionVariables.get('BASE_URL') + '/auth/login',\r",
+							"    method: 'POST',\r",
+							"    header: {\r",
+							"        'Content-Type': 'application/json'\r",
+							"    },\r",
+							"    body: {\r",
+							"        mode: 'raw',\r",
+							"        raw: JSON.stringify({\r",
+							"            email: pm.collectionVariables.get('owner_email'),\r",
+							"            password: pm.collectionVariables.get('owner_password')\r",
+							"        })\r",
+							"    }\r",
+							"}, function (err, res) {\r",
+							"    if (err) {\r",
+							"        console.error('Error getting auth token:', err);\r",
+							"    } else if (res.code === 200) {\r",
+							"        const responseJson = res.json();\r",
+							"        if (responseJson && responseJson.token) {\r",
+							"            pm.collectionVariables.set('auth_token', responseJson.token);\r",
+							"            console.log('New token obtained successfully');\r",
+							"        } else {\r",
+							"            console.error('Token not found in response');\r",
+							"        }\r",
+							"    } else {\r",
+							"        console.error('Failed to get token. Status:', res.code);\r",
+							"    }\r",
+							"});"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "AUTH",
+			"item": [
+				{
+					"name": "TENANT SIGNUP",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.collectionVariables.set(\"tenantAuthId\", json.user.id);\r",
+									"pm.collectionVariables.set(\"tenantAuthToken\", json.token);\r",
+									"pm.collectionVariables.set(\"tenantAuthEmail\", json.user.email);\r",
+									"\r",
+									"console.log(\"userId:\", json.user.id);\r",
+									"console.log(\"authToken:\", json.token);\r",
+									"\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"  pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains user and token\", function () {\r",
+									"  const json = pm.response.json();\r",
+									"  pm.expect(json).to.have.property(\"user\");\r",
+									"  pm.expect(json).to.have.property(\"token\");\r",
+									"  pm.expect(json.user).to.have.property(\"id\");\r",
+									"  pm.expect(json.token).to.be.a(\"string\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const randomString = Math.random().toString(36).substring(2, 15);\r",
+									"const randomEmail = `user${randomString}@example.com`;\r",
+									"pm.environment.set(\"randomEmail\", randomEmail);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"fullName\": \"Ernesto Federichi\",\r\n  \"password\": \"StrongPass2\",\r\n  \"email\": \"{{randomEmail}}\",\r\n  \"location\": \"New York\",\r\n  \"phone\": \"+573169001738\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/auth/register",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SIGNUP FOR FUTURE OWNER",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.collectionVariables.set(\"ownerAuthId\", json.user.id);\r",
+									"pm.collectionVariables.set(\"ownerAuthToken\", json.token);\r",
+									"pm.collectionVariables.set(\"ownerAuthEmail\", json.user.email);\r",
+									"\r",
+									"console.log(\"userId:\", json.user.id);\r",
+									"console.log(\"authToken:\", json.token);\r",
+									"\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"  pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains user and token\", function () {\r",
+									"  const json = pm.response.json();\r",
+									"  pm.expect(json).to.have.property(\"user\");\r",
+									"  pm.expect(json).to.have.property(\"token\");\r",
+									"  pm.expect(json.user).to.have.property(\"id\");\r",
+									"  pm.expect(json.token).to.be.a(\"string\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const randomString = Math.random().toString(36).substring(2, 15);\r",
+									"const randomEmail = `user${randomString}@example.com`;\r",
+									"pm.environment.set(\"randomEmail\", randomEmail);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"fullName\": \"Clemencio Federichi\",\r\n  \"password\": \"StrongPass2\",\r\n  \"email\": \"{{randomEmail}}\",\r\n  \"location\": \"New York\",\r\n  \"phone\": \"+573169001738\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/auth/register",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ADMIN SIGN IN",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.collectionVariables.set(\"adminAuthId\", json.user.id);\r",
+									"pm.collectionVariables.set(\"adminAuthToken\", json.token);\r",
+									"\r",
+									"console.log(\"userId:\", json.user.id);\r",
+									"console.log(\"authToken:\", json.token);\r",
+									"\r",
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains user and token\", () => {\r",
+									"  pm.expect(json).to.have.property(\"user\");\r",
+									"  pm.expect(json).to.have.property(\"token\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"User has id and email\", () => {\r",
+									"  pm.expect(json.user).to.have.property(\"id\");\r",
+									"  pm.expect(json.user.id).to.be.a(\"string\");\r",
+									"\r",
+									"  pm.expect(json.user).to.have.property(\"email\");\r",
+									"  pm.expect(json.user.email).to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Token is a valid string\", () => {\r",
+									"  pm.expect(json.token).to.be.a(\"string\");\r",
+									"  pm.expect(json.token.length).to.be.greaterThan(10);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "af6aab46-e913-4e64-8f00-4e86c70dab65",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"admin@carlink.com\",\r\n  \"password\": \"admin123\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/auth/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "TENANT SIGN IN",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has user and token\", () => {\r",
+									"  pm.expect(json).to.have.property(\"user\");\r",
+									"  pm.expect(json).to.have.property(\"token\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"User has id, email and roles\", () => {\r",
+									"  pm.expect(json.user).to.have.property(\"id\").that.is.a(\"string\");\r",
+									"  pm.expect(json.user).to.have.property(\"email\").that.is.a(\"string\");\r",
+									"  pm.expect(json.user).to.have.property(\"roles\").that.is.an(\"array\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Email is valid\", () => {\r",
+									"  pm.expect(json.user.email).to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Token is a valid JWT\", () => {\r",
+									"  const tokenParts = json.token.split('.');\r",
+									"  pm.expect(tokenParts.length).to.eql(3);\r",
+									"  pm.expect(tokenParts[0]).to.be.a(\"string\");\r",
+									"  pm.expect(tokenParts[1]).to.be.a(\"string\");\r",
+									"  pm.expect(tokenParts[2]).to.be.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"User has TENANT role\", () => {\r",
+									"  pm.expect(json.user.roles).to.include(\"TENANT\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "af6aab46-e913-4e64-8f00-4e86c70dab65",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"{{tenantAuthEmail}}\",\r\n  \"password\": \"StrongPass2\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/auth/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "OWNER SIGN IN",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has user and token\", () => {\r",
+									"  pm.expect(json).to.have.property(\"user\");\r",
+									"  pm.expect(json).to.have.property(\"token\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"User has id, email and roles\", () => {\r",
+									"  pm.expect(json.user).to.have.property(\"id\").that.is.a(\"string\");\r",
+									"  pm.expect(json.user).to.have.property(\"email\").that.is.a(\"string\");\r",
+									"  pm.expect(json.user).to.have.property(\"roles\").that.is.an(\"array\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Email is valid\", () => {\r",
+									"  pm.expect(json.user.email).to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Token is a valid JWT\", () => {\r",
+									"  const tokenParts = json.token.split('.');\r",
+									"  pm.expect(tokenParts.length).to.eql(3);\r",
+									"  pm.expect(tokenParts[0]).to.be.a(\"string\");\r",
+									"  pm.expect(tokenParts[1]).to.be.a(\"string\");\r",
+									"  pm.expect(tokenParts[2]).to.be.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"User has TENANT role\", () => {\r",
+									"  pm.expect(json.user.roles).to.include(\"TENANT\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "af6aab46-e913-4e64-8f00-4e86c70dab65",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"{{ownerAuthEmail}}\",\r\n  \"password\": \"StrongPass2\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/auth/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PROMOTE TO OWNER (TENANT TO OTHER TENANT) FORBIDDEN",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status code is 403 Forbidden\", () => {\r",
+									"  pm.response.to.have.status(403);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Error response structure is correct\", () => {\r",
+									"  pm.expect(json).to.have.property(\"message\", \"You are not allowed to promote this user\");\r",
+									"  pm.expect(json).to.have.property(\"error\", \"Forbidden\");\r",
+									"  pm.expect(json).to.have.property(\"statusCode\", 403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tenantAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/auth/promoteToOwner/{{ownerAuthId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auth",
+								"promoteToOwner",
+								"{{ownerAuthId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PROMOTE TO OWNER (TENANT TO ITSELF)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status code is 201\", () => {\r",
+									"  pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has promotion message\", () => {\r",
+									"  pm.expect(json.message).to.eql(\"User promoted to OWNER\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains user object\", () => {\r",
+									"  pm.expect(json).to.have.property(\"user\");\r",
+									"  pm.expect(json.user).to.have.property(\"id\").that.is.a(\"string\");\r",
+									"  pm.expect(json.user).to.have.property(\"email\").that.is.a(\"string\");\r",
+									"  pm.expect(json.user).to.have.property(\"fullName\").that.is.a(\"string\");\r",
+									"  pm.expect(json.user).to.have.property(\"location\").that.is.a(\"string\");\r",
+									"  pm.expect(json.user).to.have.property(\"phone\").that.is.a(\"string\");\r",
+									"  pm.expect(json.user).to.have.property(\"isActive\").that.is.a(\"boolean\");\r",
+									"  pm.expect(json.user).to.have.property(\"roles\").that.is.an(\"array\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"User has OWNER role\", () => {\r",
+									"  pm.expect(json.user.roles).to.include(\"OWNER\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"User still has TENANT role\", () => {\r",
+									"  pm.expect(json.user.roles).to.include(\"TENANT\");\r",
+									"});\r",
+									"\r",
+									"pm.collectionVariables.set(\"promotedUserId\", json.user.id);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ownerAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/auth/promoteToOwner/{{ownerAuthId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auth",
+								"promoteToOwner",
+								"{{ownerAuthId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PROMOTE TO OWNER (OWNER TO ITSELF) ALREADY ROLE EXISTS",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status code is 400 Bad Request\", () => {\r",
+									"  pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Error response structure is correct\", () => {\r",
+									"  pm.expect(json).to.have.property(\"message\", \"User already has role OWNER\");\r",
+									"  pm.expect(json).to.have.property(\"error\", \"Bad Request\");\r",
+									"  pm.expect(json).to.have.property(\"statusCode\", 400);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ownerAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/auth/promoteToOwner/{{ownerAuthId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auth",
+								"promoteToOwner",
+								"{{ownerAuthId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PROMOTE TO ADMIN (ADMIN TO ADMIN) ALREADY ROLE EXISTS",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status code is 400 Bad Request\", () => {\r",
+									"  pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Error message indicates user already has role ADMIN\", () => {\r",
+									"  pm.expect(json).to.have.property(\"message\", \"User already has role ADMIN\");\r",
+									"  pm.expect(json).to.have.property(\"error\", \"Bad Request\");\r",
+									"  pm.expect(json).to.have.property(\"statusCode\", 400);\r",
+									"});\r",
+									"var template = `\r",
+									"<style type=\"text/css\">\r",
+									"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}\r",
+									"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}\r",
+									"    .tftable tr {background-color:#ffffff;}\r",
+									"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}\r",
+									"    .tftable tr:hover {background-color:#e0ffff;}\r",
+									"</style>\r",
+									"\r",
+									"<table class=\"tftable\" border=\"1\">\r",
+									"    <tr>\r",
+									"        <th>Message</th>\r",
+									"        <th>Error</th>\r",
+									"        <th>Status Code</th>\r",
+									"    </tr>\r",
+									"    <tr>\r",
+									"        <td>{{response.message}}</td>\r",
+									"        <td>{{response.error}}</td>\r",
+									"        <td>{{response.statusCode}}</td>\r",
+									"    </tr>\r",
+									"</table>\r",
+									"`;\r",
+									"\r",
+									"function constructVisualizerPayload() {\r",
+									"    return {response: pm.response.json()}\r",
+									"}\r",
+									"\r",
+									"pm.visualizer.set(template, constructVisualizerPayload());"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/auth/promoteToAdmin/{{adminAuthId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auth",
+								"promoteToAdmin",
+								"{{adminAuthId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PROMOTE TO ADMIN (TENANT TO OWNER) FORBIDDEN",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status code is 403 Forbidden\", () => {\r",
+									"  pm.response.to.have.status(403);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Error message indicates missing valid role\", () => {\r",
+									"  const expectedMessage = `User ${pm.collectionVariables.get(\"tenantAuthEmail\")} needs a valid role`;\r",
+									"  pm.expect(json).to.have.property(\"message\", expectedMessage);\r",
+									"  pm.expect(json).to.have.property(\"error\", \"Forbidden\");\r",
+									"  pm.expect(json).to.have.property(\"statusCode\", 403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tenantAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/auth/promoteToAdmin/{{ownerAuthId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auth",
+								"promoteToAdmin",
+								"{{ownerAuthId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PROMOTE TO ADMIN (TENANT TO ITSELF) FORBIDDEN",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status code is 403 Forbidden\", () => {\r",
+									"  pm.response.to.have.status(403);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Error message indicates missing valid role\", () => {\r",
+									"  const expectedMessage = `User ${pm.collectionVariables.get(\"tenantAuthEmail\")} needs a valid role`;\r",
+									"  pm.expect(json).to.have.property(\"message\", expectedMessage);\r",
+									"  pm.expect(json).to.have.property(\"error\", \"Forbidden\");\r",
+									"  pm.expect(json).to.have.property(\"statusCode\", 403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tenantAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/auth/promoteToAdmin/{{tenantAuthId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auth",
+								"promoteToAdmin",
+								"{{tenantAuthId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PROMOTE TO ADMIN (ADMIN TO OWNER)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status code is 201 OK\", () => {\r",
+									"  pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"User promoted to ADMIN\", () => {\r",
+									"  pm.expect(json).to.have.property(\"message\", \"User promoted to ADMIN\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"User data is correct\", () => {\r",
+									"  const user = json.user;\r",
+									"  pm.expect(user).to.have.property(\"email\", pm.collectionVariables.get(\"ownerAuthEmail\"));\r",
+									"  pm.expect(user).to.have.property(\"fullName\", \"Clemencio Federichi\");\r",
+									"  pm.expect(user).to.have.property(\"location\", \"New York\");\r",
+									"  pm.expect(user).to.have.property(\"phone\", \"+573169001738\");\r",
+									"  pm.expect(user).to.have.property(\"isActive\", true);\r",
+									"  \r",
+									"  pm.expect(user.roles).to.be.an('array').that.includes(\"TENANT\", \"OWNER\", \"ADMIN\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/auth/promoteToAdmin/{{ownerAuthId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"auth",
+								"promoteToAdmin",
+								"{{ownerAuthId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "USERS",
+			"item": [
+				{
+					"name": "GET ALL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"All users have roles\", function () {\r",
+									"    const json = pm.response.json();\r",
+									"    json.forEach(user => {\r",
+									"        pm.expect(user.roles).to.be.an(\"array\").that.is.not.empty;\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/users",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"User data is correct\", function () {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json).to.have.property(\"id\", pm.collectionVariables.get(\"ownerAuthId\"));\r",
+									"    pm.expect(json).to.have.property(\"email\", pm.collectionVariables.get(\"ownerAuthEmail\"));\r",
+									"    pm.expect(json).to.have.property(\"fullName\", \"Clemencio Federichi\");\r",
+									"    pm.expect(json).to.have.property(\"location\", \"New York\");\r",
+									"    pm.expect(json).to.have.property(\"phone\", \"+573169001738\");\r",
+									"    pm.expect(json).to.have.property(\"isActive\", true);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"User has correct roles\", function () {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.roles).to.include.members([\"TENANT\", \"OWNER\", \"ADMIN\"]);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Roles are not empty\", function () {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.roles).to.be.an(\"array\").that.is.not.empty;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"User is active\", function () {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.isActive).to.eql(true);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ownerAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/users/{{ownerAuthId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"{{ownerAuthId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "EDIT USER (USER TO ITSELF)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"User data is correct\", function () {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json).to.have.property(\"id\", pm.collectionVariables.get(\"tenantAuthId\"));\r",
+									"    pm.expect(json).to.have.property(\"email\", pm.collectionVariables.get(\"tenantAuthEmail\"));\r",
+									"    pm.expect(json).to.have.property(\"fullName\", \"Pericles\");\r",
+									"    pm.expect(json).to.have.property(\"location\", \"New York\");\r",
+									"    pm.expect(json).to.have.property(\"phone\", \"+573169001738\");\r",
+									"    pm.expect(json).to.have.property(\"isActive\", true);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"User has correct role\", function () {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.roles).to.include.members([\"TENANT\"]);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Roles are not empty\", function () {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.roles).to.be.an(\"array\").that.is.not.empty;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"User is active\", function () {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.isActive).to.eql(true);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tenantAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"fullName\": \"Pericles\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/{{tenantAuthId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"{{tenantAuthId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "EDIT USER (DIFFERENT AND NO-ADMIN USER )",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status code is 403 Forbidden\", () => {\r",
+									"  pm.response.to.have.status(403);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Error message indicates missing valid role\", () => {\r",
+									"  pm.expect(json).to.have.property(\"message\", \"You are not allowed to update this user\");\r",
+									"  pm.expect(json).to.have.property(\"error\", \"Forbidden\");\r",
+									"  pm.expect(json).to.have.property(\"statusCode\", 403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tenantAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"fullName\": \"Pericles\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/{{ownerAuthId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"{{ownerAuthId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "EDIT USER (ADMIN USER TO OTHER USER)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"User data is correct\", function () {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json).to.have.property(\"id\", pm.collectionVariables.get(\"tenantAuthId\"));\r",
+									"    pm.expect(json).to.have.property(\"email\", pm.collectionVariables.get(\"tenantAuthEmail\"));\r",
+									"    pm.expect(json).to.have.property(\"fullName\", \"Pericles\");\r",
+									"    pm.expect(json).to.have.property(\"location\", \"New York\");\r",
+									"    pm.expect(json).to.have.property(\"phone\", \"+573169001738\");\r",
+									"    pm.expect(json).to.have.property(\"isActive\", true);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"User has correct role\", function () {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.roles).to.include.members([\"TENANT\"]);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Roles are not empty\", function () {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.roles).to.be.an(\"array\").that.is.not.empty;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"User is active\", function () {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.isActive).to.eql(true);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"fullName\": \"Pericles\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/{{tenantAuthId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"{{tenantAuthId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE USER (DIFFERENT TO OTHER USER) FORBIDDEN",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status code is 403 Forbidden\", () => {\r",
+									"  pm.response.to.have.status(403);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Error message indicates missing valid role\", () => {\r",
+									"  pm.expect(json).to.have.property(\"message\", \"You are not allowed to remove this user\");\r",
+									"  pm.expect(json).to.have.property(\"error\", \"Forbidden\");\r",
+									"  pm.expect(json).to.have.property(\"statusCode\", 403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tenantAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"fullName\": \"Pericles\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/{{ownerAuthId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"{{ownerAuthId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE USER (USER NOT FOUND)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status code is 404 Not Found\", () => {\r",
+									"  pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Error message indicates user not found or already inactive\", () => {\r",
+									"  pm.expect(json).to.have.property(\r",
+									"    \"message\",\r",
+									"    \"User with ID 729592a9-753d-4af7-88ee-f77135176624 not found or already inactive\"\r",
+									"  );\r",
+									"  pm.expect(json).to.have.property(\"error\", \"Not Found\");\r",
+									"  pm.expect(json).to.have.property(\"statusCode\", 404);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"fullName\": \"Pericles\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/729592a9-753d-4af7-88ee-f77135176624",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"729592a9-753d-4af7-88ee-f77135176624"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE USER",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Correct deactivation message\", function () {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.message).to.eql(`User with ID ${pm.collectionVariables.get(\"tenantAuthId\")} has been deactivated`);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"packages": {},
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{tenantAuthToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/users/{{tenantAuthId}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								"{{tenantAuthId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "http://localhost:3000/api",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "a",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "lastCreatedVehicleId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "lastCreatedLicensePlate",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "lastCreatedRentalId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "owner_email",
+			"value": "propietario1@carlink.com",
+			"type": "string"
+		},
+		{
+			"key": "owner_password",
+			"value": "propietario",
+			"type": "string"
+		},
+		{
+			"key": "tenant_email",
+			"value": "cliente1@carlink.com",
+			"type": "string"
+		},
+		{
+			"key": "tenant_password",
+			"value": "cliente",
+			"type": "string"
+		},
+		{
+			"key": "client_id",
+			"value": ""
+		},
+		{
+			"key": "lastCreatedReviewId",
+			"value": ""
+		},
+		{
+			"key": "rental_id",
+			"value": ""
+		},
+		{
+			"key": "tenantAuthId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "tenantAuthToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "ownerAuthId",
+			"value": ""
+		},
+		{
+			"key": "ownerAuthToken",
+			"value": ""
+		},
+		{
+			"key": "adminAuthId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "adminAuthToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "promotedUserId",
+			"value": ""
+		},
+		{
+			"key": "tenantAuthEmail",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "ownerAuthEmail",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

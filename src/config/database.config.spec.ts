@@ -35,6 +35,7 @@ describe("DatabaseConfigService", () => {
   describe("createTypeOrmOptions", () => {
     it("should return PostgreSQL configuration with values from ConfigService", () => {
       const mockDbConfig = {
+        DATABASE_URL: "postgresql://usuario:contraseña@host:puerto/basededatos",
         DB_HOST: "localhost",
         DB_PORT: 5432,
         POSTGRES_DB: "testdb",
@@ -48,6 +49,7 @@ describe("DatabaseConfigService", () => {
 
       expect(options).toEqual({
         type: "postgres",
+        url: "postgresql://usuario:contraseña@host:puerto/basededatos",
         host: "localhost",
         port: 5432,
         database: "testdb",
@@ -57,6 +59,7 @@ describe("DatabaseConfigService", () => {
         synchronize: true,
       })
 
+      expect(configService.get).toHaveBeenCalledWith("DATABASE_URL")
       expect(configService.get).toHaveBeenCalledWith("DB_HOST")
       expect(configService.get).toHaveBeenCalledWith("DB_PORT")
       expect(configService.get).toHaveBeenCalledWith("POSTGRES_DB")
@@ -71,6 +74,7 @@ describe("DatabaseConfigService", () => {
 
       expect(options).toEqual({
         type: "postgres",
+        url: undefined,
         host: undefined,
         port: undefined,
         database: undefined,

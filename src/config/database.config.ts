@@ -9,6 +9,7 @@ export class DatabaseConfigService implements TypeOrmOptionsFactory {
   createTypeOrmOptions(): TypeOrmModuleOptions {
     return {
       type: 'postgres',
+      url: this.configService.get<string>('DATABASE_URL'),
       host: this.configService.get<string>('DB_HOST'),
       port: this.configService.get<number>('DB_PORT'),
       database: this.configService.get<string>('POSTGRES_DB'),

@@ -174,6 +174,7 @@ Role-based authorization is implemented using custom decorators:
 ```typescript
 @Auth(ValidRoles.ADMIN)  // Requires admin role
 @Auth(ValidRoles.OWNER)  // Requires owner role
+@Auth(ValidRoles.TENANT)  // Requires tenant role
 @Auth()                 // Requires authentication (any role)
 ```
 

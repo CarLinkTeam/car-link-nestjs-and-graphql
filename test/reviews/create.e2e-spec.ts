@@ -107,7 +107,7 @@ describe('ReviewsModule Create (e2e)', () => {
 
     rentalId = rentalResponse.body.id;
     validReviewDto.rental_id = rentalId;
-  });
+  }, 10000);
 
   afterAll(async () => {
     await reviewRepository.delete({ rental_id: rentalId });

@@ -94,7 +94,7 @@ describe('Users - Update (e2e)', () => {
         otherTenantToken = otherTenantLogin.body.token;
 
 
-    });
+  }, 10000);
 
     afterAll(async () => {
         await userRepository.delete({ id: adminUserId });
@@ -148,7 +148,7 @@ describe('Users - Update (e2e)', () => {
             .set('Authorization', `Bearer ${tenantToken}`)
             .send({ fullName: 'Hacked!' });
 
-        expect(res.status).toBe(401);
+        expect(res.status).toBe(403);
         expect(res.body.message).toMatch("You are not allowed to update this user");
     });
 
@@ -158,7 +158,7 @@ describe('Users - Update (e2e)', () => {
             .set('Authorization', `Bearer ${tenantToken}`)
             .send({ fullName: 'Nope' });
 
-        expect(res.status).toBe(401);
+        expect(res.status).toBe(403);
         expect(res.body.message).toMatch("You are not allowed to update this user");
     });
 

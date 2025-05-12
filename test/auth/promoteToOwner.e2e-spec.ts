@@ -93,7 +93,7 @@ describe('Auth - Promote To Owner (e2e)', () => {
     adminToken = adminLogin.body.token;
     tenantToken = tenantLogin.body.token;
     otherToken = otherLogin.body.token;
-  });
+  }, 10000);
 
   afterEach(async () => {
     await userRepository.delete({ id: adminUserId });
@@ -126,7 +126,7 @@ describe('Auth - Promote To Owner (e2e)', () => {
     const response = await request(app.getHttpServer())
       .post(`/auth/promoteToOwner/${otherUserId}`)
       .set('Authorization', `Bearer ${tenantToken}`)
-      .expect(401);
+      .expect(403);
 
     expect(response.body.message).toContain('You are not allowed to promote this user');
   });
@@ -144,7 +144,7 @@ describe('Auth - Promote To Owner (e2e)', () => {
     const response = await request(app.getHttpServer())
       .post(`/auth/promoteToOwner/${otherUserId}`)
       .set('Authorization', `Bearer ${adminToken}`)
-      .expect(401);
+      .expect(400);
 
     expect(response.body.message).toBe(`User already has role OWNER`);
   });

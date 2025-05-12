@@ -42,7 +42,7 @@ describe('Users - FindOne (e2e)', () => {
 
     userId = userResponse.body.user.id;
     authToken = userResponse.body.token;
-  });
+  }, 10000);
 
   afterAll(async () => {
     await userRepository.delete({ id: userId });

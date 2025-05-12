@@ -4,7 +4,7 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterAuthDto } from './dto/register-auth.dto';
 import { LoginAuthDto } from './dto/login-auth.dto';
-import { UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { UnauthorizedException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { ValidRoles } from './enums/valid-roles.enum';
 import { User } from 'src/users/entities/user.entity';
@@ -126,14 +126,14 @@ describe('AuthService', () => {
 
     it('should not promote if user already has the role', async () => {
       const requester = { ...mockUser, roles: [ValidRoles.ADMIN] } as User;
-      await expect(authService.promoteUser('uuid-123', ValidRoles.TENANT, requester)).rejects.toThrow(UnauthorizedException);
+      await expect(authService.promoteUser('uuid-123', ValidRoles.TENANT, requester)).rejects.toThrow(BadRequestException);
 
     });
 
-    it('should throw UnauthorizedException if requester is not admin or self', async () => {
+    it('should throw ForbiddenException if requester is not admin or self', async () => {
       const requester = { ...mockUser, id: 'other-id', roles: ['TENANT'] } as User;
 
-      await expect(authService.promoteUser('uuid-123', ValidRoles.ADMIN, requester)).rejects.toThrow(UnauthorizedException);
+      await expect(authService.promoteUser('uuid-123', ValidRoles.ADMIN, requester)).rejects.toThrow(ForbiddenException);
     });
   });
 });

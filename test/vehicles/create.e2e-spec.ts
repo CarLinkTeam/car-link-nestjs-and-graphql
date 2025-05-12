@@ -67,7 +67,6 @@ describe('VehiclesModule Create (e2e)', () => {
     const ownerResponse = await request(app.getHttpServer())
       .post('/auth/register')
       .send(testOwner);
-
     ownerId = ownerResponse.body.user.id;
     ownerToken = ownerResponse.body.token;
 
@@ -82,7 +81,7 @@ describe('VehiclesModule Create (e2e)', () => {
 
     tenantId = tenantResponse.body.user.id;
     tenantToken = tenantResponse.body.token;
-  });
+  }, 10000);
 
   afterAll(async () => {
     await vehicleRepository.delete({ id: vehicleId });

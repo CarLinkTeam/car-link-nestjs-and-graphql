@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -70,12 +71,11 @@ export class AuthService {
     const isSelf = requester.id === userId;
 
     if (!isAdmin && !isSelf) {
-      throw new UnauthorizedException(`You are not allowed to promote this user`);
+      throw new ForbiddenException(`You are not allowed to promote this user`);
     }
 
     if (user.roles.includes(newRole)) {
-      throw new UnauthorizedException(`User already has role ${newRole}`);
-
+      throw new BadRequestException(`User already has role ${newRole}`);
     }
 
     user.roles.push(newRole);

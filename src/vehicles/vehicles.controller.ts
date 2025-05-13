@@ -9,6 +9,7 @@ import {
   HttpCode,
   HttpStatus,
   Patch,
+  UseGuards,
 } from '@nestjs/common';
 import { VehiclesService } from './vehicles.service';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
@@ -17,11 +18,14 @@ import { Auth } from '../auth/decorators/auth.decorator';
 import { ValidRoles } from '../auth/enums/valid-roles.enum';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { User } from '../users/entities/user.entity';
-import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Vehicle } from './entities/vehicle.entity';
 
 @ApiTags('Vehicles')
+@ApiBearerAuth()
 @Controller('vehicles')
+@UseGuards(AuthGuard('jwt'))
 export class VehiclesController {
   constructor(private readonly vehiclesService: VehiclesService) {}
 

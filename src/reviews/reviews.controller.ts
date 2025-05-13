@@ -8,17 +8,21 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { ValidRoles } from '../auth/enums/valid-roles.enum';
-import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Review } from './entities/review.entity';
 
 @ApiTags('Reviews')
+@ApiBearerAuth()
 @Controller('reviews')
+@UseGuards(AuthGuard('jwt'))
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
   @Post()

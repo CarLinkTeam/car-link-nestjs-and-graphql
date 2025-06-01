@@ -42,7 +42,7 @@ export class RentalsService {
 
       if (startDate >= endDate) {
         throw new BadRequestException(
-          'The start date must be earlier than the end date',
+          'La fecha inicial debe ser anterior a la fecha final',
         );
       }
 
@@ -57,6 +57,16 @@ export class RentalsService {
       });
 
       await this.rentalRepository.save(rental);
+
+      // Registrar los días inhabilitados en VehicleUnavailability
+      const unavailability = this.unavailabilityRepository.create({
+        vehicle_id,
+        unavailable_from: startDate,
+        unavailable_to: endDate,
+      });
+
+      await this.unavailabilityRepository.save(unavailability);
+
       return rental;
     } catch (error) {
       return this.handleExeptions(error);

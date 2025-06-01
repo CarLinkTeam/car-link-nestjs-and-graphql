@@ -40,7 +40,7 @@ export class RentalsService {
       const startDate = new Date(initialDate);
       const endDate = new Date(finalDate);
 
-      if (startDate >= endDate) {
+      if (startDate > endDate) {
         throw new BadRequestException(
           'La fecha inicial debe ser anterior a la fecha final',
         );

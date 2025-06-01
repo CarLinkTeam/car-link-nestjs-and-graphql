@@ -19,8 +19,14 @@ import { ValidRoles } from '../auth/enums/valid-roles.enum';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiResponse,
+  ApiOperation,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { Vehicle } from './entities/vehicle.entity';
+import { VehicleUnavailability } from './entities/vehicle-unavailability.entity';
 
 @ApiTags('Vehicles')
 @ApiBearerAuth()
@@ -93,6 +99,27 @@ export class VehiclesController {
   @ApiResponse({ status: 500, description: 'Internal server error' })
   async findMyVehicles(@GetUser() user: User) {
     return this.vehiclesService.findByOwner(user.id);
+  }
+
+  @Get(':id/unavailability')
+  @Auth(ValidRoles.ADMIN, ValidRoles.OWNER, ValidRoles.TENANT)
+  @ApiOperation({ summary: 'Get vehicle unavailability periods by vehicle ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Vehicle unavailability periods retrieved successfully',
+    type: [VehicleUnavailability],
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - User is not authenticated',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not found - Vehicle with specified ID not found',
+  })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  async findVehicleUnavailability(@Param('id') id: string) {
+    return this.vehiclesService.findVehicleUnavailability(id);
   }
 
   @Get(':term')

@@ -16,16 +16,18 @@ import { firstValueFrom } from 'rxjs';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { Vehicle } from './entities/vehicle.entity';
+import { VehicleUnavailability } from './entities/vehicle-unavailability.entity';
 import { isUUID } from 'class-validator';
 
 @Injectable()
 export class VehiclesService {
   private readonly API_URL = 'https://api.api-ninjas.com/v1/cars';
   private readonly logger = new Logger('VehiclesService');
-
   constructor(
     @InjectRepository(Vehicle)
     private vehicleRepository: Repository<Vehicle>,
+    @InjectRepository(VehicleUnavailability)
+    private vehicleUnavailabilityRepository: Repository<VehicleUnavailability>,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     private readonly dataSource: DataSource,
@@ -118,7 +120,6 @@ export class VehiclesService {
       this.handleExceptions(error);
     }
   }
-
   async findByOwner(ownerId: string) {
     try {
       const vehicles = await this.vehicleRepository.find({
@@ -133,6 +134,23 @@ export class VehiclesService {
       }
 
       return vehicles;
+    } catch (error) {
+      this.handleExceptions(error);
+    }
+  }
+
+  async findVehicleUnavailability(vehicleId: string) {
+    try {
+      // First verify that the vehicle exists
+      await this.findOne(vehicleId);
+
+      const unavailabilities = await this.vehicleUnavailabilityRepository.find({
+        where: { vehicle_id: vehicleId },
+        relations: ['vehicle'],
+        order: { unavailable_from: 'ASC' },
+      });
+
+      return unavailabilities;
     } catch (error) {
       this.handleExceptions(error);
     }

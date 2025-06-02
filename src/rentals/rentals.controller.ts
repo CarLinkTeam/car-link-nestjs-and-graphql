@@ -16,7 +16,12 @@ import { UpdateRentalDto } from './dto/update-rental.dto';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { ValidRoles } from '../auth/enums/valid-roles.enum';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiResponse,
+  ApiOperation,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { Rental } from './entities/rental.entity';
@@ -68,6 +73,24 @@ export class RentalsController {
   findAll() {
     return this.rentalsService.findAll();
   }
+
+  @Get('user')
+  @Auth(ValidRoles.OWNER, ValidRoles.ADMIN, ValidRoles.TENANT)
+  @ApiOperation({ summary: 'Get rentals for the logged-in user' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of rentals for the user retrieved successfully',
+    type: [Rental],
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - User is not authenticated',
+  })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  findByUser(@GetUser() user: User) {
+    return this.rentalsService.findByUser(user.id);
+  }
+
   @Get(':term')
   @Auth(ValidRoles.OWNER, ValidRoles.ADMIN, ValidRoles.TENANT)
   @ApiOperation({ summary: 'Get a rental by ID or date' })

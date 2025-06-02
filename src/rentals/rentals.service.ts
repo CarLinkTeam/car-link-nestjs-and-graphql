@@ -312,4 +312,14 @@ export class RentalsService {
       this.handleExeptions(error);
     }
   }
+
+  async findByUser(userId: string) {
+    try {
+      return await this.rentalRepository.find({
+        where: { client_id: userId },
+      });
+    } catch (error) {
+      this.handleExeptions(error);
+    }
+  }
 }

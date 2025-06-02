@@ -31,7 +31,7 @@ import { Rental } from './entities/rental.entity';
 @Controller('rentals')
 @UseGuards(AuthGuard('jwt'))
 export class RentalsController {
-  constructor(private readonly rentalsService: RentalsService) {}
+  constructor(private readonly rentalsService: RentalsService) { }
   @Post()
   @Auth(ValidRoles.OWNER, ValidRoles.ADMIN, ValidRoles.TENANT)
   @ApiOperation({ summary: 'Create a new rental' })
@@ -90,6 +90,24 @@ export class RentalsController {
   findByUser(@GetUser() user: User) {
     return this.rentalsService.findByUser(user.id);
   }
+
+  @Get('owner')
+  @Auth(ValidRoles.OWNER)
+  @ApiOperation({ summary: 'Get rentals for the logged-in user' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of rentals for the user retrieved successfully',
+    type: [Rental],
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - User is not authenticated',
+  })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  findByOwner(@GetUser() user: User) {
+    return this.rentalsService.findByOwner(user.id);
+  }
+
 
   @Get(':term')
   @Auth(ValidRoles.OWNER, ValidRoles.ADMIN, ValidRoles.TENANT)

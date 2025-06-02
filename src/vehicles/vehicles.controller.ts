@@ -144,7 +144,7 @@ export class VehiclesController {
   }
 
   @Patch(':id')
-  @Auth(ValidRoles.OWNER)
+  @Auth(ValidRoles.ADMIN, ValidRoles.OWNER)
   @ApiOperation({ summary: 'Update a vehicle' })
   @ApiResponse({
     status: 200,
@@ -177,7 +177,7 @@ export class VehiclesController {
   }
 
   @Delete(':id')
-  @Auth(ValidRoles.OWNER)
+  @Auth(ValidRoles.ADMIN, ValidRoles.OWNER)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a vehicle' })
   @ApiResponse({ status: 204, description: 'Vehicle deleted successfully' })

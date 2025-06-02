@@ -168,12 +168,14 @@ export class VehiclesController {
     description: 'Not found - Vehicle with specified ID not found',
   })
   @ApiResponse({ status: 500, description: 'Internal server error' })
+  
   async update(
     @Param('id') id: string,
     @GetUser() user: User,
     @Body() updateVehicleDto: UpdateVehicleDto,
+    @GetUser() requester: User,
   ) {
-    return this.vehiclesService.update(id, user.id, updateVehicleDto);
+    return this.vehiclesService.update(id, user.id, updateVehicleDto, requester);
   }
 
   @Delete(':id')
@@ -194,7 +196,8 @@ export class VehiclesController {
     description: 'Not found - Vehicle with specified ID not found',
   })
   @ApiResponse({ status: 500, description: 'Internal server error' })
-  async remove(@Param('id') id: string, @GetUser() user: User): Promise<void> {
-    return this.vehiclesService.remove(id, user.id);
+  async remove(@Param('id') id: string, @GetUser() user: User,  @GetUser() requester: User,
+): Promise<void> {
+    return this.vehiclesService.remove(id, user.id, requester);
   }
 }

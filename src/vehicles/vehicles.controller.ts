@@ -144,7 +144,7 @@ export class VehiclesController {
   }
 
   @Patch(':id')
-  @Auth(ValidRoles.OWNER)
+  @Auth(ValidRoles.ADMIN, ValidRoles.OWNER)
   @ApiOperation({ summary: 'Update a vehicle' })
   @ApiResponse({
     status: 200,
@@ -168,16 +168,18 @@ export class VehiclesController {
     description: 'Not found - Vehicle with specified ID not found',
   })
   @ApiResponse({ status: 500, description: 'Internal server error' })
+  
   async update(
     @Param('id') id: string,
     @GetUser() user: User,
     @Body() updateVehicleDto: UpdateVehicleDto,
+    @GetUser() requester: User,
   ) {
-    return this.vehiclesService.update(id, user.id, updateVehicleDto);
+    return this.vehiclesService.update(id, user.id, updateVehicleDto, requester);
   }
 
   @Delete(':id')
-  @Auth(ValidRoles.OWNER)
+  @Auth(ValidRoles.ADMIN, ValidRoles.OWNER)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a vehicle' })
   @ApiResponse({ status: 204, description: 'Vehicle deleted successfully' })
@@ -194,7 +196,8 @@ export class VehiclesController {
     description: 'Not found - Vehicle with specified ID not found',
   })
   @ApiResponse({ status: 500, description: 'Internal server error' })
-  async remove(@Param('id') id: string, @GetUser() user: User): Promise<void> {
-    return this.vehiclesService.remove(id, user.id);
+  async remove(@Param('id') id: string, @GetUser() user: User,  @GetUser() requester: User,
+): Promise<void> {
+    return this.vehiclesService.remove(id, user.id, requester);
   }
 }

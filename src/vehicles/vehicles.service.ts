@@ -18,6 +18,9 @@ import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { Vehicle } from './entities/vehicle.entity';
 import { VehicleUnavailability } from './entities/vehicle-unavailability.entity';
 import { isUUID } from 'class-validator';
+import { User } from 'src/users/entities/user.entity';
+import { ValidRoles } from 'src/auth/enums/valid-roles.enum';
+import { request } from 'http';
 
 @Injectable()
 export class VehiclesService {
@@ -160,11 +163,17 @@ export class VehiclesService {
     id: string,
     ownerId: string,
     updateVehicleDto: UpdateVehicleDto,
+    requester: User,
   ) {
     try {
       const vehicle = await this.findOne(id);
+      console.log(requester.roles);
 
-      if (vehicle!.ownerId !== ownerId) {
+      const isAdmin = requester.roles.includes(ValidRoles.ADMIN);
+      const isSelf = requester.id === vehicle!.ownerId;
+
+
+      if (!isAdmin && !isSelf) {
         throw new ForbiddenException('You are not the owner of this vehicle');
       }
 
@@ -197,11 +206,16 @@ export class VehiclesService {
     }
   }
 
-  async remove(id: string, ownerId: string): Promise<void> {
+  async remove(id: string, ownerId: string,     requester: User,
+): Promise<void> {
     try {
       const vehicle = await this.findOne(id);
 
-      if (vehicle!.ownerId !== ownerId) {
+      const isAdmin = requester.roles.includes(ValidRoles.ADMIN);
+      const isSelf = requester.id === vehicle!.ownerId;
+
+
+      if (!isAdmin && !isSelf) {
         throw new ForbiddenException('You are not the owner of this vehicle');
       }
 

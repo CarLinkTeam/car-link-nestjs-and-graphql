@@ -131,6 +131,17 @@ export class ReviewsService {
     }
   }
 
+  async findByVehicle(vehicleId: string) {
+    try {
+      return await this.reviewRepository.find({
+        where: { rental: { vehicle_id: vehicleId } },
+        relations: ['rental', 'rental.client'], // Incluye la relación con el usuario
+      });
+    } catch (error) {
+      this.handleExeptions(error);
+    }
+  }
+
   private handleExeptions(error: any) {
     if (error instanceof BadRequestException) throw error;
     if (error instanceof NotFoundException) throw error;

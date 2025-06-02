@@ -15,6 +15,7 @@ import { isUUID } from 'class-validator';
 import { UsersService } from '../users/users.service';
 import { VehiclesService } from '../vehicles/vehicles.service';
 import { VehicleUnavailability } from '../vehicles/entities/vehicle-unavailability.entity';
+import { Review } from 'src/reviews/entities/review.entity';
 
 @Injectable()
 export class RentalsService {
@@ -24,6 +25,8 @@ export class RentalsService {
     private readonly rentalRepository: Repository<Rental>,
     @InjectRepository(VehicleUnavailability)
     private readonly unavailabilityRepository: Repository<VehicleUnavailability>,
+    @InjectRepository(Review)
+    private readonly reviewRepository: Repository<Review>,
     private readonly usersService: UsersService,
     private readonly vehiclesService: VehiclesService,
     private readonly dataSource: DataSource,
@@ -40,9 +43,9 @@ export class RentalsService {
       const startDate = new Date(initialDate);
       const endDate = new Date(finalDate);
 
-      if (startDate >= endDate) {
+      if (startDate > endDate) {
         throw new BadRequestException(
-          'The start date must be earlier than the end date',
+          'La fecha inicial debe ser anterior a la fecha final',
         );
       }
 
@@ -57,6 +60,16 @@ export class RentalsService {
       });
 
       await this.rentalRepository.save(rental);
+
+      // Registrar los días inhabilitados en VehicleUnavailability
+      const unavailability = this.unavailabilityRepository.create({
+        vehicle_id,
+        unavailable_from: startDate,
+        unavailable_to: endDate,
+      });
+
+      await this.unavailabilityRepository.save(unavailability);
+
       return rental;
     } catch (error) {
       return this.handleExeptions(error);
@@ -300,6 +313,29 @@ export class RentalsService {
       await queryRunner.rollbackTransaction();
       await queryRunner.release();
       this.handleExeptions(error);
+    }
+  }
+
+  async findByUser(userId: string) {
+    try {
+      return await this.rentalRepository.find({
+        where: { client_id: userId },
+        relations: ['client', 'vehicle'],
+      });
+    } catch (error) {
+      this.handleExeptions(error);
+    }
+  }
+
+  async hasReview(rentalId: string): Promise<boolean> {
+    try {
+      const review = await this.reviewRepository.findOne({
+        where: { rental_id: rentalId },
+      });
+      return !!review;
+    } catch (error) {
+      this.handleExeptions(error);
+      return false;
     }
   }
 }

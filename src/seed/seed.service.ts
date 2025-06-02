@@ -115,9 +115,9 @@ export class SeedService {
         year: 2023,
         license_plate: 'JZT-123',
         url_photos: [
-          'https://ejemplo.com/vehiculos/corolla1.jpg',
-          'https://ejemplo.com/vehiculos/corolla2.jpg',
-          'https://ejemplo.com/vehiculos/corolla3.jpg',
+          'https://platform.cstatic-images.com/xlarge/in/v2/269cdb56-ab42-5dc5-a676-ff41651f732f/4882fa7d-8bba-4aff-93c9-622b27b082a3/8ONu1sc0wvjoP6kzIlNj-eA4Klw.jpg',
+          'https://platform.cstatic-images.com/xlarge/in/v2/269cdb56-ab42-5dc5-a676-ff41651f732f/4882fa7d-8bba-4aff-93c9-622b27b082a3/3z9Yefe7RQ_GVdtB2kJTTr6_wcQ.jpg',
+          'https://platform.cstatic-images.com/xlarge/in/v2/269cdb56-ab42-5dc5-a676-ff41651f732f/4882fa7d-8bba-4aff-93c9-622b27b082a3/93rT9IdLkFgavxcFwI4zS9fxbno.jpg',
         ],
         daily_price: 180000,
         rental_conditions:
@@ -135,9 +135,9 @@ export class SeedService {
         year: 2022,
         license_plate: 'UYL-456',
         url_photos: [
-          'https://ejemplo.com/vehiculos/audi1.jpg',
-          'https://ejemplo.com/vehiculos/audi2.jpg',
-          'https://ejemplo.com/vehiculos/audi3.jpg',
+          'https://platform.cstatic-images.com/xlarge/in/v2/04f913d7-a3e0-5bde-aba3-b6f4c0994054/24a1f601-3d4b-4854-9f6d-c52923b69e84/q9WbiCESXlosS5n_Y2-j0Av4oWg.jpg',
+          'https://platform.cstatic-images.com/xlarge/in/v2/04f913d7-a3e0-5bde-aba3-b6f4c0994054/24a1f601-3d4b-4854-9f6d-c52923b69e84/SRVNY5h8sbVd-hozS5HgZeyvLBk.jpg',
+          'https://platform.cstatic-images.com/xlarge/in/v2/04f913d7-a3e0-5bde-aba3-b6f4c0994054/24a1f601-3d4b-4854-9f6d-c52923b69e84/9p6I0YwrMy0unYbZ6W94urgsSzM.jpg',
         ],
         daily_price: 310000,
         rental_conditions:
@@ -155,9 +155,9 @@ export class SeedService {
         year: 2021,
         license_plate: 'GRP-789',
         url_photos: [
-          'https://ejemplo.com/vehiculos/kuga1.jpg',
-          'https://ejemplo.com/vehiculos/kuga2.jpg',
-          'https://ejemplo.com/vehiculos/kuga3.jpg',
+          'https://www.netcarshow.com/Ford-Kuga-2020-1280-08deacf659a3c9b819294d56d008b05e54.jpg',
+          'https://www.netcarshow.com/Ford-Kuga-2020-1280-b81c026d0a1581fe258095fdb315f96ed2.jpg',
+          'https://www.netcarshow.com/Ford-Kuga-2020-1280-9b7834b7cf99b4bd3a9f4379c153225a48.jpg',
         ],
         daily_price: 260000,
         rental_conditions:
@@ -175,9 +175,9 @@ export class SeedService {
         year: 2022,
         license_plate: 'QWE-234',
         url_photos: [
-          'https://ejemplo.com/vehiculos/berlingo1.jpg',
-          'https://ejemplo.com/vehiculos/berlingo2.jpg',
-          'https://ejemplo.com/vehiculos/berlingo3.jpg',
+          'https://www.netcarshow.com/Citroen-SpaceTourer_4x4_E_Concept-2017-th-1.jpg',
+          'https://www.netcarshow.com/Citroen-SpaceTourer_4x4_E_Concept-2017-1280-6d408b3c64b660b4430c68f300af798978.jpg',
+          'https://www.netcarshow.com/Citroen-SpaceTourer_4x4_E_Concept-2017-1280-ffb65f1e59db351e2a29a45360e03a2875.jpg',
         ],
         daily_price: 220000,
         rental_conditions:
@@ -251,7 +251,7 @@ export class SeedService {
         initialDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
         finalDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
         totalCost: vehicles[0].daily_price * 3,
-        status: 'COMPLETED',
+        status: 'completed',
       },
       {
         client_id: tenants[0].id,
@@ -259,7 +259,7 @@ export class SeedService {
         initialDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
         finalDate: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000), // 8 days from now
         totalCost: vehicles[1].daily_price * 3,
-        status: 'CONFIRMED',
+        status: 'confirmed',
       },
       {
         client_id: tenants[1].id,
@@ -267,7 +267,7 @@ export class SeedService {
         initialDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
         finalDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
         totalCost: vehicles[2].daily_price * 3,
-        status: 'COMPLETED',
+        status: 'completed',
       },
     ];
 

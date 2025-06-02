@@ -8,17 +8,26 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { ValidRoles } from '../auth/enums/valid-roles.enum';
-import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import {
+  ApiTags,
+  ApiResponse,
+  ApiOperation,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { Review } from './entities/review.entity';
 
 @ApiTags('Reviews')
+@ApiBearerAuth()
 @Controller('reviews')
+@UseGuards(AuthGuard('jwt'))
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
   @Post()
@@ -130,5 +139,26 @@ export class ReviewsController {
   @ApiResponse({ status: 500, description: 'Internal server error' })
   remove(@Param('id') id: string) {
     return this.reviewsService.remove(id);
+  }
+
+  @Get('vehicle/:vehicleId')
+  @Auth(ValidRoles.TENANT, ValidRoles.ADMIN, ValidRoles.OWNER)
+  @ApiOperation({ summary: 'Get all reviews for a specific vehicle' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of reviews for the vehicle retrieved successfully',
+    type: [Review],
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - User is not authenticated',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not found - No reviews found for the specified vehicle',
+  })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  findByVehicle(@Param('vehicleId') vehicleId: string) {
+    return this.reviewsService.findByVehicle(vehicleId);
   }
 }

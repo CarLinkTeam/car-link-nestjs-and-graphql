@@ -26,7 +26,7 @@ export class CreateRentalDto {
   totalCost: number;
 
   @ApiProperty()
-  @IsIn(['confirmed', 'canceled', 'pending', 'completed'])
+  @IsIn(['confirmed', 'cancelled', 'pending', 'completed'])
   status: string;
 
   @ApiProperty()

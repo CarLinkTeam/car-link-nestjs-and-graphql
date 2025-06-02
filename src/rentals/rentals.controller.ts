@@ -8,19 +8,28 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { RentalsService } from './rentals.service';
 import { CreateRentalDto } from './dto/create-rental.dto';
 import { UpdateRentalDto } from './dto/update-rental.dto';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { ValidRoles } from '../auth/enums/valid-roles.enum';
-import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import {
+  ApiTags,
+  ApiResponse,
+  ApiOperation,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { Rental } from './entities/rental.entity';
 
 @ApiTags('Rentals')
+@ApiBearerAuth()
 @Controller('rentals')
+@UseGuards(AuthGuard('jwt'))
 export class RentalsController {
   constructor(private readonly rentalsService: RentalsService) {}
   @Post()
@@ -64,6 +73,24 @@ export class RentalsController {
   findAll() {
     return this.rentalsService.findAll();
   }
+
+  @Get('user')
+  @Auth(ValidRoles.OWNER, ValidRoles.ADMIN, ValidRoles.TENANT)
+  @ApiOperation({ summary: 'Get rentals for the logged-in user' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of rentals for the user retrieved successfully',
+    type: [Rental],
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - User is not authenticated',
+  })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  findByUser(@GetUser() user: User) {
+    return this.rentalsService.findByUser(user.id);
+  }
+
   @Get(':term')
   @Auth(ValidRoles.OWNER, ValidRoles.ADMIN, ValidRoles.TENANT)
   @ApiOperation({ summary: 'Get a rental by ID or date' })
@@ -193,5 +220,24 @@ export class RentalsController {
   @ApiResponse({ status: 500, description: 'Internal server error' })
   rejectRental(@Param('id') id: string) {
     return this.rentalsService.rejectRental(id);
+  }
+
+  @Get(':rental_id/has-review')
+  @Auth(ValidRoles.OWNER, ValidRoles.ADMIN, ValidRoles.TENANT)
+  @ApiOperation({ summary: 'Check if a rental has a review' })
+  @ApiResponse({
+    status: 200,
+    description: 'Boolean indicating if the rental has a review',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Rental not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+  })
+  hasReview(@Param('rental_id') rentalId: string): Promise<boolean> {
+    return this.rentalsService.hasReview(rentalId);
   }
 }

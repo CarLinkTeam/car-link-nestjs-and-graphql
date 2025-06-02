@@ -30,7 +30,7 @@ export class RentalsService {
     private readonly usersService: UsersService,
     private readonly vehiclesService: VehiclesService,
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
 
   async create(client_id: string, createRentalDto: CreateRentalDto) {
     try {
@@ -143,7 +143,7 @@ export class RentalsService {
       vehicleId = updateRentalDto.vehicle_id;
     }
 
-    if (startDate >= endDate) {
+    if (startDate > endDate) {
       throw new BadRequestException(
         'La fecha inicial debe ser anterior a la fecha final',
       );
@@ -167,11 +167,39 @@ export class RentalsService {
 
     if (!rental)
       throw new NotFoundException(`Rental with id "${id}" not found`);
-
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
+      // Si hay cambios en fechas o vehículo, actualizar VehicleUnavailability
+      if (
+        updateRentalDto.vehicle_id ||
+        updateRentalDto.initialDate ||
+        updateRentalDto.finalDate
+      ) {
+        // Eliminar la entrada de unavailability anterior
+        const oldUnavailability = await this.unavailabilityRepository.findOne({
+          where: {
+            vehicle_id: currentRental.vehicle_id,
+            unavailable_from: currentRental.initialDate,
+            unavailable_to: currentRental.finalDate,
+          },
+        });
+
+        if (oldUnavailability) {
+          await queryRunner.manager.remove(oldUnavailability);
+        }
+
+        // Crear nueva entrada de unavailability con los datos actualizados
+        const newUnavailability = this.unavailabilityRepository.create({
+          vehicle_id: vehicleId,
+          unavailable_from: startDate,
+          unavailable_to: endDate,
+        });
+
+        await queryRunner.manager.save(newUnavailability);
+      }
+
       await queryRunner.manager.save(rental);
       await queryRunner.commitTransaction();
       await queryRunner.release();
@@ -183,7 +211,6 @@ export class RentalsService {
       this.handleExeptions(error);
     }
   }
-
   async remove(id: string) {
     const rental = await this.findOne(id);
     if (!rental)
@@ -192,6 +219,20 @@ export class RentalsService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
+      // Eliminar la entrada de VehicleUnavailability correspondiente
+      const unavailabilityToDelete =
+        await this.unavailabilityRepository.findOne({
+          where: {
+            vehicle_id: rental.vehicle_id,
+            unavailable_from: rental.initialDate,
+            unavailable_to: rental.finalDate,
+          },
+        });
+
+      if (unavailabilityToDelete) {
+        await queryRunner.manager.remove(unavailabilityToDelete);
+      }
+
       await queryRunner.manager.remove(rental);
       await queryRunner.commitTransaction();
       await queryRunner.release();
@@ -288,7 +329,6 @@ export class RentalsService {
       this.handleExeptions(error);
     }
   }
-
   async rejectRental(id: string) {
     const rental = await this.findOne(id);
 
@@ -305,6 +345,21 @@ export class RentalsService {
     try {
       rental.status = 'canceled';
       await queryRunner.manager.save(rental);
+
+      // Eliminar la entrada de VehicleUnavailability correspondiente
+      const unavailabilityToDelete =
+        await this.unavailabilityRepository.findOne({
+          where: {
+            vehicle_id: rental.vehicle_id,
+            unavailable_from: rental.initialDate,
+            unavailable_to: rental.finalDate,
+          },
+        });
+
+      if (unavailabilityToDelete) {
+        await queryRunner.manager.remove(unavailabilityToDelete);
+      }
+
       await queryRunner.commitTransaction();
       await queryRunner.release();
 

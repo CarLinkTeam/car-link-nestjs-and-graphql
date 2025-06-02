@@ -221,4 +221,23 @@ export class RentalsController {
   rejectRental(@Param('id') id: string) {
     return this.rentalsService.rejectRental(id);
   }
+
+  @Get(':rental_id/has-review')
+  @Auth(ValidRoles.OWNER, ValidRoles.ADMIN, ValidRoles.TENANT)
+  @ApiOperation({ summary: 'Check if a rental has a review' })
+  @ApiResponse({
+    status: 200,
+    description: 'Boolean indicating if the rental has a review',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Rental not found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+  })
+  hasReview(@Param('rental_id') rentalId: string): Promise<boolean> {
+    return this.rentalsService.hasReview(rentalId);
+  }
 }

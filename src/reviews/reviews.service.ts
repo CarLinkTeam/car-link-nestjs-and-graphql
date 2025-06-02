@@ -135,7 +135,7 @@ export class ReviewsService {
     try {
       return await this.reviewRepository.find({
         where: { rental: { vehicle_id: vehicleId } },
-        relations: ['rental'],
+        relations: ['rental', 'rental.client'], // Incluye la relación con el usuario
       });
     } catch (error) {
       this.handleExeptions(error);

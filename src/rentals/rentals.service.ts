@@ -15,6 +15,7 @@ import { isUUID } from 'class-validator';
 import { UsersService } from '../users/users.service';
 import { VehiclesService } from '../vehicles/vehicles.service';
 import { VehicleUnavailability } from '../vehicles/entities/vehicle-unavailability.entity';
+import { Review } from 'src/reviews/entities/review.entity';
 
 @Injectable()
 export class RentalsService {
@@ -24,6 +25,8 @@ export class RentalsService {
     private readonly rentalRepository: Repository<Rental>,
     @InjectRepository(VehicleUnavailability)
     private readonly unavailabilityRepository: Repository<VehicleUnavailability>,
+    @InjectRepository(Review)
+    private readonly reviewRepository: Repository<Review>,
     private readonly usersService: UsersService,
     private readonly vehiclesService: VehiclesService,
     private readonly dataSource: DataSource,
@@ -317,9 +320,22 @@ export class RentalsService {
     try {
       return await this.rentalRepository.find({
         where: { client_id: userId },
+        relations: ['client', 'vehicle'],
       });
     } catch (error) {
       this.handleExeptions(error);
+    }
+  }
+
+  async hasReview(rentalId: string): Promise<boolean> {
+    try {
+      const review = await this.reviewRepository.findOne({
+        where: { rental_id: rentalId },
+      });
+      return !!review;
+    } catch (error) {
+      this.handleExeptions(error);
+      return false;
     }
   }
 }

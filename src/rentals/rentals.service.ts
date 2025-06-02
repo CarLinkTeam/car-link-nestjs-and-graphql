@@ -30,7 +30,7 @@ export class RentalsService {
     private readonly usersService: UsersService,
     private readonly vehiclesService: VehiclesService,
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
 
   async create(client_id: string, createRentalDto: CreateRentalDto) {
     try {
@@ -327,6 +327,17 @@ export class RentalsService {
     }
   }
 
+  async findByOwner(userId: string) {
+    try {
+      return await this.rentalRepository
+        .createQueryBuilder('rental')
+        .innerJoinAndSelect('rental.vehicle', 'vehicle')
+        .where('vehicle.ownerId = :userId', { userId })
+        .getMany();
+    } catch (error) {
+      this.handleExeptions(error);
+    }
+  }
   async hasReview(rentalId: string): Promise<boolean> {
     try {
       const review = await this.reviewRepository.findOne({

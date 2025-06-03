@@ -537,7 +537,6 @@ export class SeedService {
     console.log(`Created ${unavailabilities.length} unavailabilities`);
     return unavailabilities;
   }
-
   private async seedRentals(
     users: User[],
     vehicles: Vehicle[],
@@ -568,6 +567,47 @@ export class SeedService {
         totalCost: vehicles[2].daily_price * 3,
         status: 'completed',
       },
+      // New rentals for vehicles without rentals
+      {
+        client_id: tenants[0].id,
+        vehicle_id: vehicles[3].id,
+        initialDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000), // 15 days ago
+        finalDate: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000), // 12 days ago
+        totalCost: vehicles[3].daily_price * 3,
+        status: 'completed',
+      },
+      {
+        client_id: tenants[1].id,
+        vehicle_id: vehicles[4].id,
+        initialDate: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000), // 8 days ago
+        finalDate: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000), // 6 days ago
+        totalCost: vehicles[4].daily_price * 2,
+        status: 'completed',
+      },
+      {
+        client_id: tenants[0].id,
+        vehicle_id: vehicles[5].id,
+        initialDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
+        finalDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+        totalCost: vehicles[5].daily_price * 4,
+        status: 'confirmed',
+      },
+      {
+        client_id: tenants[1].id,
+        vehicle_id: vehicles[6].id,
+        initialDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // 1 day from now
+        finalDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000), // 4 days from now
+        totalCost: vehicles[6].daily_price * 3,
+        status: 'pending',
+      },
+      {
+        client_id: tenants[0].id,
+        vehicle_id: vehicles[7].id,
+        initialDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000), // 10 days from now
+        finalDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 days from now
+        totalCost: vehicles[7].daily_price * 4,
+        status: 'confirmed',
+      },
     ];
 
     const rentals = await Promise.all(
@@ -580,7 +620,6 @@ export class SeedService {
     console.log(`Created ${rentals.length} rentals`);
     return rentals;
   }
-
   private async seedReviews(rentals: Rental[]): Promise<Review[]> {
     const reviewTexts = [
       '¡Excelente vehículo y proceso de alquiler muy sencillo!',
@@ -595,7 +634,9 @@ export class SeedService {
       'Algunos rasguños menores no mencionados en el anuncio.',
     ];
 
-    const reviewsData = rentals.map((rental) => ({
+    // Only create reviews for the first 3 rentals (original ones)
+    const originalRentals = rentals.slice(0, 3);
+    const reviewsData = originalRentals.map((rental) => ({
       rental_id: rental.id,
       rating: Math.floor(Math.random() * 2) + 4, // Random rating between 4-5
       comment: reviewTexts[Math.floor(Math.random() * reviewTexts.length)],

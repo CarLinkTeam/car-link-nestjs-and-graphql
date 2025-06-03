@@ -343,7 +343,7 @@ export class RentalsService {
     await queryRunner.startTransaction();
 
     try {
-      rental.status = 'canceled';
+      rental.status = 'cancelled';
       await queryRunner.manager.save(rental);
 
       // Eliminar la entrada de VehicleUnavailability correspondiente

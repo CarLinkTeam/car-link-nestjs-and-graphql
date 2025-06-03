@@ -262,10 +262,12 @@ export class RentalsService {
         'The vehicle is not available during this period',
       );
     }
-
     const rentalConflictsQuery = this.rentalRepository
       .createQueryBuilder('rental')
       .where('rental.vehicle_id = :vehicleId', { vehicleId })
+      .andWhere('rental.status != :cancelledStatus', {
+        cancelledStatus: 'cancelled',
+      })
       .andWhere(
         `(
           (rental.initialDate <= :startDate AND rental.finalDate >= :startDate) OR

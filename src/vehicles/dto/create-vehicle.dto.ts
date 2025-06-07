@@ -9,7 +9,9 @@ import {
   Max,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { InputType, Field, Float, Int } from '@nestjs/graphql';
 
+@InputType()
 export class CreateVehicleDto {
   @ApiProperty({
     description: 'The model of the vehicle',
@@ -17,6 +19,7 @@ export class CreateVehicleDto {
   })
   @IsNotEmpty()
   @IsString()
+  @Field(() => String)
   vehicleModel: string;
 
   @ApiProperty({
@@ -25,6 +28,7 @@ export class CreateVehicleDto {
   })
   @IsNotEmpty()
   @IsString()
+  @Field(() => String)
   make: string;
 
   @ApiProperty({
@@ -33,6 +37,7 @@ export class CreateVehicleDto {
   })
   @IsNotEmpty()
   @IsString()
+  @Field(() => String)
   color: string;
 
   @ApiProperty({
@@ -45,6 +50,7 @@ export class CreateVehicleDto {
   @IsNumber()
   @Min(1900, { message: 'Year must be at least 1900' })
   @Max(new Date().getFullYear(), { message: 'year must not be a future year' })
+  @Field(() => Int)
   year: number;
 
   @ApiProperty({
@@ -53,6 +59,7 @@ export class CreateVehicleDto {
   })
   @IsNotEmpty()
   @IsString()
+  @Field(() => String)
   license_plate: string;
 
   @ApiProperty({
@@ -65,6 +72,7 @@ export class CreateVehicleDto {
   })
   @IsArray()
   @IsString({ each: true })
+  @Field(() => [String])
   url_photos: string[];
 
   @ApiProperty({
@@ -74,6 +82,7 @@ export class CreateVehicleDto {
   })
   @IsNumber()
   @IsPositive({ message: 'daily_price must be a positive number' })
+  @Field(() => Float)
   daily_price: number;
 
   @ApiProperty({
@@ -81,6 +90,7 @@ export class CreateVehicleDto {
     example: 'No smoking. Pets allowed with additional fee.',
   })
   @IsString()
+  @Field(() => String)
   rental_conditions: string;
 
   @ApiProperty({
@@ -90,6 +100,7 @@ export class CreateVehicleDto {
   })
   @IsOptional()
   @IsString()
+  @Field(() => String, { nullable: true })
   class?: string;
 
   @ApiProperty({
@@ -99,6 +110,7 @@ export class CreateVehicleDto {
   })
   @IsOptional()
   @IsString()
+  @Field(() => String, { nullable: true })
   drive?: string;
 
   @ApiProperty({
@@ -108,6 +120,7 @@ export class CreateVehicleDto {
   })
   @IsOptional()
   @IsString()
+  @Field(() => String, { nullable: true })
   fuel_type?: string;
 
   @ApiProperty({
@@ -117,5 +130,6 @@ export class CreateVehicleDto {
   })
   @IsOptional()
   @IsString()
+  @Field(() => String, { nullable: true })
   transmission?: string;
 }

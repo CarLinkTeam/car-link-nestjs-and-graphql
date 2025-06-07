@@ -34,7 +34,7 @@ export class VehiclesService {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
 
   async create(ownerId: string, createVehicleDto: CreateVehicleDto) {
     try {
@@ -142,6 +142,22 @@ export class VehiclesService {
     }
   }
 
+  async findVehicleByOwner(vehicleId: string, ownerId: string) {
+    const vehicle = await this.vehicleRepository.findOne({
+      where: { id: vehicleId, ownerId },
+      relations: ['owner'],
+    });
+
+    if (!vehicle) {
+      throw new NotFoundException(
+        `Vehicle with id "${vehicleId}" for owner with id "${ownerId}" not found`,
+      );
+    }
+
+    return vehicle;
+  }
+
+
   async findVehicleUnavailability(vehicleId: string) {
     try {
       // First verify that the vehicle exists
@@ -206,8 +222,8 @@ export class VehiclesService {
     }
   }
 
-  async remove(id: string, ownerId: string,     requester: User,
-): Promise<void> {
+  async remove(id: string, ownerId: string, requester: User,
+  ): Promise<void> {
     try {
       const vehicle = await this.findOne(id);
 

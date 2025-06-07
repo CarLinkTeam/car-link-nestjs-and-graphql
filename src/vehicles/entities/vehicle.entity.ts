@@ -10,6 +10,9 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../users/entities/user.entity';
 
+import { ObjectType, Field, ID, Int, Float } from '@nestjs/graphql';
+
+@ObjectType()
 @Entity('vehicles')
 export class Vehicle {
   @ApiProperty({
@@ -17,6 +20,7 @@ export class Vehicle {
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
   @PrimaryGeneratedColumn('uuid')
+  @Field(() => ID)
   id: string;
 
   @ApiProperty({
@@ -24,6 +28,7 @@ export class Vehicle {
     example: 'Corolla',
   })
   @Column()
+  @Field(() => String)
   vehicleModel: string;
 
   @ApiProperty({
@@ -31,6 +36,7 @@ export class Vehicle {
     example: 'Toyota',
   })
   @Column()
+  @Field(() => String)
   make: string;
 
   @ApiProperty({
@@ -38,6 +44,7 @@ export class Vehicle {
     example: 'Red',
   })
   @Column()
+  @Field(() => String)
   color: string;
 
   @ApiProperty({
@@ -45,6 +52,7 @@ export class Vehicle {
     example: 2022,
   })
   @Column()
+  @Field(() => Int)
   year: number;
 
   @ApiProperty({
@@ -52,6 +60,7 @@ export class Vehicle {
     example: 'ABC-123',
   })
   @Column({ unique: true })
+  @Field(() => String)
   license_plate: string;
 
   @ApiProperty({
@@ -63,6 +72,7 @@ export class Vehicle {
     isArray: true,
   })
   @Column('text', { array: true })
+  @Field(() => [String])
   url_photos: string[];
 
   @ApiProperty({
@@ -70,6 +80,7 @@ export class Vehicle {
     example: 50.0,
   })
   @Column('decimal', { precision: 10, scale: 2 })
+  @Field(() => Float)
   daily_price: number;
 
   @ApiProperty({
@@ -77,15 +88,16 @@ export class Vehicle {
     example: 'No smoking. Pets allowed with additional fee.',
   })
   @Column('text')
+  @Field(() => String)
   rental_conditions: string;
 
-  // External API data
   @ApiProperty({
     description: 'Vehicle class/category',
     example: 'Sedan',
     required: false,
   })
   @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
   class?: string;
 
   @ApiProperty({
@@ -94,6 +106,7 @@ export class Vehicle {
     required: false,
   })
   @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
   drive?: string;
 
   @ApiProperty({
@@ -102,6 +115,7 @@ export class Vehicle {
     required: false,
   })
   @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
   fuel_type?: string;
 
   @ApiProperty({
@@ -110,6 +124,7 @@ export class Vehicle {
     required: false,
   })
   @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
   transmission?: string;
 
   @ApiProperty({
@@ -117,6 +132,7 @@ export class Vehicle {
     example: '2023-01-01T00:00:00Z',
   })
   @CreateDateColumn()
+  @Field(() => Date)
   createdAt: Date;
 
   @ApiProperty({
@@ -124,16 +140,19 @@ export class Vehicle {
     example: '2023-01-02T00:00:00Z',
   })
   @UpdateDateColumn()
+  @Field(() => Date)
   updatedAt: Date;
 
   @ApiProperty({
-    description: 'The ID of the vehicle owner',
+    description: 'The owner of the vehicle',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
   @ManyToOne(() => User)
   @JoinColumn({ name: 'ownerId' })
+  @Field(() => User)
   owner: User;
 
   @Column('uuid')
+  @Field(() => ID)
   ownerId: string;
 }

@@ -1,0 +1,117 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type User {
+  id: ID!
+  email: String!
+  fullName: String!
+  location: String!
+  phone: String!
+  isActive: Boolean!
+  roles: [String!]!
+}
+
+type AuthReponse {
+  user: User!
+  token: String!
+}
+
+type Vehicle {
+  id: ID!
+  vehicleModel: String!
+  make: String!
+  color: String!
+  year: Int!
+  license_plate: String!
+  url_photos: [String!]!
+  daily_price: Float!
+  rental_conditions: String!
+  class: String
+  drive: String
+  fuel_type: String
+  transmission: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  owner: User!
+  ownerId: ID!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type VehicleResponse {
+  vehicle: Vehicle!
+}
+
+type VehiclesResponse {
+  vehicles: [Vehicle!]!
+}
+
+type Query {
+  hello: String!
+  findMyVehicles: VehiclesResponse!
+  findMyVehicle(id: String!): VehicleResponse!
+}
+
+type Mutation {
+  signup(signInput: RegisterAuthDto!): AuthReponse!
+  login(loginInput: LoginAuthDto!): AuthReponse!
+  create(createInput: CreateVehicleDto!): VehicleResponse!
+  update(updateInput: UpdateVehicleDto!, id: String!): VehicleResponse!
+  deleteVehicle(id: String!): Boolean!
+}
+
+input RegisterAuthDto {
+  """Full name of the user"""
+  fullName: String! = "John Doe"
+
+  """Password with uppercase, lowercase, and a number or special character"""
+  password: String! = "Password123!"
+
+  """User email address"""
+  email: String! = "john.doe@example.com"
+
+  """User location or city"""
+  location: String! = "New York"
+
+  """Phone number with country code. Format: +[country_code][number]"""
+  phone: String! = "+12345678901"
+}
+
+input LoginAuthDto {
+  email: String!
+  password: String!
+}
+
+input CreateVehicleDto {
+  vehicleModel: String!
+  make: String!
+  color: String!
+  year: Int!
+  license_plate: String!
+  url_photos: [String!]!
+  daily_price: Float!
+  rental_conditions: String!
+  class: String
+  drive: String
+  fuel_type: String
+  transmission: String
+}
+
+input UpdateVehicleDto {
+  vehicleModel: String
+  make: String
+  color: String
+  year: Int
+  license_plate: String
+  url_photos: [String!]
+  daily_price: Float
+  rental_conditions: String
+  class: String
+  drive: String
+  fuel_type: String
+  transmission: String
+}

@@ -8,6 +8,7 @@ import { VehiclesController } from './vehicles.controller';
 import { Vehicle } from './entities/vehicle.entity';
 import { VehicleUnavailability } from './entities/vehicle-unavailability.entity';
 import { AuthModule } from '../auth/auth.module';
+import { VehicleResolver } from './vehicles.resolver';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { AuthModule } from '../auth/auth.module';
     AuthModule,
   ],
   controllers: [VehiclesController],
-  providers: [VehiclesService],
+  providers: [VehicleResolver, VehiclesService],
   exports: [VehiclesService],
 })
 export class VehiclesModule {}

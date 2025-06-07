@@ -1,24 +1,15 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsString, IsEmail, MaxLength, MinLength } from "class-validator";
+import { Field, InputType } from "@nestjs/graphql";
+import { IsEmail, MaxLength, MinLength } from "class-validator";
 
+@InputType()
 export class LoginAuthDto {
 
-    @ApiProperty({
-        example: 'john.doe@example.com',
-        description: 'User email address used to log in',
-    })
-    @IsString()
+    @Field(() => String)
     @IsEmail()
-    email: string;
+    email:string;
 
-    @ApiProperty({
-        example: 'Password123!',
-        description: 'User password (must be at least 6 characters)',
-        minLength: 6,
-        maxLength: 50,
-    })
-    @IsString()
+    @Field(() => String)
     @MinLength(6)
     @MaxLength(50)
-    password: string;
+    password:string;
 }

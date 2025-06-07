@@ -1,23 +1,20 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { InputType, Field } from "@nestjs/graphql";
 import { IsEmail, IsString, Matches, MaxLength, MinLength } from "class-validator";
 
+@InputType()
 export class RegisterAuthDto {
-    @ApiProperty({
-        example: 'John Doe',
+    @Field(() => String, {
         description: 'Full name of the user',
-        minLength: 4,
-        maxLength: 20,
+        defaultValue: 'John Doe',
     })
     @IsString()
     @MinLength(4)
     @MaxLength(20)
     fullName: string;
 
-    @ApiProperty({
-        example: 'Password123!',
+    @Field(() => String, {
         description: 'Password with uppercase, lowercase, and a number or special character',
-        minLength: 6,
-        maxLength: 50,
+        defaultValue: 'Password123!',
     })
     @IsString()
     @MinLength(6)
@@ -28,25 +25,24 @@ export class RegisterAuthDto {
     })
     password: string;
 
-    @ApiProperty({
-        example: 'john.doe@example.com',
+    @Field(() => String, {
         description: 'User email address',
+        defaultValue: 'john.doe@example.com',
     })
     @IsString()
     @IsEmail()
     email: string;
 
-    @ApiProperty({
-        example: 'New York',
+    @Field(() => String, {
         description: 'User location or city',
+        defaultValue: 'New York',
     })
     @IsString()
     location: string;
 
-    @ApiProperty({
-        example: '+12345678901',
-        description:
-            'Phone number with country code. Format: +[country_code][number]',
+    @Field(() => String, {
+        description: 'Phone number with country code. Format: +[country_code][number]',
+        defaultValue: '+12345678901',
     })
     @IsString()
     @Matches(/^\+\d{1,3}\d{6,14}$/, {

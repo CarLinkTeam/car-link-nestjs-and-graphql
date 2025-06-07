@@ -8,12 +8,15 @@ import { GqlAuthGuard } from 'src/auth/guards/user-role/gql-auth.guard';
 import { UserRoleGuard } from 'src/auth/guards/user-role/user-role.guard';
 import { UseGuards } from '@nestjs/common';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
+import { ValidRoles } from 'src/auth/enums/valid-roles.enum';
+import { Auth } from 'src/auth/decorators/auth.decorator';
 
 @UseGuards(GqlAuthGuard, UserRoleGuard)
 @Resolver()
 export class VehicleResolver {
   constructor(private readonly vehiclesService: VehiclesService) { }
 
+  @Auth(ValidRoles.OWNER,ValidRoles.ADMIN)
   @Mutation(() => VehicleResponse, { name: 'create' })
   async create(
     @Args('createInput') createInput: CreateVehicleDto,
@@ -24,6 +27,7 @@ export class VehicleResolver {
     return { vehicle };
   }
 
+  @Auth(ValidRoles.OWNER,ValidRoles.ADMIN)
   @Query(() => VehiclesResponse, { name: 'findMyVehicles' })
   async findMyVehicles(@GetUser() user: User): Promise<VehiclesResponse> {
     const vehicles = await this.vehiclesService.findByOwner(user.id);
@@ -31,6 +35,7 @@ export class VehicleResolver {
     return { vehicles };
   }
 
+  @Auth(ValidRoles.OWNER,ValidRoles.ADMIN)
   @Query(() => VehicleResponse, { name: 'findMyVehicle' })
   async findMyVehicle(
     @Args('id') id: string,
@@ -40,6 +45,7 @@ export class VehicleResolver {
     return { vehicle };
   }
 
+  @Auth(ValidRoles.OWNER,ValidRoles.ADMIN)
   @Mutation(() => VehicleResponse, { name: 'update' })
   async update(
     @Args('updateInput') createInput: UpdateVehicleDto,
@@ -52,6 +58,7 @@ export class VehicleResolver {
     return { vehicle };
   }
 
+  @Auth(ValidRoles.OWNER,ValidRoles.ADMIN)
   @Mutation(() => Boolean, { name: 'deleteVehicle' })
   async deleteVehicle(
     @Args('id') id: string,

@@ -50,10 +50,47 @@ type VehiclesResponse {
   vehicles: [Vehicle!]!
 }
 
+type Rental {
+  id: ID!
+  initialDate: DateTime!
+  finalDate: DateTime!
+  totalCost: Float!
+  status: String!
+  client: User!
+  client_id: ID!
+  vehicle: Vehicle!
+  vehicle_id: ID!
+}
+
+type RentalResponse {
+  rental: Rental!
+}
+
+type RentalsResponse {
+  rentals: [Rental!]!
+}
+
+type RentalStatusResponse {
+  message: String!
+  rental: Rental!
+}
+
 type Query {
   hello: String!
   findMyVehicles: VehiclesResponse!
   findMyVehicle(id: String!): VehicleResponse!
+
+  """Get all rentals for the authenticated user as a client"""
+  findMyRentals: RentalsResponse!
+
+  """Get all rentals for vehicles owned by the authenticated user"""
+  findMyOwnerRentals: RentalsResponse!
+
+  """Get a specific rental by ID"""
+  findOneRental(
+    """Rental ID"""
+    id: String!
+  ): RentalResponse!
 }
 
 type Mutation {
@@ -62,6 +99,39 @@ type Mutation {
   create(createInput: CreateVehicleDto!): VehicleResponse!
   update(updateInput: UpdateVehicleDto!, id: String!): VehicleResponse!
   deleteVehicle(id: String!): Boolean!
+
+  """Create a new rental request"""
+  createRental(
+    """Rental data"""
+    createInput: CreateRentalDto!
+  ): RentalResponse!
+
+  """Update an existing rental (only pending rentals)"""
+  updateRental(
+    """Rental ID"""
+    id: String!
+
+    """Updated rental data"""
+    updateInput: UpdateRentalDto!
+  ): RentalResponse!
+
+  """Confirm a pending rental (vehicle owners only)"""
+  confirmRental(
+    """Rental ID"""
+    id: String!
+  ): RentalStatusResponse!
+
+  """Reject a pending rental (vehicle owners only)"""
+  rejectRental(
+    """Rental ID"""
+    id: String!
+  ): RentalStatusResponse!
+
+  """Delete a rental (administrators only)"""
+  deleteRental(
+    """Rental ID"""
+    id: String!
+  ): Boolean!
 }
 
 input RegisterAuthDto {
@@ -114,4 +184,20 @@ input UpdateVehicleDto {
   drive: String
   fuel_type: String
   transmission: String
+}
+
+input CreateRentalDto {
+  initialDate: DateTime!
+  finalDate: DateTime!
+  totalCost: Float!
+  status: String!
+  vehicle_id: ID!
+}
+
+input UpdateRentalDto {
+  initialDate: DateTime
+  finalDate: DateTime
+  totalCost: Float
+  status: String
+  vehicle_id: ID
 }

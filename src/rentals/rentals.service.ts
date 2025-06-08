@@ -15,28 +15,88 @@ import { isUUID } from 'class-validator';
 import { UsersService } from '../users/users.service';
 import { VehiclesService } from '../vehicles/vehicles.service';
 import { VehicleUnavailability } from '../vehicles/entities/vehicle-unavailability.entity';
-import { Review } from 'src/reviews/entities/review.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class RentalsService {
   private logger = new Logger('RentalsService');
+
   constructor(
     @InjectRepository(Rental)
     private readonly rentalRepository: Repository<Rental>,
     @InjectRepository(VehicleUnavailability)
     private readonly unavailabilityRepository: Repository<VehicleUnavailability>,
-    @InjectRepository(Review)
-    private readonly reviewRepository: Repository<Review>,
     private readonly usersService: UsersService,
     private readonly vehiclesService: VehiclesService,
     private readonly dataSource: DataSource,
   ) {}
 
-  async create(client_id: string, createRentalDto: CreateRentalDto) {
+  async findMyRentals(user: User) {
+    try {
+      return await this.rentalRepository.find({
+        where: { client_id: user.id },
+        relations: ['client', 'vehicle', 'vehicle.owner'],
+        order: { initialDate: 'DESC' },
+      });
+    } catch (error) {
+      this.handleExceptions(error);
+    }
+  }
+
+  async findMyOwnerRentals(user: User) {
+    try {
+      return await this.rentalRepository
+        .createQueryBuilder('rental')
+        .innerJoinAndSelect('rental.vehicle', 'vehicle')
+        .innerJoinAndSelect('rental.client', 'client')
+        .where('vehicle.ownerId = :userId', { userId: user.id })
+        .orderBy('rental.initialDate', 'DESC')
+        .getMany();
+    } catch (error) {
+      this.handleExceptions(error);
+    }
+  }
+
+  async findOneRental(id: string, user?: User) {
+    try {
+      if (!isUUID(id)) {
+        throw new BadRequestException('Invalid rental ID format');
+      }
+
+      const rental = await this.rentalRepository.findOne({
+        where: { id },
+        relations: ['client', 'vehicle', 'vehicle.owner'],
+      });
+
+      if (!rental) {
+        throw new NotFoundException(`Rental with id "${id}" not found`);
+      }
+
+      if (user) {
+        const hasAccess =
+          rental.client_id === user.id ||
+          rental.vehicle.ownerId === user.id ||
+          user.roles.includes('ADMIN');
+
+        if (!hasAccess) {
+          throw new BadRequestException(
+            'You do not have access to this rental',
+          );
+        }
+      }
+
+      return rental;
+    } catch (error) {
+      this.handleExceptions(error);
+    }
+  }
+
+  async createRental(user: User, createRentalDto: CreateRentalDto) {
     try {
       const { vehicle_id, initialDate, finalDate, ...rentalData } =
         createRentalDto;
-      await this.usersService.findById(client_id);
+
+      await this.usersService.findById(user.id);
 
       await this.vehiclesService.findOne(vehicle_id);
 
@@ -44,9 +104,11 @@ export class RentalsService {
       const endDate = new Date(finalDate);
 
       if (startDate > endDate) {
-        throw new BadRequestException(
-          'La fecha inicial debe ser anterior a la fecha final',
-        );
+        throw new BadRequestException('Start date must be before end date');
+      }
+
+      if (startDate < new Date()) {
+        throw new BadRequestException('Start date cannot be in the past');
       }
 
       await this.checkVehicleAvailability(vehicle_id, startDate, endDate);
@@ -55,13 +117,12 @@ export class RentalsService {
         ...rentalData,
         initialDate: startDate,
         finalDate: endDate,
-        client_id,
+        client_id: user.id,
         vehicle_id,
       });
 
-      await this.rentalRepository.save(rental);
+      const savedRental = await this.rentalRepository.save(rental);
 
-      // Registrar los días inhabilitados en VehicleUnavailability
       const unavailability = this.unavailabilityRepository.create({
         vehicle_id,
         unavailable_from: startDate,
@@ -70,177 +131,207 @@ export class RentalsService {
 
       await this.unavailabilityRepository.save(unavailability);
 
-      return rental;
+      return await this.findOneRental(savedRental.id);
     } catch (error) {
-      return this.handleExeptions(error);
+      this.handleExceptions(error);
     }
   }
 
-  async findAll() {
+  async updateRental(id: string, user: User, updateRentalDto: UpdateRentalDto) {
     try {
-      return await this.rentalRepository.find({
-        relations: ['client', 'vehicle'],
-      });
-    } catch (error) {
-      this.handleExeptions(error);
-    }
-  }
+      const currentRental = await this.findOneRental(id, user);
+      if (!currentRental)
+        throw new NotFoundException(`Rental with id "${id}" not found`);
 
-  async findOne(term: string) {
-    let rental: Rental | null;
-
-    if (isUUID(term)) {
-      rental = await this.rentalRepository.findOne({
-        where: { id: term },
-        relations: ['client', 'vehicle'],
-      });
-    } else {
-      const searchDate = new Date(term);
-
-      if (!isNaN(searchDate.getTime())) {
-        const queryBuilder = this.rentalRepository.createQueryBuilder('rental');
-        rental = await queryBuilder
-          .where('DATE(rental.initialDate) = DATE(:searchDate)', { searchDate })
-          .orWhere('DATE(rental.finalDate) = DATE(:searchDate)', { searchDate })
-          .leftJoinAndSelect('rental.client', 'client')
-          .leftJoinAndSelect('rental.vehicle', 'vehicle')
-          .getOne();
-      } else {
-        rental = null;
+      if (
+        currentRental.client_id !== user.id &&
+        !user.roles.includes('ADMIN')
+      ) {
+        throw new BadRequestException('You can only update your own rentals');
       }
-    }
 
-    if (!rental) {
-      throw new NotFoundException(`Rental with id or date "${term}" not found`);
-    }
+      if (currentRental.status !== 'pending') {
+        throw new BadRequestException('You can only update pending rentals');
+      }
 
-    return rental;
-  }
+      let startDate = currentRental.initialDate;
+      let endDate = currentRental.finalDate;
+      let vehicleId = currentRental.vehicle_id;
 
-  async update(
-    id: string,
-    updateRentalDto: UpdateRentalDto,
-    client_id: string,
-  ) {
-    if (updateRentalDto.vehicle_id) {
-      await this.vehiclesService.findOne(updateRentalDto.vehicle_id);
-    }
+      if (updateRentalDto.initialDate) {
+        startDate = new Date(updateRentalDto.initialDate);
+      }
+      if (updateRentalDto.finalDate) {
+        endDate = new Date(updateRentalDto.finalDate);
+      }
+      if (updateRentalDto.vehicle_id) {
+        vehicleId = updateRentalDto.vehicle_id;
+      }
 
-    const currentRental = await this.findOne(id);
-    let startDate = currentRental.initialDate;
-    let endDate = currentRental.finalDate;
-    let vehicleId = currentRental.vehicle_id;
+      if (startDate > endDate) {
+        throw new BadRequestException('Start date must be before end date');
+      }
 
-    if (updateRentalDto.initialDate) {
-      startDate = new Date(updateRentalDto.initialDate);
-    }
-
-    if (updateRentalDto.finalDate) {
-      endDate = new Date(updateRentalDto.finalDate);
-    }
-
-    if (updateRentalDto.vehicle_id) {
-      vehicleId = updateRentalDto.vehicle_id;
-    }
-
-    if (startDate > endDate) {
-      throw new BadRequestException(
-        'La fecha inicial debe ser anterior a la fecha final',
-      );
-    }
-
-    if (
-      updateRentalDto.vehicle_id ||
-      updateRentalDto.initialDate ||
-      updateRentalDto.finalDate
-    ) {
-      await this.checkVehicleAvailability(vehicleId, startDate, endDate, id);
-    }
-
-    const { ...rentalData } = updateRentalDto;
-
-    const rental = await this.rentalRepository.preload({
-      id: id,
-      ...rentalData,
-      client_id,
-    });
-
-    if (!rental)
-      throw new NotFoundException(`Rental with id "${id}" not found`);
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    try {
-      // Si hay cambios en fechas o vehículo, actualizar VehicleUnavailability
       if (
         updateRentalDto.vehicle_id ||
         updateRentalDto.initialDate ||
         updateRentalDto.finalDate
       ) {
-        // Eliminar la entrada de unavailability anterior
-        const oldUnavailability = await this.unavailabilityRepository.findOne({
-          where: {
+        await this.checkVehicleAvailability(vehicleId, startDate, endDate, id);
+      }
+
+      const queryRunner = this.dataSource.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      try {
+        await queryRunner.manager.update(Rental, id, {
+          ...updateRentalDto,
+        });
+
+        if (
+          updateRentalDto.vehicle_id ||
+          updateRentalDto.initialDate ||
+          updateRentalDto.finalDate
+        ) {
+          await queryRunner.manager.delete(VehicleUnavailability, {
             vehicle_id: currentRental.vehicle_id,
             unavailable_from: currentRental.initialDate,
             unavailable_to: currentRental.finalDate,
-          },
-        });
+          });
 
-        if (oldUnavailability) {
-          await queryRunner.manager.remove(oldUnavailability);
+          const newUnavailability = this.unavailabilityRepository.create({
+            vehicle_id: vehicleId,
+            unavailable_from: startDate,
+            unavailable_to: endDate,
+          });
+          await queryRunner.manager.save(newUnavailability);
         }
 
-        // Crear nueva entrada de unavailability con los datos actualizados
-        const newUnavailability = this.unavailabilityRepository.create({
-          vehicle_id: vehicleId,
-          unavailable_from: startDate,
-          unavailable_to: endDate,
-        });
+        await queryRunner.commitTransaction();
+        await queryRunner.release();
 
-        await queryRunner.manager.save(newUnavailability);
+        return await this.findOneRental(id);
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        await queryRunner.release();
+        throw error;
       }
-
-      await queryRunner.manager.save(rental);
-      await queryRunner.commitTransaction();
-      await queryRunner.release();
-
-      return await this.findOne(id);
     } catch (error) {
-      await queryRunner.rollbackTransaction();
-      await queryRunner.release();
-      this.handleExeptions(error);
+      this.handleExceptions(error);
     }
   }
-  async remove(id: string) {
-    const rental = await this.findOne(id);
-    if (!rental)
-      throw new NotFoundException(`Rental with id "${id}" not found`);
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    try {
-      // Eliminar la entrada de VehicleUnavailability correspondiente
-      const unavailabilityToDelete =
-        await this.unavailabilityRepository.findOne({
-          where: {
-            vehicle_id: rental.vehicle_id,
-            unavailable_from: rental.initialDate,
-            unavailable_to: rental.finalDate,
-          },
-        });
 
-      if (unavailabilityToDelete) {
-        await queryRunner.manager.remove(unavailabilityToDelete);
+  async confirmRental(id: string, user: User) {
+    try {
+      const rental = await this.findOneRental(id);
+      if (!rental)
+        throw new NotFoundException(`Rental with id "${id}" not found`);
+
+      if (rental.vehicle.ownerId !== user.id && !user.roles.includes('ADMIN')) {
+        throw new BadRequestException(
+          'Only the vehicle owner can confirm rentals',
+        );
       }
 
-      await queryRunner.manager.remove(rental);
-      await queryRunner.commitTransaction();
-      await queryRunner.release();
-      return;
+      if (rental.status !== 'pending') {
+        throw new BadRequestException('Only pending rentals can be confirmed');
+      }
+
+      await this.rentalRepository.update(id, { status: 'confirmed' });
+
+      const updatedRental = await this.findOneRental(id);
+      return {
+        message: 'Rental confirmed successfully',
+        rental: updatedRental,
+      };
     } catch (error) {
-      await queryRunner.rollbackTransaction();
-      await queryRunner.release();
-      this.handleExeptions(error);
+      this.handleExceptions(error);
+    }
+  }
+
+  async rejectRental(id: string, user: User) {
+    try {
+      const rental = await this.findOneRental(id);
+      if (!rental)
+        throw new NotFoundException(`Rental with id "${id}" not found`);
+
+      if (rental.vehicle.ownerId !== user.id && !user.roles.includes('ADMIN')) {
+        throw new BadRequestException(
+          'Only the vehicle owner can reject rentals',
+        );
+      }
+
+      if (rental.status !== 'pending') {
+        throw new BadRequestException('Only pending rentals can be rejected');
+      }
+
+      const queryRunner = this.dataSource.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      try {
+        await queryRunner.manager.update(Rental, id, { status: 'cancelled' });
+
+        await queryRunner.manager.delete(VehicleUnavailability, {
+          vehicle_id: rental.vehicle_id,
+          unavailable_from: rental.initialDate,
+          unavailable_to: rental.finalDate,
+        });
+
+        await queryRunner.commitTransaction();
+        await queryRunner.release();
+
+        const updatedRental = await this.findOneRental(id);
+        return {
+          message: 'Rental rejected successfully',
+          rental: updatedRental,
+        };
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        await queryRunner.release();
+        throw error;
+      }
+    } catch (error) {
+      this.handleExceptions(error);
+    }
+  }
+
+  async deleteRental(id: string, user: User) {
+    try {
+      const rental = await this.findOneRental(id);
+      if (!rental)
+        throw new NotFoundException(`Rental with id "${id}" not found`);
+
+      if (!user.roles.includes('ADMIN')) {
+        throw new BadRequestException('Only administrators can delete rentals');
+      }
+
+      const queryRunner = this.dataSource.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      try {
+        await queryRunner.manager.delete(VehicleUnavailability, {
+          vehicle_id: rental.vehicle_id,
+          unavailable_from: rental.initialDate,
+          unavailable_to: rental.finalDate,
+        });
+
+        await queryRunner.manager.remove(rental);
+
+        await queryRunner.commitTransaction();
+        await queryRunner.release();
+
+        return true;
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        await queryRunner.release();
+        throw error;
+      }
+    } catch (error) {
+      this.handleExceptions(error);
+      return false;
     }
   }
 
@@ -250,23 +341,47 @@ export class RentalsService {
     endDate: Date,
     excludeRentalId?: string,
   ) {
-    const unavailabilityConflicts = await this.unavailabilityRepository.find({
-      where: {
-        vehicle_id: vehicleId,
-        unavailable_from: Between(startDate, endDate),
-      },
-    });
+    const unavailabilityQuery = this.unavailabilityRepository
+      .createQueryBuilder('unavailability')
+      .where('unavailability.vehicle_id = :vehicleId', { vehicleId })
+      .andWhere(
+        `(
+          (unavailability.unavailable_from <= :startDate AND unavailability.unavailable_to >= :startDate) OR
+          (unavailability.unavailable_from <= :endDate AND unavailability.unavailable_to >= :endDate) OR
+          (unavailability.unavailable_from >= :startDate AND unavailability.unavailable_to <= :endDate)
+        )`,
+        { startDate, endDate },
+      );
 
-    if (unavailabilityConflicts.length > 0) {
+    if (excludeRentalId) {
+      const currentRental = await this.rentalRepository.findOne({
+        where: { id: excludeRentalId },
+      });
+      
+      if (currentRental) {
+        unavailabilityQuery.andWhere(
+          `NOT (unavailability.unavailable_from = :currentStart AND unavailability.unavailable_to = :currentEnd)`,
+          { 
+            currentStart: currentRental.initialDate,
+            currentEnd: currentRental.finalDate 
+          },
+        );
+      }
+    }
+
+    const unavailabilityConflicts = await unavailabilityQuery.getCount();
+
+    if (unavailabilityConflicts > 0) {
       throw new BadRequestException(
-        'The vehicle is not available during this period',
+        'Vehicle is not available during this period',
       );
     }
+
     const rentalConflictsQuery = this.rentalRepository
       .createQueryBuilder('rental')
       .where('rental.vehicle_id = :vehicleId', { vehicleId })
-      .andWhere('rental.status != :cancelledStatus', {
-        cancelledStatus: 'cancelled',
+      .andWhere('rental.status NOT IN (:...excludedStatuses)', {
+        excludedStatuses: ['cancelled'],
       })
       .andWhere(
         `(
@@ -287,14 +402,14 @@ export class RentalsService {
 
     if (rentalConflicts > 0) {
       throw new BadRequestException(
-        'The vehicle is already reserved in that period',
+        'Vehicle is already rented during this period',
       );
     }
 
     return true;
   }
 
-  private handleExeptions(error: any) {
+  private handleExceptions(error: any) {
     if (error instanceof BadRequestException) throw error;
     if (error instanceof NotFoundException) throw error;
     if (error.code === '23505') throw new BadGatewayException(error.detail);
@@ -303,107 +418,5 @@ export class RentalsService {
     throw new InternalServerErrorException(
       'Unexpected error, check server logs',
     );
-  }
-
-  async confirmRental(id: string) {
-    const rental = await this.findOne(id);
-
-    if (rental.status !== 'pending') {
-      throw new BadRequestException(
-        'Only rents in pending status can be confirmed',
-      );
-    }
-
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      rental.status = 'confirmed';
-      await queryRunner.manager.save(rental);
-      await queryRunner.commitTransaction();
-      await queryRunner.release();
-
-      return await this.findOne(id);
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      await queryRunner.release();
-      this.handleExeptions(error);
-    }
-  }
-  async rejectRental(id: string) {
-    const rental = await this.findOne(id);
-
-    if (rental.status !== 'pending') {
-      throw new BadRequestException(
-        'Only rents in pending status can be rejected',
-      );
-    }
-
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      rental.status = 'cancelled';
-      await queryRunner.manager.save(rental);
-
-      // Eliminar la entrada de VehicleUnavailability correspondiente
-      const unavailabilityToDelete =
-        await this.unavailabilityRepository.findOne({
-          where: {
-            vehicle_id: rental.vehicle_id,
-            unavailable_from: rental.initialDate,
-            unavailable_to: rental.finalDate,
-          },
-        });
-
-      if (unavailabilityToDelete) {
-        await queryRunner.manager.remove(unavailabilityToDelete);
-      }
-
-      await queryRunner.commitTransaction();
-      await queryRunner.release();
-
-      return await this.findOne(id);
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      await queryRunner.release();
-      this.handleExeptions(error);
-    }
-  }
-
-  async findByUser(userId: string) {
-    try {
-      return await this.rentalRepository.find({
-        where: { client_id: userId },
-        relations: ['client', 'vehicle'],
-      });
-    } catch (error) {
-      this.handleExeptions(error);
-    }
-  }
-
-  async findByOwner(userId: string) {
-    try {
-      return await this.rentalRepository
-        .createQueryBuilder('rental')
-        .innerJoinAndSelect('rental.vehicle', 'vehicle')
-        .where('vehicle.ownerId = :userId', { userId })
-        .getMany();
-    } catch (error) {
-      this.handleExeptions(error);
-    }
-  }
-  async hasReview(rentalId: string): Promise<boolean> {
-    try {
-      const review = await this.reviewRepository.findOne({
-        where: { rental_id: rentalId },
-      });
-      return !!review;
-    } catch (error) {
-      this.handleExeptions(error);
-      return false;
-    }
   }
 }

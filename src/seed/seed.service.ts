@@ -6,7 +6,7 @@ import { User } from '../users/entities/user.entity';
 import { Vehicle } from '../vehicles/entities/vehicle.entity';
 import { VehicleUnavailability } from '../vehicles/entities/vehicle-unavailability.entity';
 import { Rental } from '../rentals/entities/rental.entity';
-import { Review } from '../reviews/entities/review.entity';
+import { Not, IsNull } from 'typeorm';
 
 @Injectable()
 export class SeedService {
@@ -19,8 +19,6 @@ export class SeedService {
     private readonly unavailabilityRepository: Repository<VehicleUnavailability>,
     @InjectRepository(Rental)
     private readonly rentalRepository: Repository<Rental>,
-    @InjectRepository(Review)
-    private readonly reviewRepository: Repository<Review>,
   ) {}
 
   async seedDatabase() {
@@ -29,15 +27,13 @@ export class SeedService {
     const vehicles = await this.seedVehicles(users);
     await this.seedUnavailabilities(vehicles);
     const rentals = await this.seedRentals(users, vehicles);
-    await this.seedReviews(rentals);
   }
 
   private async clearDatabase() {
-    await this.reviewRepository.delete({});
-    await this.rentalRepository.delete({});
-    await this.unavailabilityRepository.delete({});
-    await this.vehicleRepository.delete({});
-    await this.userRepository.delete({});
+    await this.rentalRepository.delete({ id: Not(IsNull()) });
+    await this.unavailabilityRepository.delete({ id: Not(IsNull()) });
+    await this.vehicleRepository.delete({ id: Not(IsNull()) });
+    await this.userRepository.delete({ id: Not(IsNull()) });
   }
 
   private async seedUsers(): Promise<User[]> {
@@ -619,37 +615,5 @@ export class SeedService {
 
     console.log(`Created ${rentals.length} rentals`);
     return rentals;
-  }
-  private async seedReviews(rentals: Rental[]): Promise<Review[]> {
-    const reviewTexts = [
-      '¡Excelente vehículo y proceso de alquiler muy sencillo!',
-      'El coche estaba impecable y tal como se describía.',
-      'Tuve un pequeño problema pero el propietario lo resolvió rápidamente.',
-      'Perfecto para nuestras vacaciones familiares.',
-      'Sin duda lo alquilaría nuevamente con este propietario.',
-      'El proceso de recogida podría mejorar.',
-      'Consumo de combustible excelente para un coche de este tamaño.',
-      'Muy cómodo incluso en trayectos largos.',
-      'El propietario fue muy atento y respondió rápido a los mensajes.',
-      'Algunos rasguños menores no mencionados en el anuncio.',
-    ];
-
-    // Only create reviews for the first 3 rentals (original ones)
-    const originalRentals = rentals.slice(0, 3);
-    const reviewsData = originalRentals.map((rental) => ({
-      rental_id: rental.id,
-      rating: Math.floor(Math.random() * 2) + 4, // Random rating between 4-5
-      comment: reviewTexts[Math.floor(Math.random() * reviewTexts.length)],
-    }));
-
-    const reviews = await Promise.all(
-      reviewsData.map((data) => {
-        const review = this.reviewRepository.create(data);
-        return this.reviewRepository.save(review);
-      }),
-    );
-
-    console.log(`Created ${reviews.length} reviews`);
-    return reviews;
   }
 }

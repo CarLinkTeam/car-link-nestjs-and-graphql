@@ -123,39 +123,54 @@ export class VehiclesService {
       this.handleExceptions(error);
     }
   }
-  async findByOwner(ownerId: string) {
-    try {
-      const vehicles = await this.vehicleRepository.find({
-        where: { ownerId },
-        relations: ['owner'],
-      });
+async findByOwner(user: User) {
+  try {
+    const isAdmin = user.roles.includes(ValidRoles.ADMIN);
 
-      if (!vehicles.length) {
-        throw new NotFoundException(
-          `Vehicles for owner with id "${ownerId}" not found`,
-        );
-      }
+    const whereClause = isAdmin
+      ? {} 
+      : { ownerId: user.id }; 
 
-      return vehicles;
-    } catch (error) {
-      this.handleExceptions(error);
+    const vehicles = await this.vehicleRepository.find({
+      where: whereClause,
+      relations: ['owner'],
+    });
+
+    if (!vehicles.length) {
+      throw new NotFoundException(
+        isAdmin
+          ? 'No vehicles found in the system'
+          : `No vehicles found for owner with id "${user.id}"`,
+      );
     }
-  }
 
-  async findVehicleByOwner(vehicleId: string, ownerId: string) {
+    return vehicles;
+  } catch (error) {
+    this.handleExceptions(error);
+  }
+}
+
+
+  async findVehicleByOwner(vehicleId: string, user: User) {
+    const isAdmin = user.roles.includes(ValidRoles.ADMIN);
+
     const vehicle = await this.vehicleRepository.findOne({
-      where: { id: vehicleId, ownerId },
+      where: {
+        id: vehicleId,
+        ...(isAdmin ? {} : { ownerId: user.id }),
+      },
       relations: ['owner'],
     });
 
     if (!vehicle) {
       throw new NotFoundException(
-        `Vehicle with id "${vehicleId}" for owner with id "${ownerId}" not found`,
+        `Vehicle with id "${vehicleId}"${isAdmin ? '' : ` for owner with id "${user.id}"`} not found`,
       );
     }
 
     return vehicle;
   }
+
 
 
   async findVehicleUnavailability(vehicleId: string) {
@@ -222,7 +237,7 @@ export class VehiclesService {
     }
   }
 
-  async remove(id: string, ownerId: string, requester: User,
+  async remove(id: string, requester: User,
   ): Promise<void> {
     try {
       const vehicle = await this.findOne(id);

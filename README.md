@@ -1,4 +1,4 @@
-# CAR LINK API - NestJS Implementation
+# CAR LINK - GraphQL API with NestJS
 
 ## Authors
 
@@ -8,206 +8,676 @@
 
 ## Project Overview
 
-The CAR LINK API facilitates car rental processes for private vehicle owners. It provides a comprehensive platform where owners can register and rent their vehicles, tenants can search and book rentals, and administrators can manage the overall system.
+CAR LINK is a comprehensive GraphQL API that facilitates car rental processes for private vehicle owners. Built with NestJS, TypeORM, and PostgreSQL, it provides a robust platform where:
 
-This version is implemented using NestJS, TypeORM, and PostgreSQL, providing a robust, scalable, and maintainable backend solution.
+- Vehicle owners can register and manage their cars for rental
+- Tenants can search, view, and book available vehicles
+- Administrators can oversee the entire system
+
+The application leverages GraphQL for efficient data fetching and modern web standards for a scalable, maintainable backend solution.
+
+## Technologies Used
+
+- **Backend Framework**: NestJS
+- **Database**: PostgreSQL
+- **ORM**: TypeORM
+- **API**: GraphQL with Apollo Server
+- **Authentication**: JWT with Passport.js
+- **Documentation**: Swagger/OpenAPI
+- **Validation**: class-validator and class-transformer
+- **Containerization**: Docker & Docker Compose
 
 ## Project Setup
 
 ```bash
+# Clone the repository
+git clone https://github.com/CarLinkTeam/car-link-nestjs-and-graphql
+
+# Navigate to project directory
+cd car-link-nestjs-and-graphql
+
 # Install dependencies
-$ npm install
+npm install
 ```
+
+## Environment Configuration
+
+Create a `.env` file in the root directory with the following variables:
+
+```env
+# Database Configuration
+POSTGRES_DB=car_link_db
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_password
+DB_HOST=localhost
+DB_PORT=5432
+
+# JWT Configuration
+JWT_SECRET=your_jwt_secret_key
+JWT_EXPIRES_IN=2h
+
+# PGAdmin Configuration
+PG_PORT=5050
+ADMIN_EMAIL=admin@carlink.com
+ADMIN_PASSWORD=admin_password
+```
+
+## Database Setup
+
+The project uses Docker Compose for easy database setup:
+
+```bash
+# Start PostgreSQL and pgAdmin containers
+docker-compose up -d
+
+# Verify containers are running
+docker-compose ps
+```
+
+**Database Access:**
+
+- PostgreSQL: `localhost:5432`
+- pgAdmin: `http://localhost:5050`
 
 ## Running the Application
 
 ```bash
-# development
-$ npm run start
+# Development mode with hot reload
+npm run start:dev
 
-# watch mode
-$ npm run start:dev
+# Production mode
+npm run start:prod
 
-# production mode
-$ npm run start:prod
-
-# seed the database with initial data
-$ npm run seed
+# Standard development mode
+npm run start
 ```
 
-## Running Tests
+**Application URLs:**
+
+- GraphQL Playground: `http://localhost:3000/graphql`
+- Swagger Documentation: `http://localhost:3000/api`
+
+## Database Seeding
+
+To populate the database with initial data:
 
 ```bash
-# unit tests
-$ npm run test:unit
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm run seed
 ```
 
-## Setting Up the Database
+This command creates:
 
-The project uses Docker Compose to set up a PostgreSQL database and pgAdmin for database management:
+- Sample users with different roles (ADMIN, OWNER, TENANT)
+- Sample vehicles
+- Sample rentals
+- Test data for development
 
-```bash
-# Start the database and pgAdmin
-docker-compose up -d
-```
+## System Architecture
 
-Make sure to create a `.env` file with the following environment variables:
+### Database Schema
 
-```
-# Database
-POSTGRES_DB=
-POSTGRES_USER=
-POSTGRES_PASSWORD=
-DB_HOST=
-DB_PORT=
+The application uses the following main entities:
 
-# JWT
-JWT_SECRET=
-JWT_EXPIRES_IN=
+**Users**
 
-# PGAdmin
-PG_PORT=
-ADMIN_EMAIL=
-ADMIN_PASSWORD=
-```
+- id (UUID, Primary Key)
+- email (Unique)
+- password (Hashed)
+- fullName
+- location
+- phone
+- isActive (Boolean)
+- roles (Array: ADMIN, OWNER, TENANT)
 
-## API Documentation
+**Vehicles**
 
-The purpose of this API is to facilitate the car rental process for private owners who wish to rent out their vehicles.
+- id (UUID, Primary Key)
+- make, model, year
+- licensePlate (Unique)
+- color, transmission, fuelType
+- seatingCapacity, pricePerDay
+- description, imageUrl
+- isAvailable (Boolean)
+- ownerId (Foreign Key to Users)
+
+**Rentals**
+
+- id (UUID, Primary Key)
+- initialDate, finalDate
+- totalCost
+- status (pending, confirmed, cancelled, completed)
+- client_id (Foreign Key to Users)
+- vehicle_id (Foreign Key to Vehicles)
+
+**VehicleUnavailability**
+
+- id (UUID, Primary Key)
+- unavailable_from, unavailable_to
+- reason
+- vehicle_id (Foreign Key to Vehicles)
 
 ### Authentication and Authorization
 
-The API uses JWT-based authentication with role-based access control. There are three user roles:
+The system implements JWT-based authentication with three role levels:
 
-1. **Administrator**: Full access to manage users, roles, and oversee the system
-2. **Owner**: Can register vehicles, manage rental listings, and update vehicle information
-3. **Tenant**: Can search for available rentals, view details, and book vehicles
+1. **ADMIN**: Full system access, user management, system oversight
+2. **OWNER**: Vehicle management, rental confirmations/rejections
+3. **TENANT**: Vehicle browsing, rental requests, profile management
 
-Authentication is implemented using:
+**Authentication Flow:**
 
-- Passport.js with JWT strategy
-- Custom guards and decorators for role-based protection
-- Bcrypt for password hashing
-- JWT tokens for secure user sessions
+1. User registers or logs in
+2. Server generates JWT token with user info and roles
+3. Client includes token in GraphQL requests
+4. Guards validate token and check role permissions
 
-### Database Persistence
+## GraphQL API Documentation
 
-The application uses:
+### Authentication Operations
 
-- TypeORM for database ORM
-- PostgreSQL as the relational database
-- Entity-based data modeling with relationships
-- Database migrations for version control
-- Data validation using DTOs and class-validator
+**Register User**
 
-## API Endpoints
-
-### 1. Authentication Routes
-
-| **Route**                  | **Method** | **Description**                  | **Request Body**                                 | **Response**        |
-| -------------------------- | ---------- | -------------------------------- | ------------------------------------------------ | ------------------- |
-| `/auth/register`           | POST       | Registers a new user account     | `{ email, password, fullName, location, phone }` | `{ user, token }`   |
-| `/auth/login`              | POST       | Logs in an existing user         | `{ email, password }`                            | `{ user, token }`   |
-| `/auth/promoteToOwner/:id` | POST       | Assigns the OWNER role to a user | -                                                | Updated user object |
-| `/auth/promoteToAdmin/:id` | POST       | Assigns the ADMIN role to a user | -                                                | Updated user object |
-
-### 2. Users Routes
-
-| **Route**    | **Method** | **Description**                  | **Request Body/Params**      | **Response**    |
-| ------------ | ---------- | -------------------------------- | ---------------------------- | --------------- |
-| `/users`     | GET        | Retrieves all users (ADMIN only) | -                            | Array of users  |
-| `/users/:id` | GET        | Retrieves a specific user        | `id` (path param)            | User object     |
-| `/users/:id` | PATCH      | Updates a user                   | `id` (path param), User data | Updated user    |
-| `/users/:id` | DELETE     | Deletes a user                   | `id` (path param)            | Success message |
-
-### 3. Vehicles Routes
-
-| **Route**              | **Method** | **Description**                    | **Request Body/Params**         | **Response**      |
-| ---------------------- | ---------- | ---------------------------------- | ------------------------------- | ----------------- |
-| `/vehicles`            | POST       | Creates a new vehicle (OWNER only) | Vehicle details                 | Created vehicle   |
-| `/vehicles`            | GET        | Retrieves all vehicles             | Query params for filtering      | Array of vehicles |
-| `/vehicles/myVehicles` | GET        | Retrieves user vehicles            | Query params for filtering      | Array of vehicles |
-| `/vehicles/:term`      | GET        | Retrieves a specific vehicle       | `term` (path param)             | Vehicle object    |
-| `/vehicles/:id`        | PATCH      | Updates a vehicle                  | `id` (path param), Vehicle data | Updated vehicle   |
-| `/vehicles/:id`        | DELETE     | Deletes a vehicle                  | `id` (path param)               | Success message   |
-
-### 4. Rentals Routes
-
-| **Route**              | **Method** | **Description**             | **Request Body/Params**        | **Response**     |
-| ---------------------- | ---------- | --------------------------- | ------------------------------ | ---------------- |
-| `/rentals`             | POST       | Creates a new rental        | Rental details                 | Created rental   |
-| `/rentals`             | GET        | Retrieves all rentals       | Query params for filtering     | Array of rentals |
-| `/rentals/:term`       | GET        | Retrieves a specific rental | `term` (path param)            | Rental object    |
-| `/rentals/:id`         | PATCH      | Updates a rental            | `id` (path param), Rental data | Updated rental   |
-| `/rentals/:id`         | DELETE     | Deletes a rental            | `id` (path param)              | Success message  |
-| `/rentals/:id/confirm` | PATCH      | Confirms a rental request   | `id` (path param)              | Updated rental   |
-| `/rentals/:id/reject`  | PATCH      | Rejects a rental request    | `id` (path param)              | Updated rental   |
-
-### 5. Reviews Routes
-
-| **Route**        | **Method** | **Description**             | **Request Body/Params**        | **Response**     |
-| ---------------- | ---------- | --------------------------- | ------------------------------ | ---------------- |
-| `/reviews`       | POST       | Creates a new review        | Review details                 | Created review   |
-| `/reviews`       | GET        | Retrieves all reviews       | Query params for filtering     | Array of reviews |
-| `/reviews/:term` | GET        | Retrieves a specific review | `term` (path param)            | Review object    |
-| `/reviews/:id`   | PATCH      | Updates a review            | `id` (path param), Review data | Updated review   |
-| `/reviews/:id`   | DELETE     | Deletes a review            | `id` (path param)              | Success message  |
-
-## Implementation Details
-
-### Authentication Implementation
-
-Authentication is implemented using JWT tokens. When a user registers or logs in, a JWT token is generated with user information (id, roles). This token must be included in subsequent API requests in the Authorization header:
-
-```
-Authorization: Bearer <token>
+```graphql
+mutation RegisterUser($registerInput: CreateUserDto!) {
+  register(registerInput: $registerInput) {
+    user {
+      id
+      email
+      fullName
+      location
+      phone
+      roles
+      isActive
+    }
+    token
+  }
+}
 ```
 
-Role-based authorization is implemented using custom decorators:
+**Input Type: CreateUserDto**
 
 ```typescript
-@Auth(ValidRoles.ADMIN)  // Requires admin role
-@Auth(ValidRoles.OWNER)  // Requires owner role
-@Auth(ValidRoles.TENANT)  // Requires tenant role
-@Auth()                 // Requires authentication (any role)
+{
+  email: string; // Valid email address
+  password: string; // Minimum 6 characters
+  fullName: string; // User's full name
+  location: string; // User's location
+  phone: string; // Contact phone number
+}
 ```
 
-### Database Implementation
+**Login User**
 
-The application uses TypeORM with PostgreSQL for data persistence. Entity relationships:
+```graphql
+mutation LoginUser($loginInput: LoginUserDto!) {
+  login(loginInput: $loginInput) {
+    user {
+      id
+      email
+      fullName
+      roles
+    }
+    token
+  }
+}
+```
 
-- Users have many Vehicles (one-to-many)
-- Rental have one Review (one-to-one)
-- Vehicles have many Rentals (one-to-many)
-- Vehicles have many unavailabilities (one-to-many)
+**Input Type: LoginUserDto**
 
-Each entity has validation rules implemented through DTOs and TypeORM decorations.
+```typescript
+{
+  email: string; // Registered email
+  password: string; // User password
+}
+```
 
-## Technical Architecture
+### User Management Operations
 
-The application follows the NestJS modular architecture:
+**Get My Profile** (All authenticated users)
 
-- Controllers handle HTTP requests and responses
-- Services contain business logic
-- Entities define database models
-- DTOs validate input/output data
-- Guards protect routes based on authentication/authorization
-- Decorators provide metadata for routes and methods
+```graphql
+query GetMyProfile {
+  getMyProfile {
+    user {
+      id
+      email
+      fullName
+      location
+      phone
+      roles
+      isActive
+    }
+  }
+}
+```
 
-## Conclusion and Next Steps
+**Update My Profile** (All authenticated users)
 
-The CAR LINK API provides a comprehensive solution for car rental management with proper authentication, authorization, and data persistence. The NestJS implementation ensures a scalable and maintainable codebase.
+```graphql
+mutation UpdateMyProfile($updateInput: UpdateUserDto!) {
+  updateMyProfile(updateInput: $updateInput) {
+    user {
+      id
+      email
+      fullName
+      location
+      phone
+    }
+  }
+}
+```
 
-Future enhancements could include:
+**Get All Users** (Admin only)
 
-1. API rate limiting
-2. Enhanced logging and monitoring
-3. Payment integration
-4. Real-time notifications
-5. Extended vehicle information integration with external APIs
+```graphql
+query FindAllUsers {
+  findAllUsers {
+    users {
+      id
+      email
+      fullName
+      location
+      phone
+      roles
+      isActive
+    }
+  }
+}
+```
+
+**Update User** (Admin only)
+
+```graphql
+mutation UpdateUser($id: String!, $updateInput: UpdateUserDto!) {
+  updateUser(id: $id, updateInput: $updateInput) {
+    user {
+      id
+      email
+      fullName
+      roles
+    }
+  }
+}
+```
+
+**Input Type: UpdateUserDto**
+
+```typescript
+{
+  email?: string         // Optional: New email
+  fullName?: string      // Optional: New full name
+  location?: string      // Optional: New location
+  phone?: string         // Optional: New phone
+  roles?: string[]       // Optional: New roles (Admin only)
+}
+```
+
+### Vehicle Management Operations
+
+**Create Vehicle** (Owner, Admin)
+
+```graphql
+mutation CreateVehicle($createInput: CreateVehicleDto!) {
+  createVehicle(createInput: $createInput) {
+    vehicle {
+      id
+      make
+      model
+      year
+      licensePlate
+      color
+      transmission
+      fuelType
+      seatingCapacity
+      pricePerDay
+      description
+      imageUrl
+      isAvailable
+      owner {
+        id
+        fullName
+      }
+    }
+  }
+}
+```
+
+**Input Type: CreateVehicleDto**
+
+```typescript
+{
+  make: string           // Vehicle manufacturer
+  model: string          // Vehicle model
+  year: number           // Manufacturing year
+  licensePlate: string   // Unique license plate
+  color: string          // Vehicle color
+  transmission: string   // Manual/Automatic
+  fuelType: string       // Gasoline/Diesel/Electric/Hybrid
+  seatingCapacity: number // Number of seats
+  pricePerDay: number    // Daily rental price
+  description?: string   // Optional description
+  imageUrl?: string      // Optional image URL
+}
+```
+
+**Get Available Vehicles** (All authenticated users)
+
+```graphql
+query FindAvailableVehicles(
+  $paginationArgs: PaginationArgs
+  $searchArgs: SearchVehicleArgs
+) {
+  findAvailableVehicles(
+    paginationArgs: $paginationArgs
+    searchArgs: $searchArgs
+  ) {
+    vehicles {
+      id
+      make
+      model
+      year
+      licensePlate
+      color
+      transmission
+      fuelType
+      seatingCapacity
+      pricePerDay
+      description
+      imageUrl
+      isAvailable
+      owner {
+        fullName
+        location
+        phone
+      }
+    }
+    totalCount
+    hasNextPage
+    hasPreviousPage
+  }
+}
+```
+
+**Get My Vehicles** (Owner, Admin)
+
+```graphql
+query FindMyVehicles {
+  findMyVehicles {
+    vehicles {
+      id
+      make
+      model
+      year
+      licensePlate
+      pricePerDay
+      isAvailable
+    }
+  }
+}
+```
+
+**Update Vehicle** (Owner of vehicle, Admin)
+
+```graphql
+mutation UpdateVehicle($id: String!, $updateInput: UpdateVehicleDto!) {
+  updateVehicle(id: $id, updateInput: $updateInput) {
+    vehicle {
+      id
+      make
+      model
+      pricePerDay
+      isAvailable
+    }
+  }
+}
+```
+
+### Rental Management Operations
+
+**Create Rental** (Tenant, Admin)
+
+```graphql
+mutation CreateRental($createInput: CreateRentalDto!) {
+  createRental(createInput: $createInput) {
+    rental {
+      id
+      initialDate
+      finalDate
+      totalCost
+      status
+      client {
+        fullName
+        phone
+      }
+      vehicle {
+        make
+        model
+        licensePlate
+        pricePerDay
+      }
+    }
+  }
+}
+```
+
+**Input Type: CreateRentalDto**
+
+```typescript
+{
+  vehicle_id: string; // ID of vehicle to rent
+  initialDate: string; // Start date (ISO format)
+  finalDate: string; // End date (ISO format)
+  totalCost: number; // Total rental cost
+}
+```
+
+**Get My Rentals** (Tenant, Admin)
+
+```graphql
+query FindMyRentals {
+  findMyRentals {
+    rentals {
+      id
+      initialDate
+      finalDate
+      totalCost
+      status
+      vehicle {
+        make
+        model
+        licensePlate
+        owner {
+          fullName
+          phone
+        }
+      }
+    }
+  }
+}
+```
+
+**Get My Owner Rentals** (Owner, Admin)
+
+```graphql
+query FindMyOwnerRentals {
+  findMyOwnerRentals {
+    rentals {
+      id
+      initialDate
+      finalDate
+      totalCost
+      status
+      client {
+        fullName
+        phone
+        email
+      }
+      vehicle {
+        make
+        model
+        licensePlate
+      }
+    }
+  }
+}
+```
+
+**Confirm Rental** (Owner of vehicle, Admin)
+
+```graphql
+mutation ConfirmRental($id: String!) {
+  confirmRental(id: $id) {
+    message
+    rental {
+      id
+      status
+      client {
+        fullName
+      }
+      vehicle {
+        make
+        model
+      }
+    }
+  }
+}
+```
+
+**Reject Rental** (Owner of vehicle, Admin)
+
+```graphql
+mutation RejectRental($id: String!) {
+  rejectRental(id: $id) {
+    message
+    rental {
+      id
+      status
+    }
+  }
+}
+```
+
+**Update Rental** (Tenant who created it, Admin)
+
+```graphql
+mutation UpdateRental($id: String!, $updateInput: UpdateRentalDto!) {
+  updateRental(id: $id, updateInput: $updateInput) {
+    rental {
+      id
+      initialDate
+      finalDate
+      totalCost
+      status
+    }
+  }
+}
+```
+
+**Input Type: UpdateRentalDto**
+
+```typescript
+{
+  vehicle_id?: string    // Optional: Change vehicle
+  initialDate?: string   // Optional: Change start date
+  finalDate?: string     // Optional: Change end date
+  totalCost?: number     // Optional: Update total cost
+}
+```
+
+## Error Handling
+
+The GraphQL API returns structured errors with the following format:
+
+```json
+{
+  "errors": [
+    {
+      "message": "Error description",
+      "extensions": {
+        "code": "ERROR_CODE",
+        "exception": {
+          "stacktrace": ["..."]
+        }
+      },
+      "locations": [
+        {
+          "line": 2,
+          "column": 3
+        }
+      ],
+      "path": ["fieldName"]
+    }
+  ],
+  "data": null
+}
+```
+
+**Common Error Codes:**
+
+- `UNAUTHENTICATED`: User not logged in
+- `FORBIDDEN`: Insufficient permissions
+- `BAD_REQUEST`: Invalid input data
+- `NOT_FOUND`: Resource not found
+- `INTERNAL_ERROR`: Server error
+
+## Security Features
+
+**Authentication Guards:**
+
+- JWT token validation
+- Role-based access control
+- GraphQL context authentication
+
+**Data Validation:**
+
+- Input validation using DTOs
+- TypeORM entity validation
+- Custom validation pipes
+
+**Security Measures:**
+
+- Password hashing with bcrypt
+- SQL injection protection via TypeORM
+- CORS configuration
+- Input sanitization
+
+## Development Features
+
+**Code Quality:**
+
+- TypeScript for type safety
+- ESLint and Prettier configuration
+- Modular architecture with NestJS
+- Dependency injection
+
+**Documentation:**
+
+- GraphQL schema introspection
+- Swagger/OpenAPI documentation
+- Code comments and type definitions
+
+## Deployment Considerations
+
+**Environment Variables:**
+Ensure all required environment variables are set in production:
+
+- Database connection strings
+- JWT secrets
+- CORS origins
+- Port configuration
+
+**Production Build:**
+
+```bash
+# Build for production
+npm run build
+
+# Start production server
+npm run start:prod
+```
+
+## Conclusion
+
+CAR LINK provides a complete GraphQL solution for car rental management with robust authentication, authorization, and data management capabilities. The NestJS architecture ensures scalability and maintainability while GraphQL provides efficient data fetching and real-time capabilities.
+
+The system is designed to handle complex rental workflows, user management, and vehicle tracking while maintaining security and performance standards suitable for production environments.

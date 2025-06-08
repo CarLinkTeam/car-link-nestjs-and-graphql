@@ -494,7 +494,6 @@ export class SeedService {
         return this.vehicleRepository.save(vehicle);
       }),
     );
-    console.log(`Registrados ${vehiclesData.length} vehículos`);
     console.log(`Created ${vehicles.length} vehicles`);
     return vehicles;
   }

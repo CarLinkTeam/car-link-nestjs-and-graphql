@@ -17,7 +17,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-  ) { }
+  ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const user = this.usersRepository.create(createUserDto);
@@ -25,8 +25,10 @@ export class UsersService {
   }
 
   async findAll(): Promise<User[]> {
-    const users = await this.usersRepository.find({ where: { isActive: true } });
-    return users.map(user => instanceToPlain(user) as User);
+    const users = await this.usersRepository.find({
+      where: { isActive: true },
+    });
+    return users.map((user) => instanceToPlain(user) as User);
   }
 
   async findById(id: string): Promise<User> {
@@ -50,7 +52,8 @@ export class UsersService {
     requester: User,
   ): Promise<User> {
     const user = await this.usersRepository.findOneBy({ id, isActive: true });
-    if (!user) throw new NotFoundException(`User with ID ${id} not found or inactive`);
+    if (!user)
+      throw new NotFoundException(`User with ID ${id} not found or inactive`);
 
     const isAdmin = requester.roles.includes(ValidRoles.ADMIN);
     const isSelf = requester.id === id;
@@ -67,7 +70,8 @@ export class UsersService {
     await this.usersRepository.save(user);
 
     const updatedUser = await this.usersRepository.findOneBy({ id });
-    if (!updatedUser) throw new NotFoundException(`User with ID ${id} not found after update`);
+    if (!updatedUser)
+      throw new NotFoundException(`User with ID ${id} not found after update`);
 
     return instanceToPlain(updatedUser) as User;
   }
@@ -85,9 +89,7 @@ export class UsersService {
     const isSelf = requester.id === id;
 
     if (!isAdmin && !isSelf) {
-      throw new ForbiddenException(
-        `You are not allowed to remove this user`,
-      );
+      throw new ForbiddenException(`You are not allowed to remove this user`);
     }
 
     user.isActive = false;

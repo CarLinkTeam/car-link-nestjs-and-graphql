@@ -12,6 +12,19 @@ type User {
   roles: [String!]!
 }
 
+type UserResponse {
+  user: User!
+}
+
+type UsersResponse {
+  users: [User!]!
+}
+
+type UserDeleteResponse {
+  message: String!
+  success: Boolean!
+}
+
 type AuthReponse {
   user: User!
   token: String!
@@ -77,6 +90,18 @@ type RentalStatusResponse {
 
 type Query {
   hello: String!
+
+  """Get all active users in the system (Admin only)"""
+  findAllUsers: UsersResponse!
+
+  """Get a specific user by ID (Admin only)"""
+  findUserById(
+    """User ID to retrieve"""
+    id: String!
+  ): UserResponse!
+
+  """Get the authenticated user profile"""
+  getMyProfile: UserResponse!
   findMyVehicles: VehiclesResponse!
   findMyVehicle(id: String!): VehicleResponse!
 
@@ -96,6 +121,30 @@ type Query {
 type Mutation {
   signup(signInput: RegisterAuthDto!): AuthReponse!
   login(loginInput: LoginAuthDto!): AuthReponse!
+
+  """Update any user information (Admin only)"""
+  updateUser(
+    """User ID to update"""
+    id: String!
+
+    """User update data"""
+    updateInput: UpdateUserDto!
+  ): UserResponse!
+
+  """Update the authenticated user profile"""
+  updateMyProfile(
+    """Profile update data"""
+    updateInput: UpdateUserDto!
+  ): UserResponse!
+
+  """Deactivate any user account (Admin only)"""
+  deleteUser(
+    """User ID to delete"""
+    id: String!
+  ): UserDeleteResponse!
+
+  """Deactivate the authenticated user account"""
+  deleteMyAccount: UserDeleteResponse!
   create(createInput: CreateVehicleDto!): VehicleResponse!
   update(updateInput: UpdateVehicleDto!, id: String!): VehicleResponse!
   deleteVehicle(id: String!): Boolean!
@@ -154,6 +203,22 @@ input RegisterAuthDto {
 input LoginAuthDto {
   email: String!
   password: String!
+}
+
+input UpdateUserDto {
+  """Full name of the user"""
+  fullName: String
+
+  """Phone number with country code. Format: +[country_code][number]"""
+  phone: String
+
+  """User location or city"""
+  location: String
+
+  """
+  New password with uppercase, lowercase, and a number or special character
+  """
+  password: String
 }
 
 input CreateVehicleDto {

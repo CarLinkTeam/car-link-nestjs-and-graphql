@@ -1,6 +1,14 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, Matches, MinLength, MaxLength } from 'class-validator';
+import { InputType, Field } from '@nestjs/graphql';
+import {
+  IsString,
+  IsOptional,
+  Matches,
+  MinLength,
+  MaxLength,
+} from 'class-validator';
 
+@InputType()
 export class UpdateUserDto {
   @ApiPropertyOptional({
     example: 'John Doe',
@@ -8,6 +16,10 @@ export class UpdateUserDto {
   })
   @IsString()
   @IsOptional()
+  @Field(() => String, {
+    nullable: true,
+    description: 'Full name of the user',
+  })
   fullName?: string;
 
   @ApiPropertyOptional({
@@ -17,7 +29,13 @@ export class UpdateUserDto {
   @IsString()
   @IsOptional()
   @Matches(/^\+\d{1,3}\d{6,14}$/, {
-    message: 'The phone number must start with + followed by the country code and the number without spaces',
+    message:
+      'The phone number must start with + followed by the country code and the number without spaces',
+  })
+  @Field(() => String, {
+    nullable: true,
+    description:
+      'Phone number with country code. Format: +[country_code][number]',
   })
   phone?: string;
 
@@ -27,6 +45,10 @@ export class UpdateUserDto {
   })
   @IsString()
   @IsOptional()
+  @Field(() => String, {
+    nullable: true,
+    description: 'User location or city',
+  })
   location?: string;
 
   @ApiPropertyOptional({
@@ -41,8 +63,13 @@ export class UpdateUserDto {
   @MinLength(6)
   @MaxLength(50)
   @Matches(/(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    message: 'The password must have an uppercase, lowercase letter and a number',
+    message:
+      'The password must have an uppercase, lowercase letter and a number',
+  })
+  @Field(() => String, {
+    nullable: true,
+    description:
+      'New password with uppercase, lowercase, and a number or special character',
   })
   password?: string;
-
 }

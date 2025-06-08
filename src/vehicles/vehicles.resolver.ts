@@ -4,14 +4,10 @@ import { VehiclesService } from './vehicles.service';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { User } from 'src/users/entities/user.entity';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
-import { GqlAuthGuard } from 'src/auth/guards/user-role/gql-auth.guard';
-import { UserRoleGuard } from 'src/auth/guards/user-role/user-role.guard';
-import { UseGuards } from '@nestjs/common';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { ValidRoles } from 'src/auth/enums/valid-roles.enum';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 
-@UseGuards(GqlAuthGuard, UserRoleGuard)
 @Resolver()
 export class VehicleResolver {
   constructor(private readonly vehiclesService: VehiclesService) { }
@@ -30,7 +26,7 @@ export class VehicleResolver {
   @Auth(ValidRoles.OWNER,ValidRoles.ADMIN)
   @Query(() => VehiclesResponse, { name: 'findMyVehicles' })
   async findMyVehicles(@GetUser() user: User): Promise<VehiclesResponse> {
-    const vehicles = await this.vehiclesService.findByOwner(user.id);
+    const vehicles = await this.vehiclesService.findByOwner(user);
     if (!vehicles || vehicles.length === 0) throw new Error('No vehicles found for this user');
     return { vehicles };
   }
@@ -40,7 +36,7 @@ export class VehicleResolver {
   async findMyVehicle(
     @Args('id') id: string,
     @GetUser() user: User): Promise<VehicleResponse> {
-    const vehicle = await this.vehiclesService.findVehicleByOwner(id, user.id);
+    const vehicle = await this.vehiclesService.findVehicleByOwner(id, user);
     if (!vehicle) throw new Error('No vehicle found for this user');
     return { vehicle };
   }
@@ -65,7 +61,7 @@ export class VehicleResolver {
     @GetUser() requester: User,
   ): Promise<boolean> {
     try {
-      await this.vehiclesService.remove(id, requester.id, requester);
+      await this.vehiclesService.remove(id, requester);
       return true;
     } catch (error) {
       throw error;

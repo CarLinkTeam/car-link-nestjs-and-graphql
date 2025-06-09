@@ -4,7 +4,6 @@ import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
 
 import { VehiclesService } from './vehicles.service';
-import { VehiclesController } from './vehicles.controller';
 import { Vehicle } from './entities/vehicle.entity';
 import { VehicleUnavailability } from './entities/vehicle-unavailability.entity';
 import { AuthModule } from '../auth/auth.module';
@@ -17,7 +16,7 @@ import { VehicleResolver } from './vehicles.resolver';
     ConfigModule,
     AuthModule,
   ],
-  controllers: [VehiclesController],
+  controllers: [],
   providers: [VehicleResolver, VehiclesService],
   exports: [VehiclesService],
 })

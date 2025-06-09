@@ -121,6 +121,8 @@ type Query {
 type Mutation {
   signup(signInput: RegisterAuthDto!): AuthReponse!
   login(loginInput: LoginAuthDto!): AuthReponse!
+  promoteToOwner(id: String!): AuthReponse!
+  promoteToAdmin(id: String!): AuthReponse!
 
   """Update any user information (Admin only)"""
   updateUser(

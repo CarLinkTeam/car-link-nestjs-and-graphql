@@ -1,104 +1,95 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-  UnauthorizedException
-} from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../users/users.service';
-import { RegisterAuthDto } from './dto/register-auth.dto';
+import { BadRequestException, ForbiddenException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { LoginAuthDto } from './dto/login-auth.dto';
-import { JwtPayload } from './interfaces/jwt.interface';
+import { AuthReponse } from './types/auth-response.type';
+import { UsersService } from 'src/users/users.service';
+import * as bcrypt from 'bcrypt';
+import { RegisterAuthDto } from './dto/register-auth.dto';
+import { User } from 'src/users/entities/user.entity';
+import { JwtService } from '@nestjs/jwt';
 import { ValidRoles } from './enums/valid-roles.enum';
-import { User } from '../users/entities/user.entity';
-
 @Injectable()
 export class AuthService {
 
-  private logger = new Logger('AuthService');
+    constructor(private readonly userService: UsersService,
+        private readonly jwtService: JwtService,
+    ) { }
 
-  constructor(
-    private readonly jwtService: JwtService,
-    private readonly usersService: UsersService
-  ) { }
-
-  async register(registerDto: RegisterAuthDto) {
-    const { password, ...userData } = registerDto;
-
-    try {
-      const newUser = await this.usersService.create({
-        ...userData,
-        password: bcrypt.hashSync(password, 10),
-      });
-
-      const { password: _, ...userWithoutPassword } = newUser;
-
-      return {
-        user: userWithoutPassword,
-        token: this.getJwtToken({ id: newUser.id })
-      };
-    } catch (error) {
-      this.handleExceptions(error);
-    }
-  }
-
-  async login(loginDto: LoginAuthDto) {
-    const { email, password } = loginDto;
-
-    const user = await this.usersService.findByEmail(email);
-
-    if (!user) throw new UnauthorizedException(`User with email ${email} not found`);
-
-    const passwordValid = bcrypt.compareSync(password, user.password!);
-    if (!passwordValid) throw new UnauthorizedException(`Email or password incorrect`);
-
-    const { password: _, ...userWithoutPassword } = user;
-
-    return {
-      user: userWithoutPassword,
-      token: this.getJwtToken({ id: user.id })
-    }
-  }
-
-  async promoteUser(userId: string, newRole: ValidRoles, requester: User) {
-    const user = await this.usersService.findById(userId);
-
-    const isAdmin = requester.roles.includes(ValidRoles.ADMIN);
-    const isSelf = requester.id === userId;
-
-    if (!isAdmin && !isSelf) {
-      throw new ForbiddenException(`You are not allowed to promote this user`);
+    private getJwtToken(userId: string) {
+        return this.jwtService.sign({ id: userId });
     }
 
-    if (user.roles.includes(newRole)) {
-      throw new BadRequestException(`User already has role ${newRole}`);
+    async login(loginInput: LoginAuthDto): Promise<AuthReponse> {
+
+        const { email, password } = loginInput;
+        const user = await this.userService.findByEmail(email);
+
+        if (!user) throw new BadRequestException('User not found');
+
+        if (!bcrypt.compareSync(password, user.password!)) {
+            throw new BadRequestException('Email / Password do not match');
+        }
+
+        const token = this.getJwtToken(user.id);
+
+        return {
+            token,
+            user
+        }
     }
 
-    user.roles.push(newRole);
-    const updatedUser = await this.usersService.save(user);
+    async signup(signupInput: RegisterAuthDto): Promise<AuthReponse> {
+        const { password, ...userData } = signupInput;
 
-    delete updatedUser.password;
+        try {
+            const newUser = await this.userService.create({
+                ...userData,
+                password: bcrypt.hashSync(password, 10),
+            });
 
-    return {
-      message: `User promoted to ${newRole}`,
-      user: updatedUser,
-    };
-  }
+            const token = this.getJwtToken(newUser.id);
 
-  private getJwtToken(payload: JwtPayload): string {
-    return this.jwtService.sign(payload);
-  }
+            return { token, user: newUser }
 
-  private handleExceptions(error: any): never {
-    if (error.code === "23505") {
-      throw new BadRequestException(error.detail);
+
+        } catch (error) {
+            throw new InternalServerErrorException('Error creating user');
+        }
+
     }
 
-    this.logger.error(error);
-    throw new InternalServerErrorException('Unexpected error, check server logs');
-  }
+    async promoteUser(userId: string, newRole: ValidRoles, requester: User): Promise<AuthReponse> {
+        const user = await this.userService.findById(userId);
+
+        const isAdmin = requester.roles.includes(ValidRoles.ADMIN);
+        const isSelf = requester.id === userId;
+
+        if (!isAdmin && !isSelf) {
+            throw new ForbiddenException(`You are not allowed to promote this user`);
+        }
+
+        if (user.roles.includes(newRole)) {
+            throw new BadRequestException(`User already has role ${newRole}`);
+        }
+
+        user.roles.push(newRole);
+        const updatedUser = await this.userService.save(user);
+
+        const token = this.getJwtToken(updatedUser.id);
+
+        return { token, user: updatedUser }
+    }
+
+    async validateUser(id: string): Promise<User> {
+        const user = await this.userService.findById(id);
+        if (!user) throw new BadRequestException(`user with id: ${id} not found`)
+
+        if (!user.isActive) {
+            throw new UnauthorizedException(`User is inactive, talk with an admin`);
+        }
+        if (!user) throw new BadRequestException('User not found');
+
+        delete user.password;
+        return user;
+    }
+
 }

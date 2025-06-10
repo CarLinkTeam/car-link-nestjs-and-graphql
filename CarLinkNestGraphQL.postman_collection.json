@@ -1,0 +1,2027 @@
+{
+	"info": {
+		"_postman_id": "7a74ba5b-9ce4-4346-b7dc-bf5a25d3abab",
+		"name": "CarLinkNestGraphQL",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43588375",
+		"_collection_link": "https://carlinkteam.postman.co/workspace/CarLinkTeam-Workspace~0cc89481-7676-4915-aebc-cb514f03cf4e/collection/31976014-7a74ba5b-9ce4-4346-b7dc-bf5a25d3abab?action=share&source=collection_link&creator=43588375"
+	},
+	"item": [
+		{
+			"name": "AUTH",
+			"item": [
+				{
+					"name": "SIGN UP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"mutation Signup($signInput: RegisterAuthDto!) { signup(signInput: $signInput) { user { id email } token } }\",\r\n  \"variables\": {\r\n    \"signInput\": {\r\n      \"fullName\": \"Juan Pérez\",\r\n      \"email\": \"juan.paramo@example.com\",\r\n      \"password\": \"Password123!\",\r\n      \"location\": \"Ciudad\",\r\n      \"phone\": \"+1234567890\"\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "LOGIN OWNER",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"mutation LoginUser($loginInput: LoginAuthDto!) { login(loginInput: $loginInput) { user { id email roles } token } }\",\r\n  \"variables\": {\r\n    \"loginInput\": {\r\n      \"email\": \"propietario1@carlink.com\",\r\n      \"password\": \"propietario\"\r\n    }\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "LOGIN TENANT",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"mutation LoginUser($loginInput: LoginAuthDto!) { login(loginInput: $loginInput) { user { id email roles } token } }\",\r\n  \"variables\": {\r\n    \"loginInput\": {\r\n      \"email\": \"cliente1@carlink.com\",\r\n      \"password\": \"cliente\"\r\n    }\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "LOGIN ADMIN",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"mutation LoginUser($loginInput: LoginAuthDto!) { login(loginInput: $loginInput) { user { id email roles } token } }\",\r\n  \"variables\": {\r\n    \"loginInput\": {\r\n      \"email\": \"admin@carlink.com\",\r\n      \"password\": \"admin123\"\r\n    }\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PROMOTE TO OWNER",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjkwZGE1OGI5LTU4OTgtNGFiNS05NzY0LTRkY2ZjMDc0ZTZjYiIsImlhdCI6MTc0OTUwNjkwNCwiZXhwIjoxNzQ5NTEwNTA0fQ.PZQRnJ5_iNHI2e0hO7sVCdBqJAH3kk0zXv-RBa1pRmo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"mutation PromoteToOwner($id: String!) { promoteToOwner(id: $id) { token user { id email roles } } }\",\r\n  \"variables\": {\r\n    \"id\": \"90da58b9-5898-4ab5-9764-4dcfc074e6cb\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PROMOTE TO ADMIN",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjcyN2ZhYWU4LTA4YjEtNDJkMC04MzIwLWY4ZDYyMzI3ZGJmYyIsImlhdCI6MTc0OTUwNjgxNCwiZXhwIjoxNzQ5NTEwNDE0fQ.vq1I7kATLdH05WXUTZBcnelHtzXBBJOsjNHGRuwmzN4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"mutation PromoteToAdmin($id: String!) { promoteToAdmin(id: $id) { token user { id email roles } } }\",\r\n  \"variables\": {\r\n    \"id\": \"90da58b9-5898-4ab5-9764-4dcfc074e6cb\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "VEHICLE",
+			"item": [
+				{
+					"name": "CREATE VEHICLE",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"mutation CreateVehicle($createInput: CreateVehicleDto!) { create(createInput: $createInput) { vehicle { id vehicleModel make color year license_plate url_photos daily_price rental_conditions class drive fuel_type transmission createdAt updatedAt } } }\",\r\n  \"variables\": {\r\n    \"createInput\": {\r\n      \"vehicleModel\": \"Corolla\",\r\n      \"make\": \"Toyota\",\r\n      \"color\": \"Red\",\r\n      \"year\": 2022,\r\n      \"license_plate\": \"HHC1238\",\r\n      \"url_photos\": [\"http://example.com/photo1.jpg\"],\r\n      \"daily_price\": 49.99,\r\n      \"rental_conditions\": \"No smoking, full tank\",\r\n      \"class\": \"Sedan\",\r\n      \"drive\": \"FWD\",\r\n      \"fuel_type\": \"Petrol\",\r\n      \"transmission\": \"Automatic\"\r\n    }\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UPDATE MY VEHICLE",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"mutation UpdateVehicle($id: String!, $updateInput: UpdateVehicleDto!) { update(id: $id, updateInput: $updateInput) { vehicle { id vehicleModel make color year license_plate url_photos daily_price rental_conditions class drive fuel_type transmission } } }\",\r\n  \"variables\": {\r\n    \"id\": \"0a120772-58b9-4dc1-9734-e1d6aeaa72c2\",\r\n    \"updateInput\": {\r\n      \"vehicleModel\": \"Ponymalta\",\r\n      \"make\": \"Honda\",\r\n      \"color\": \"Red\",\r\n      \"year\": 2025\r\n    }\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FIND VEHICLES",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"query { findMyVehicles { vehicles { id vehicleModel make color year license_plate } } }\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FIND VEHICLE",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"query FindMyVehicle($id: String!) { findMyVehicle(id: $id) { vehicle { id vehicleModel color owner { id email } } } }\",\r\n  \"variables\": {\r\n    \"id\": \"14cf1b18-acae-4364-a1ca-1044e8549510\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE MY VEHICLE",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"mutation DeleteVehicle($id: String!) { deleteVehicle(id: $id) }\",\r\n  \"variables\": {\r\n    \"id\": \"9927dcfa-dbab-451b-95dc-fc482a889e8c\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"// Global pre-request script for the entire collection\r",
+							"// Always attempt to get a new token for each request\r",
+							"console.log('Getting a new token...');\r",
+							"\r",
+							"pm.sendRequest({\r",
+							"    url: pm.collectionVariables.get('BASE_URL'),\r",
+							"    method: 'POST',\r",
+							"    header: {\r",
+							"        'Content-Type': 'application/json'\r",
+							"    },\r",
+							"    body: {\r",
+							"        mode: 'raw',\r",
+							"        raw: JSON.stringify({\r",
+							"            query: `\r",
+							"                mutation LoginUser($loginInput: LoginAuthDto!) {\r",
+							"                    login(loginInput: $loginInput) {\r",
+							"                        user {\r",
+							"                            id\r",
+							"                            email\r",
+							"                            roles\r",
+							"                        }\r",
+							"                        token\r",
+							"                    }\r",
+							"                }\r",
+							"            `,\r",
+							"            variables: {\r",
+							"                loginInput: {\r",
+							"                    email: pm.collectionVariables.get('owner_email'),\r",
+							"                    password: pm.collectionVariables.get('owner_password')\r",
+							"                }\r",
+							"            }\r",
+							"        })\r",
+							"    }\r",
+							"}, function (err, res) {\r",
+							"    if (err) {\r",
+							"        console.error('Error getting auth token:', err);\r",
+							"    } else if (res.code === 200) {\r",
+							"        const responseJson = res.json();\r",
+							"        const token = responseJson?.data?.login?.token;\r",
+							"        if (token) {\r",
+							"            pm.collectionVariables.set('auth_token', token);\r",
+							"            console.log('New token obtained successfully');\r",
+							"        } else {\r",
+							"            console.error('Token not found in response');\r",
+							"        }\r",
+							"    } else {\r",
+							"        console.error('Failed to get token. Status:', res.code);\r",
+							"    }\r",
+							"});\r",
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "RENTAL",
+			"item": [
+				{
+					"name": "FIND MY RENTALS (Tenant)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Global pre-request script for the entire collection\r",
+									"// Always attempt to get a new token for each request\r",
+									"console.log('Getting a new token...');\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: pm.collectionVariables.get('BASE_URL'),\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            query: `\r",
+									"                mutation LoginUser($loginInput: LoginAuthDto!) {\r",
+									"                    login(loginInput: $loginInput) {\r",
+									"                        user {\r",
+									"                            id\r",
+									"                            email\r",
+									"                            roles\r",
+									"                        }\r",
+									"                        token\r",
+									"                    }\r",
+									"                }\r",
+									"            `,\r",
+									"            variables: {\r",
+									"                loginInput: {\r",
+									"                    email: pm.collectionVariables.get('tenant_email'),\r",
+									"                    password: pm.collectionVariables.get('tenant_password')\r",
+									"                }\r",
+									"            }\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    if (err) {\r",
+									"        console.error('Error getting auth token:', err);\r",
+									"    } else if (res.code === 200) {\r",
+									"        const responseJson = res.json();\r",
+									"        const token = responseJson?.data?.login?.token;\r",
+									"        if (token) {\r",
+									"            pm.collectionVariables.set('auth_token', token);\r",
+									"            console.log('New token obtained successfully');\r",
+									"        } else {\r",
+									"            console.error('Token not found in response');\r",
+									"        }\r",
+									"    } else {\r",
+									"        console.error('Failed to get token. Status:', res.code);\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"query { findMyRentals { rentals { id initialDate finalDate totalCost status vehicle { id make vehicleModel license_plate daily_price owner { fullName phone email } } } } }\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FIND MY OWNER RENTALS (Owner)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Global pre-request script for the entire collection\r",
+									"// Always attempt to get a new token for each request\r",
+									"console.log('Getting a new token...');\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: pm.collectionVariables.get('BASE_URL'),\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            query: `\r",
+									"                mutation LoginUser($loginInput: LoginAuthDto!) {\r",
+									"                    login(loginInput: $loginInput) {\r",
+									"                        user {\r",
+									"                            id\r",
+									"                            email\r",
+									"                            roles\r",
+									"                        }\r",
+									"                        token\r",
+									"                    }\r",
+									"                }\r",
+									"            `,\r",
+									"            variables: {\r",
+									"                loginInput: {\r",
+									"                    email: pm.collectionVariables.get('owner_email'),\r",
+									"                    password: pm.collectionVariables.get('owner_password')\r",
+									"                }\r",
+									"            }\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    if (err) {\r",
+									"        console.error('Error getting auth token:', err);\r",
+									"    } else if (res.code === 200) {\r",
+									"        const responseJson = res.json();\r",
+									"        const token = responseJson?.data?.login?.token;\r",
+									"        if (token) {\r",
+									"            pm.collectionVariables.set('auth_token', token);\r",
+									"            console.log('New token obtained successfully');\r",
+									"        } else {\r",
+									"            console.error('Token not found in response');\r",
+									"        }\r",
+									"    } else {\r",
+									"        console.error('Failed to get token. Status:', res.code);\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"query { findMyOwnerRentals { rentals { id initialDate finalDate totalCost status client { fullName email phone } vehicle { make vehicleModel license_plate } } } }\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FIND ONE RENTAL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Global pre-request script for the entire collection\r",
+									"// Always attempt to get a new token for each request\r",
+									"console.log('Getting a new token...');\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: pm.collectionVariables.get('BASE_URL'),\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            query: `\r",
+									"                mutation LoginUser($loginInput: LoginAuthDto!) {\r",
+									"                    login(loginInput: $loginInput) {\r",
+									"                        user {\r",
+									"                            id\r",
+									"                            email\r",
+									"                            roles\r",
+									"                        }\r",
+									"                        token\r",
+									"                    }\r",
+									"                }\r",
+									"            `,\r",
+									"            variables: {\r",
+									"                loginInput: {\r",
+									"                    email: pm.collectionVariables.get('owner_email'),\r",
+									"                    password: pm.collectionVariables.get('owner_password')\r",
+									"                }\r",
+									"            }\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    if (err) {\r",
+									"        console.error('Error getting auth token:', err);\r",
+									"    } else if (res.code === 200) {\r",
+									"        const responseJson = res.json();\r",
+									"        const token = responseJson?.data?.login?.token;\r",
+									"        if (token) {\r",
+									"            pm.collectionVariables.set('auth_token', token);\r",
+									"            console.log('New token obtained successfully');\r",
+									"        } else {\r",
+									"            console.error('Token not found in response');\r",
+									"        }\r",
+									"    } else {\r",
+									"        console.error('Failed to get token. Status:', res.code);\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"query FindOneRental($id: String!) { findOneRental(id: $id) { rental { id initialDate finalDate totalCost status client { fullName email phone } vehicle { id make vehicleModel color license_plate daily_price owner { fullName email } } } } }\",\r\n  \"variables\": {\r\n    \"id\": \"3fc86ecf-1076-4a10-8308-522add8cf825\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CREATE RENTAL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Global pre-request script for the entire collection\r",
+									"// Always attempt to get a new token for each request\r",
+									"console.log('Getting a new token...');\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: pm.collectionVariables.get('BASE_URL'),\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            query: `\r",
+									"                mutation LoginUser($loginInput: LoginAuthDto!) {\r",
+									"                    login(loginInput: $loginInput) {\r",
+									"                        user {\r",
+									"                            id\r",
+									"                            email\r",
+									"                            roles\r",
+									"                        }\r",
+									"                        token\r",
+									"                    }\r",
+									"                }\r",
+									"            `,\r",
+									"            variables: {\r",
+									"                loginInput: {\r",
+									"                    email: pm.collectionVariables.get('tenant_email'),\r",
+									"                    password: pm.collectionVariables.get('tenant_password')\r",
+									"                }\r",
+									"            }\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    if (err) {\r",
+									"        console.error('Error getting auth token:', err);\r",
+									"    } else if (res.code === 200) {\r",
+									"        const responseJson = res.json();\r",
+									"        const token = responseJson?.data?.login?.token;\r",
+									"        if (token) {\r",
+									"            pm.collectionVariables.set('auth_token', token);\r",
+									"            console.log('New token obtained successfully');\r",
+									"        } else {\r",
+									"            console.error('Token not found in response');\r",
+									"        }\r",
+									"    } else {\r",
+									"        console.error('Failed to get token. Status:', res.code);\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"mutation CreateRental($createInput: CreateRentalDto!) { createRental(createInput: $createInput) { rental { id initialDate finalDate totalCost status vehicle { make vehicleModel license_plate owner { fullName } } } } }\",\r\n  \"variables\": {\r\n    \"createInput\": {\r\n      \"initialDate\": \"2025-07-20T10:00:00Z\",\r\n      \"finalDate\": \"2025-07-25T10:00:00Z\",\r\n      \"totalCost\": 900.00,\r\n      \"status\": \"pending\",\r\n      \"vehicle_id\": \"19892ca2-1764-420d-ad54-490fc1a21473\"\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UPDATE RENTAL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Global pre-request script for the entire collection\r",
+									"// Always attempt to get a new token for each request\r",
+									"console.log('Getting a new token...');\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: pm.collectionVariables.get('BASE_URL'),\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            query: `\r",
+									"                mutation LoginUser($loginInput: LoginAuthDto!) {\r",
+									"                    login(loginInput: $loginInput) {\r",
+									"                        user {\r",
+									"                            id\r",
+									"                            email\r",
+									"                            roles\r",
+									"                        }\r",
+									"                        token\r",
+									"                    }\r",
+									"                }\r",
+									"            `,\r",
+									"            variables: {\r",
+									"                loginInput: {\r",
+									"                    email: pm.collectionVariables.get('tenant_email'),\r",
+									"                    password: pm.collectionVariables.get('tenant_password')\r",
+									"                }\r",
+									"            }\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    if (err) {\r",
+									"        console.error('Error getting auth token:', err);\r",
+									"    } else if (res.code === 200) {\r",
+									"        const responseJson = res.json();\r",
+									"        const token = responseJson?.data?.login?.token;\r",
+									"        if (token) {\r",
+									"            pm.collectionVariables.set('auth_token', token);\r",
+									"            console.log('New token obtained successfully');\r",
+									"        } else {\r",
+									"            console.error('Token not found in response');\r",
+									"        }\r",
+									"    } else {\r",
+									"        console.error('Failed to get token. Status:', res.code);\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"mutation UpdateRental($id: String!, $updateInput: UpdateRentalDto!) { updateRental(id: $id, updateInput: $updateInput) { rental { id initialDate finalDate totalCost status vehicle { make vehicleModel } } } }\",\r\n  \"variables\": {\r\n    \"id\": \"64844656-ae1f-4f6f-857a-0c7063610ce2\",\r\n    \"updateInput\": {\r\n      \"initialDate\": \"2025-08-25T10:00:00Z\",\r\n      \"finalDate\": \"2025-08-30T10:00:00Z\",\r\n      \"totalCost\": 1200.00\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CONFIRM RENTAL (Owner)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Global pre-request script for the entire collection\r",
+									"// Always attempt to get a new token for each request\r",
+									"console.log('Getting a new token...');\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: pm.collectionVariables.get('BASE_URL'),\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            query: `\r",
+									"                mutation LoginUser($loginInput: LoginAuthDto!) {\r",
+									"                    login(loginInput: $loginInput) {\r",
+									"                        user {\r",
+									"                            id\r",
+									"                            email\r",
+									"                            roles\r",
+									"                        }\r",
+									"                        token\r",
+									"                    }\r",
+									"                }\r",
+									"            `,\r",
+									"            variables: {\r",
+									"                loginInput: {\r",
+									"                    email: pm.collectionVariables.get('owner_email'),\r",
+									"                    password: pm.collectionVariables.get('owner_password')\r",
+									"                }\r",
+									"            }\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    if (err) {\r",
+									"        console.error('Error getting auth token:', err);\r",
+									"    } else if (res.code === 200) {\r",
+									"        const responseJson = res.json();\r",
+									"        const token = responseJson?.data?.login?.token;\r",
+									"        if (token) {\r",
+									"            pm.collectionVariables.set('auth_token', token);\r",
+									"            console.log('New token obtained successfully');\r",
+									"        } else {\r",
+									"            console.error('Token not found in response');\r",
+									"        }\r",
+									"    } else {\r",
+									"        console.error('Failed to get token. Status:', res.code);\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"mutation ConfirmRental($id: String!) { confirmRental(id: $id) { message rental { id status client { fullName email } vehicle { make vehicleModel license_plate } } } }\",\r\n  \"variables\": {\r\n    \"id\": \"4137a61f-206d-4a91-9c99-810645c58caa\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "REJECT RENTAL (Owner)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Global pre-request script for the entire collection\r",
+									"// Always attempt to get a new token for each request\r",
+									"console.log('Getting a new token...');\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: pm.collectionVariables.get('BASE_URL'),\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            query: `\r",
+									"                mutation LoginUser($loginInput: LoginAuthDto!) {\r",
+									"                    login(loginInput: $loginInput) {\r",
+									"                        user {\r",
+									"                            id\r",
+									"                            email\r",
+									"                            roles\r",
+									"                        }\r",
+									"                        token\r",
+									"                    }\r",
+									"                }\r",
+									"            `,\r",
+									"            variables: {\r",
+									"                loginInput: {\r",
+									"                    email: pm.collectionVariables.get('owner_email'),\r",
+									"                    password: pm.collectionVariables.get('owner_password')\r",
+									"                }\r",
+									"            }\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    if (err) {\r",
+									"        console.error('Error getting auth token:', err);\r",
+									"    } else if (res.code === 200) {\r",
+									"        const responseJson = res.json();\r",
+									"        const token = responseJson?.data?.login?.token;\r",
+									"        if (token) {\r",
+									"            pm.collectionVariables.set('auth_token', token);\r",
+									"            console.log('New token obtained successfully');\r",
+									"        } else {\r",
+									"            console.error('Token not found in response');\r",
+									"        }\r",
+									"    } else {\r",
+									"        console.error('Failed to get token. Status:', res.code);\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"mutation RejectRental($id: String!) { rejectRental(id: $id) { message rental { id status client { fullName email } vehicle { make vehicleModel license_plate } } } }\",\r\n  \"variables\": {\r\n    \"id\": \"b8c7c380-9be9-48dd-b85d-adfb23cb78a7\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE RENTAL (Admin)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Global pre-request script for the entire collection\r",
+									"// Always attempt to get a new token for each request\r",
+									"console.log('Getting a new token...');\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: pm.collectionVariables.get('BASE_URL'),\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            query: `\r",
+									"                mutation LoginUser($loginInput: LoginAuthDto!) {\r",
+									"                    login(loginInput: $loginInput) {\r",
+									"                        user {\r",
+									"                            id\r",
+									"                            email\r",
+									"                            roles\r",
+									"                        }\r",
+									"                        token\r",
+									"                    }\r",
+									"                }\r",
+									"            `,\r",
+									"            variables: {\r",
+									"                loginInput: {\r",
+									"                    email: pm.collectionVariables.get('admin_email'),\r",
+									"                    password: pm.collectionVariables.get('admin_password')\r",
+									"                }\r",
+									"            }\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    if (err) {\r",
+									"        console.error('Error getting auth token:', err);\r",
+									"    } else if (res.code === 200) {\r",
+									"        const responseJson = res.json();\r",
+									"        const token = responseJson?.data?.login?.token;\r",
+									"        if (token) {\r",
+									"            pm.collectionVariables.set('auth_token', token);\r",
+									"            console.log('New token obtained successfully');\r",
+									"        } else {\r",
+									"            console.error('Token not found in response');\r",
+									"        }\r",
+									"    } else {\r",
+									"        console.error('Failed to get token. Status:', res.code);\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": \"mutation DeleteRental($id: String!) { deleteRental(id: $id) }\",\r\n  \"variables\": {\r\n    \"id\": \"b8c7c380-9be9-48dd-b85d-adfb23cb78a7\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "USER",
+			"item": [
+				{
+					"name": "FIND ALL USERS (Admin)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Global pre-request script for the entire collection\r",
+									"// Always attempt to get a new token for each request\r",
+									"console.log('Getting a new token...');\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: pm.collectionVariables.get('BASE_URL'),\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            query: `\r",
+									"                mutation LoginUser($loginInput: LoginAuthDto!) {\r",
+									"                    login(loginInput: $loginInput) {\r",
+									"                        user {\r",
+									"                            id\r",
+									"                            email\r",
+									"                            roles\r",
+									"                        }\r",
+									"                        token\r",
+									"                    }\r",
+									"                }\r",
+									"            `,\r",
+									"            variables: {\r",
+									"                loginInput: {\r",
+									"                    email: pm.collectionVariables.get('admin_email'),\r",
+									"                    password: pm.collectionVariables.get('admin_password')\r",
+									"                }\r",
+									"            }\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    if (err) {\r",
+									"        console.error('Error getting auth token:', err);\r",
+									"    } else if (res.code === 200) {\r",
+									"        const responseJson = res.json();\r",
+									"        const token = responseJson?.data?.login?.token;\r",
+									"        if (token) {\r",
+									"            pm.collectionVariables.set('auth_token', token);\r",
+									"            console.log('New token obtained successfully');\r",
+									"        } else {\r",
+									"            console.error('Token not found in response');\r",
+									"        }\r",
+									"    } else {\r",
+									"        console.error('Failed to get token. Status:', res.code);\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query FindAllUsers { findAllUsers { users { id email fullName location phone isActive roles } } }\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FIND USER BY ID (Admin)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Global pre-request script for the entire collection\r",
+									"// Always attempt to get a new token for each request\r",
+									"console.log('Getting a new token...');\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: pm.collectionVariables.get('BASE_URL'),\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            query: `\r",
+									"                mutation LoginUser($loginInput: LoginAuthDto!) {\r",
+									"                    login(loginInput: $loginInput) {\r",
+									"                        user {\r",
+									"                            id\r",
+									"                            email\r",
+									"                            roles\r",
+									"                        }\r",
+									"                        token\r",
+									"                    }\r",
+									"                }\r",
+									"            `,\r",
+									"            variables: {\r",
+									"                loginInput: {\r",
+									"                    email: pm.collectionVariables.get('admin_email'),\r",
+									"                    password: pm.collectionVariables.get('admin_password')\r",
+									"                }\r",
+									"            }\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    if (err) {\r",
+									"        console.error('Error getting auth token:', err);\r",
+									"    } else if (res.code === 200) {\r",
+									"        const responseJson = res.json();\r",
+									"        const token = responseJson?.data?.login?.token;\r",
+									"        if (token) {\r",
+									"            pm.collectionVariables.set('auth_token', token);\r",
+									"            console.log('New token obtained successfully');\r",
+									"        } else {\r",
+									"            console.error('Token not found in response');\r",
+									"        }\r",
+									"    } else {\r",
+									"        console.error('Failed to get token. Status:', res.code);\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query FindUserById($id: String!) { findUserById(id: $id) { user { id email fullName location phone isActive roles } } }\",\n  \"variables\": {\n    \"id\": \"2b0cdf06-17a4-49fa-a859-8ea4b49cc4a6\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET MY PROFILE",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Global pre-request script for the entire collection\r",
+									"// Always attempt to get a new token for each request\r",
+									"console.log('Getting a new token...');\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: pm.collectionVariables.get('BASE_URL'),\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            query: `\r",
+									"                mutation LoginUser($loginInput: LoginAuthDto!) {\r",
+									"                    login(loginInput: $loginInput) {\r",
+									"                        user {\r",
+									"                            id\r",
+									"                            email\r",
+									"                            roles\r",
+									"                        }\r",
+									"                        token\r",
+									"                    }\r",
+									"                }\r",
+									"            `,\r",
+									"            variables: {\r",
+									"                loginInput: {\r",
+									"                    email: pm.collectionVariables.get('owner_email'),\r",
+									"                    password: pm.collectionVariables.get('owner_password')\r",
+									"                }\r",
+									"            }\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    if (err) {\r",
+									"        console.error('Error getting auth token:', err);\r",
+									"    } else if (res.code === 200) {\r",
+									"        const responseJson = res.json();\r",
+									"        const token = responseJson?.data?.login?.token;\r",
+									"        if (token) {\r",
+									"            pm.collectionVariables.set('auth_token', token);\r",
+									"            console.log('New token obtained successfully');\r",
+									"        } else {\r",
+									"            console.error('Token not found in response');\r",
+									"        }\r",
+									"    } else {\r",
+									"        console.error('Failed to get token. Status:', res.code);\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"query GetMyProfile { getMyProfile { user { id email fullName location phone isActive roles } } }\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UPDATE USER (Admin)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Global pre-request script for the entire collection\r",
+									"// Always attempt to get a new token for each request\r",
+									"console.log('Getting a new token...');\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: pm.collectionVariables.get('BASE_URL'),\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            query: `\r",
+									"                mutation LoginUser($loginInput: LoginAuthDto!) {\r",
+									"                    login(loginInput: $loginInput) {\r",
+									"                        user {\r",
+									"                            id\r",
+									"                            email\r",
+									"                            roles\r",
+									"                        }\r",
+									"                        token\r",
+									"                    }\r",
+									"                }\r",
+									"            `,\r",
+									"            variables: {\r",
+									"                loginInput: {\r",
+									"                    email: pm.collectionVariables.get('admin_email'),\r",
+									"                    password: pm.collectionVariables.get('admin_password')\r",
+									"                }\r",
+									"            }\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    if (err) {\r",
+									"        console.error('Error getting auth token:', err);\r",
+									"    } else if (res.code === 200) {\r",
+									"        const responseJson = res.json();\r",
+									"        const token = responseJson?.data?.login?.token;\r",
+									"        if (token) {\r",
+									"            pm.collectionVariables.set('auth_token', token);\r",
+									"            console.log('New token obtained successfully');\r",
+									"        } else {\r",
+									"            console.error('Token not found in response');\r",
+									"        }\r",
+									"    } else {\r",
+									"        console.error('Failed to get token. Status:', res.code);\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation UpdateUser($id: String!, $updateInput: UpdateUserDto!) { updateUser(id: $id, updateInput: $updateInput) { user { id email fullName location phone isActive roles } } }\",\n  \"variables\": {\n    \"id\": \"2b0cdf06-17a4-49fa-a859-8ea4b49cc4a6\",\n    \"updateInput\": {\n      \"fullName\": \"Cliente 2 Actualizado\",\n      \"location\": \"Cali, Colombia\",\n      \"phone\": \"+57123456789\"\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UPDATE MY PROFILE",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Global pre-request script for the entire collection\r",
+									"// Always attempt to get a new token for each request\r",
+									"console.log('Getting a new token...');\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: pm.collectionVariables.get('BASE_URL'),\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            query: `\r",
+									"                mutation LoginUser($loginInput: LoginAuthDto!) {\r",
+									"                    login(loginInput: $loginInput) {\r",
+									"                        user {\r",
+									"                            id\r",
+									"                            email\r",
+									"                            roles\r",
+									"                        }\r",
+									"                        token\r",
+									"                    }\r",
+									"                }\r",
+									"            `,\r",
+									"            variables: {\r",
+									"                loginInput: {\r",
+									"                    email: pm.collectionVariables.get('owner_email'),\r",
+									"                    password: pm.collectionVariables.get('owner_password')\r",
+									"                }\r",
+									"            }\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    if (err) {\r",
+									"        console.error('Error getting auth token:', err);\r",
+									"    } else if (res.code === 200) {\r",
+									"        const responseJson = res.json();\r",
+									"        const token = responseJson?.data?.login?.token;\r",
+									"        if (token) {\r",
+									"            pm.collectionVariables.set('auth_token', token);\r",
+									"            console.log('New token obtained successfully');\r",
+									"        } else {\r",
+									"            console.error('Token not found in response');\r",
+									"        }\r",
+									"    } else {\r",
+									"        console.error('Failed to get token. Status:', res.code);\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation UpdateMyProfile($updateInput: UpdateUserDto!) { updateMyProfile(updateInput: $updateInput) { user { id email fullName location phone isActive roles } } }\",\n  \"variables\": {\n    \"updateInput\": {\n      \"fullName\": \"Propietario 1 Actualizado\",\n      \"location\": \"Medellin, Colombia\",\n      \"phone\": \"+57987654321\"\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UPDATE PASSWORD",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Global pre-request script for the entire collection\r",
+									"// Always attempt to get a new token for each request\r",
+									"console.log('Getting a new token...');\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: pm.collectionVariables.get('BASE_URL'),\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            query: `\r",
+									"                mutation LoginUser($loginInput: LoginAuthDto!) {\r",
+									"                    login(loginInput: $loginInput) {\r",
+									"                        user {\r",
+									"                            id\r",
+									"                            email\r",
+									"                            roles\r",
+									"                        }\r",
+									"                        token\r",
+									"                    }\r",
+									"                }\r",
+									"            `,\r",
+									"            variables: {\r",
+									"                loginInput: {\r",
+									"                    email: pm.collectionVariables.get('owner_email'),\r",
+									"                    password: pm.collectionVariables.get('owner_password')\r",
+									"                }\r",
+									"            }\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    if (err) {\r",
+									"        console.error('Error getting auth token:', err);\r",
+									"    } else if (res.code === 200) {\r",
+									"        const responseJson = res.json();\r",
+									"        const token = responseJson?.data?.login?.token;\r",
+									"        if (token) {\r",
+									"            pm.collectionVariables.set('auth_token', token);\r",
+									"            console.log('New token obtained successfully');\r",
+									"        } else {\r",
+									"            console.error('Token not found in response');\r",
+									"        }\r",
+									"    } else {\r",
+									"        console.error('Failed to get token. Status:', res.code);\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation UpdateMyProfile($updateInput: UpdateUserDto!) { updateMyProfile(updateInput: $updateInput) { user { id email fullName } } }\",\n  \"variables\": {\n    \"updateInput\": {\n      \"password\": \"NewPassword123!\"\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE USER (Admin)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Global pre-request script for the entire collection\r",
+									"// Always attempt to get a new token for each request\r",
+									"console.log('Getting a new token...');\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: pm.collectionVariables.get('BASE_URL'),\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            query: `\r",
+									"                mutation LoginUser($loginInput: LoginAuthDto!) {\r",
+									"                    login(loginInput: $loginInput) {\r",
+									"                        user {\r",
+									"                            id\r",
+									"                            email\r",
+									"                            roles\r",
+									"                        }\r",
+									"                        token\r",
+									"                    }\r",
+									"                }\r",
+									"            `,\r",
+									"            variables: {\r",
+									"                loginInput: {\r",
+									"                    email: pm.collectionVariables.get('admin_email'),\r",
+									"                    password: pm.collectionVariables.get('admin_password')\r",
+									"                }\r",
+									"            }\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    if (err) {\r",
+									"        console.error('Error getting auth token:', err);\r",
+									"    } else if (res.code === 200) {\r",
+									"        const responseJson = res.json();\r",
+									"        const token = responseJson?.data?.login?.token;\r",
+									"        if (token) {\r",
+									"            pm.collectionVariables.set('auth_token', token);\r",
+									"            console.log('New token obtained successfully');\r",
+									"        } else {\r",
+									"            console.error('Token not found in response');\r",
+									"        }\r",
+									"    } else {\r",
+									"        console.error('Failed to get token. Status:', res.code);\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation DeleteUser($id: String!) { deleteUser(id: $id) { message success } }\",\n  \"variables\": {\n    \"id\": \"2b0cdf06-17a4-49fa-a859-8ea4b49cc4a6\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE MY ACCOUNT",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Global pre-request script for the entire collection\r",
+									"// Always attempt to get a new token for each request\r",
+									"console.log('Getting a new token...');\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: pm.collectionVariables.get('BASE_URL'),\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            query: `\r",
+									"                mutation LoginUser($loginInput: LoginAuthDto!) {\r",
+									"                    login(loginInput: $loginInput) {\r",
+									"                        user {\r",
+									"                            id\r",
+									"                            email\r",
+									"                            roles\r",
+									"                        }\r",
+									"                        token\r",
+									"                    }\r",
+									"                }\r",
+									"            `,\r",
+									"            variables: {\r",
+									"                loginInput: {\r",
+									"                    email: pm.collectionVariables.get('owner_email'),\r",
+									"                    password: pm.collectionVariables.get('owner_password')\r",
+									"                }\r",
+									"            }\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    if (err) {\r",
+									"        console.error('Error getting auth token:', err);\r",
+									"    } else if (res.code === 200) {\r",
+									"        const responseJson = res.json();\r",
+									"        const token = responseJson?.data?.login?.token;\r",
+									"        if (token) {\r",
+									"            pm.collectionVariables.set('auth_token', token);\r",
+									"            console.log('New token obtained successfully');\r",
+									"        } else {\r",
+									"            console.error('Token not found in response');\r",
+									"        }\r",
+									"    } else {\r",
+									"        console.error('Failed to get token. Status:', res.code);\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation DeleteMyAccount { deleteMyAccount { message success } }\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}",
+							"host": [
+								"{{BASE_URL}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "http://localhost:3000/graphql",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "owner_email",
+			"value": "propietario1@carlink.com",
+			"type": "string"
+		},
+		{
+			"key": "owner_password",
+			"value": "propietario",
+			"type": "string"
+		},
+		{
+			"key": "tenant_email",
+			"value": "cliente1@carlink.com",
+			"type": "string"
+		},
+		{
+			"key": "tenant_password",
+			"value": "cliente",
+			"type": "string"
+		},
+		{
+			"key": "admin_email",
+			"value": "admin@carlink.com",
+			"type": "string"
+		},
+		{
+			"key": "admin_password",
+			"value": "admin123",
+			"type": "string"
+		}
+	]
+}
